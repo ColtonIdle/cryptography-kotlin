@@ -33,6 +33,7 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Cipher : dev.whyoleg.cryptography.operations.cipher.Cipher, Encryptor, Decryptor
 
+        // TODO: kotlinx-io support
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Encryptor : dev.whyoleg.cryptography.operations.cipher.Encryptor {
             @DelicateCryptographyApi
@@ -42,6 +43,7 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
             public fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray
         }
 
+        // TODO: kotlinx-io support
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Decryptor : dev.whyoleg.cryptography.operations.cipher.Decryptor {
             @DelicateCryptographyApi
@@ -66,6 +68,7 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Cipher : dev.whyoleg.cryptography.operations.cipher.Cipher, Encryptor, Decryptor
 
+        // TODO: kotlinx-io support
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Encryptor : dev.whyoleg.cryptography.operations.cipher.Encryptor {
             @DelicateCryptographyApi
@@ -77,6 +80,7 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
             public fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray
         }
 
+        // TODO: kotlinx-io support
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Decryptor : dev.whyoleg.cryptography.operations.cipher.Decryptor {
             @DelicateCryptographyApi
