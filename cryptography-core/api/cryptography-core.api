@@ -74,6 +74,94 @@ public abstract interface class dev/whyoleg/cryptography/CryptographyProviderCon
 public abstract interface annotation class dev/whyoleg/cryptography/DelicateCryptographyApi : java/lang/annotation/Annotation {
 }
 
+public abstract interface class dev/whyoleg/cryptography/algorithms/DH : dev/whyoleg/cryptography/CryptographyAlgorithm {
+	public static final field Companion Ldev/whyoleg/cryptography/algorithms/DH$Companion;
+	public fun getId ()Ldev/whyoleg/cryptography/CryptographyAlgorithmId;
+	public abstract fun keyPairGenerator-wa0lh9g (Ldev/whyoleg/cryptography/bigint/BigInt;Ldev/whyoleg/cryptography/bigint/BigInt;I)Ldev/whyoleg/cryptography/materials/key/KeyGenerator;
+	public abstract fun privateKeyDecoder ()Ldev/whyoleg/cryptography/materials/key/KeyDecoder;
+	public abstract fun publicKeyDecoder ()Ldev/whyoleg/cryptography/materials/key/KeyDecoder;
+}
+
+public final class dev/whyoleg/cryptography/algorithms/DH$Companion : dev/whyoleg/cryptography/CryptographyAlgorithmId {
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/DH$KeyPair : dev/whyoleg/cryptography/materials/key/Key {
+	public abstract fun getPrivateKey ()Ldev/whyoleg/cryptography/algorithms/DH$PrivateKey;
+	public abstract fun getPublicKey ()Ldev/whyoleg/cryptography/algorithms/DH$PublicKey;
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/DH$PrivateKey : dev/whyoleg/cryptography/materials/key/EncodableKey {
+	public abstract fun sharedSecretDerivation ()Ldev/whyoleg/cryptography/operations/SharedSecretDerivation;
+}
+
+public abstract class dev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format : dev/whyoleg/cryptography/materials/key/KeyFormat {
+	public final fun toString ()Ljava/lang/String;
+}
+
+public final class dev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format$DER : dev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format {
+	public static final field INSTANCE Ldev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format$DER;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+}
+
+public final class dev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format$PEM : dev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format {
+	public static final field INSTANCE Ldev/whyoleg/cryptography/algorithms/DH$PrivateKey$Format$PEM;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/DH$PublicKey : dev/whyoleg/cryptography/materials/key/EncodableKey {
+	public abstract fun sharedSecretDerivation ()Ldev/whyoleg/cryptography/operations/SharedSecretDerivation;
+}
+
+public abstract class dev/whyoleg/cryptography/algorithms/DH$PublicKey$Format : dev/whyoleg/cryptography/materials/key/KeyFormat {
+	public final fun toString ()Ljava/lang/String;
+}
+
+public final class dev/whyoleg/cryptography/algorithms/DH$PublicKey$Format$DER : dev/whyoleg/cryptography/algorithms/DH$PublicKey$Format {
+	public static final field INSTANCE Ldev/whyoleg/cryptography/algorithms/DH$PublicKey$Format$DER;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+}
+
+public final class dev/whyoleg/cryptography/algorithms/DH$PublicKey$Format$PEM : dev/whyoleg/cryptography/algorithms/DH$PublicKey$Format {
+	public static final field INSTANCE Ldev/whyoleg/cryptography/algorithms/DH$PublicKey$Format$PEM;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/HKDF : dev/whyoleg/cryptography/CryptographyAlgorithm {
+	public static final field Companion Ldev/whyoleg/cryptography/algorithms/HKDF$Companion;
+	public fun getId ()Ldev/whyoleg/cryptography/CryptographyAlgorithmId;
+	public abstract fun secretDerivation-wa0lh9g (Ldev/whyoleg/cryptography/CryptographyAlgorithmId;[BI)Ldev/whyoleg/cryptography/algorithms/HKDF$SecretDerivation;
+}
+
+public final class dev/whyoleg/cryptography/algorithms/HKDF$Companion : dev/whyoleg/cryptography/CryptographyAlgorithmId {
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/HKDF$SecretDerivation : dev/whyoleg/cryptography/operations/SecretDerivation {
+	public fun deriveSecret ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun deriveSecret ([B[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun deriveSecret$default (Ldev/whyoleg/cryptography/algorithms/HKDF$SecretDerivation;[B[BLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun deriveSecret$suspendImpl (Ldev/whyoleg/cryptography/algorithms/HKDF$SecretDerivation;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun deriveSecretBlocking ([B)[B
+	public abstract fun deriveSecretBlocking ([B[B)[B
+	public static synthetic fun deriveSecretBlocking$default (Ldev/whyoleg/cryptography/algorithms/HKDF$SecretDerivation;[B[BILjava/lang/Object;)[B
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/PBKDF2 : dev/whyoleg/cryptography/CryptographyAlgorithm {
+	public static final field Companion Ldev/whyoleg/cryptography/algorithms/PBKDF2$Companion;
+	public fun getId ()Ldev/whyoleg/cryptography/CryptographyAlgorithmId;
+	public abstract fun secretDerivation-gruRWys (Ldev/whyoleg/cryptography/CryptographyAlgorithmId;[BII)Ldev/whyoleg/cryptography/operations/SecretDerivation;
+}
+
+public final class dev/whyoleg/cryptography/algorithms/PBKDF2$Companion : dev/whyoleg/cryptography/CryptographyAlgorithmId {
+}
+
 public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/EC : dev/whyoleg/cryptography/CryptographyAlgorithm {
 	public abstract fun keyPairGenerator-EsXthJ8 (Ljava/lang/String;)Ldev/whyoleg/cryptography/materials/key/KeyGenerator;
 	public abstract fun privateKeyDecoder-EsXthJ8 (Ljava/lang/String;)Ldev/whyoleg/cryptography/materials/key/KeyDecoder;
@@ -183,6 +271,25 @@ public final class dev/whyoleg/cryptography/algorithms/asymmetric/EC$PublicKey$F
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getName ()Ljava/lang/String;
 	public fun hashCode ()I
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH : dev/whyoleg/cryptography/algorithms/asymmetric/EC {
+	public static final field Companion Ldev/whyoleg/cryptography/algorithms/asymmetric/ECDH$Companion;
+	public fun getId ()Ldev/whyoleg/cryptography/CryptographyAlgorithmId;
+}
+
+public final class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH$Companion : dev/whyoleg/cryptography/CryptographyAlgorithmId {
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH$KeyPair : dev/whyoleg/cryptography/algorithms/asymmetric/EC$KeyPair {
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH$PrivateKey : dev/whyoleg/cryptography/algorithms/asymmetric/EC$PrivateKey {
+	public abstract fun sharedSecretDerivation ()Ldev/whyoleg/cryptography/operations/SharedSecretDerivation;
+}
+
+public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH$PublicKey : dev/whyoleg/cryptography/algorithms/asymmetric/EC$PublicKey {
+	public abstract fun sharedSecretDerivation ()Ldev/whyoleg/cryptography/operations/SharedSecretDerivation;
 }
 
 public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDSA : dev/whyoleg/cryptography/algorithms/asymmetric/EC {
@@ -591,6 +698,16 @@ public abstract interface class dev/whyoleg/cryptography/materials/key/KeyGenera
 	public fun generateKey (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun generateKey$suspendImpl (Ldev/whyoleg/cryptography/materials/key/KeyGenerator;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun generateKeyBlocking ()Ldev/whyoleg/cryptography/materials/key/Key;
+}
+
+public abstract interface class dev/whyoleg/cryptography/operations/SecretDerivation {
+	public abstract fun deriveSecret ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun deriveSecretBlocking ([B)[B
+}
+
+public abstract interface class dev/whyoleg/cryptography/operations/SharedSecretDerivation {
+	public abstract fun deriveSharedSecret (Ldev/whyoleg/cryptography/materials/key/Key;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun deriveSharedSecretBlocking (Ldev/whyoleg/cryptography/materials/key/Key;)[B
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/cipher/AuthenticatedCipher : dev/whyoleg/cryptography/operations/cipher/AuthenticatedDecryptor, dev/whyoleg/cryptography/operations/cipher/AuthenticatedEncryptor, dev/whyoleg/cryptography/operations/cipher/Cipher {
