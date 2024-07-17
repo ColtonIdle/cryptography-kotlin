@@ -68,6 +68,10 @@ For additional limitation please consult provider specific documentation.
 | **Digital Signatures**                      | ECDSA            |  ✅  |     ✅     |   ✅   |    ✅     |
 |                                             | RSA-SSA-PSS      |  ✅  |     ✅     |   ✅   |    ✅     |
 |                                             | RSA-PKS1-v1_5    |  ✅  |     ✅     |   ✅   |    ✅     |
+| **Key Agreement**                           | ECDH             |  ✅  |     ✅     |   ❌   |    ✅     |
+|                                             | DH               |  ✅  |     ❌     |   ❌   |    ✅     |
+| **PRF/KDF**                                 | PBKDF2           |  ✅  |     ✅     |   ✅   |    ✅     |
+|                                             | HKDF             |  ✅  |     ✅     |   ❌   |    ✅     |
 
 > ⚠️ : use carefully
 >
