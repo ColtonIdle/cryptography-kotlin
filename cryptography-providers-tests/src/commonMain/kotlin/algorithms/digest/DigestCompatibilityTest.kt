@@ -36,7 +36,7 @@ abstract class DigestCompatibilityTest(algorithmId: CryptographyAlgorithmId<Dige
 
         if (!supportsDigest(algorithmId)) return
 
-        val hasher = algorithm.hasher()
+        val hasher = algorithm.asyncHasher()
         val parametersId = api.digests.saveParameters(TestParameters.Empty)
         repeat(iterations) {
             val dataSize = CryptographyRandom.nextInt(maxDataSize)
@@ -53,7 +53,7 @@ abstract class DigestCompatibilityTest(algorithmId: CryptographyAlgorithmId<Dige
 
     override suspend fun CompatibilityTestScope<Digest>.validate() {
         if (!supportsDigest(algorithmId)) return
-        val hasher = algorithm.hasher()
+        val hasher = algorithm.asyncHasher()
 
         api.digests.getParameters<TestParameters.Empty> { _, parametersId, _ ->
             api.digests.getData<DigestData>(parametersId) { (data, digest), _, _ ->

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
-import dev.whyoleg.cryptography.operations.hash.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import kotlinx.cinterop.*
@@ -16,8 +16,8 @@ import kotlin.native.ref.*
 internal class Openssl3Digest(
     algorithm: String,
     override val id: CryptographyAlgorithmId<Digest>,
-) : Hasher, Digest {
-    override fun hasher(): Hasher = this
+) : Digest, Hasher {
+    override fun asyncHasher(): AsyncHasher = asAsync()
 
     private val md = EVP_MD_fetch(null, algorithm, null)
 
@@ -26,7 +26,7 @@ internal class Openssl3Digest(
 
     private val digestSize = EVP_MD_get_size(md)
 
-    override fun hashBlocking(dataInput: ByteArray): ByteArray {
+    override fun hash(dataInput: ByteArray): ByteArray {
         val context = checkError(EVP_MD_CTX_new())
         try {
             val digest = ByteArray(digestSize)

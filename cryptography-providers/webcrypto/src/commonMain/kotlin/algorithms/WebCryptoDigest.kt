@@ -6,13 +6,13 @@ package dev.whyoleg.cryptography.providers.webcrypto.algorithms
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
-import dev.whyoleg.cryptography.operations.hash.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
 internal class WebCryptoDigest private constructor(
     private val algorithm: String,
     override val id: CryptographyAlgorithmId<Digest>,
-) : Digest, Hasher {
+) : Digest, AsyncHasher {
     companion object {
         val sha1 = WebCryptoDigest("SHA-1", SHA1)
         val sha256 = WebCryptoDigest("SHA-256", SHA256)
@@ -20,7 +20,7 @@ internal class WebCryptoDigest private constructor(
         val sha512 = WebCryptoDigest("SHA-512", SHA512)
     }
 
-    override fun hasher(): Hasher = this
+    override fun asyncHasher(): AsyncHasher = this
 
     override suspend fun hash(dataInput: ByteArray): ByteArray {
         return WebCrypto.digest(algorithm, dataInput)

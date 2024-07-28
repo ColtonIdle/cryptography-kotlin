@@ -6,19 +6,18 @@ package dev.whyoleg.cryptography.providers.jdk.algorithms
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
-import dev.whyoleg.cryptography.operations.hash.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 
 internal class JdkDigest(
     state: JdkCryptographyState,
     algorithm: String,
     override val id: CryptographyAlgorithmId<Digest>,
-) : Hasher, Digest {
-    override fun hasher(): Hasher = this
-
+) : Digest, Hasher {
+    override fun asyncHasher(): AsyncHasher = asAsync()
     private val messageDigest = state.messageDigest(algorithm)
 
-    override fun hashBlocking(dataInput: ByteArray): ByteArray = messageDigest.use { messageDigest ->
+    override fun hash(dataInput: ByteArray): ByteArray = messageDigest.use { messageDigest ->
         messageDigest.reset()
         messageDigest.digest(dataInput)
     }

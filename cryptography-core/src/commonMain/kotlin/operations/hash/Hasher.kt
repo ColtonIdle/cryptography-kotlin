@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.operations.hash
 
+import dev.whyoleg.cryptography.operations.*
 
-import dev.whyoleg.cryptography.*
-
-@SubclassOptInRequired(CryptographyProviderApi::class)
-public interface Hasher {
-    public suspend fun hash(dataInput: ByteArray): ByteArray = hashBlocking(dataInput)
-    public fun hashBlocking(dataInput: ByteArray): ByteArray
-}
+@Deprecated(
+    "Replaced with AsyncHasher",
+    ReplaceWith("AsyncHasher", "dev.whyoleg.cryptography.operations.AsyncHasher"),
+    DeprecationLevel.ERROR
+)
+public typealias Hasher = AsyncHasher

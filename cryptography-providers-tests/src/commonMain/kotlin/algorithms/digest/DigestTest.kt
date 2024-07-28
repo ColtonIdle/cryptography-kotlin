@@ -17,7 +17,7 @@ abstract class DigestTest(provider: CryptographyProvider) : ProviderTest(provide
         testAlgorithm(algorithmId) {
             if (!supportsDigest(algorithmId)) return@testAlgorithm
 
-            val hasher = algorithm.hasher()
+            val hasher = algorithm.asyncHasher()
             assertEquals(digestSize, hasher.hash(ByteArray(0)).size)
             repeat(8) { n ->
                 val size = 10.0.pow(n).toInt()

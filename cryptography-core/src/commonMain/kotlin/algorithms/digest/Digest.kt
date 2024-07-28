@@ -7,13 +7,20 @@
 package dev.whyoleg.cryptography.algorithms.digest
 
 import dev.whyoleg.cryptography.*
-import dev.whyoleg.cryptography.operations.hash.*
+import dev.whyoleg.cryptography.operations.*
 
 //simple hash algorithms, that can be used in HMAC/ECDSA contexts
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface Digest : CryptographyAlgorithm {
     override val id: CryptographyAlgorithmId<Digest>
-    public fun hasher(): Hasher
+
+    @Deprecated(
+        "Renamed to asyncHasher",
+        ReplaceWith("asyncHasher()"),
+        DeprecationLevel.ERROR
+    )
+    public fun hasher(): AsyncHasher = asyncHasher()
+    public fun asyncHasher(): AsyncHasher
 }
 
 @DelicateCryptographyApi

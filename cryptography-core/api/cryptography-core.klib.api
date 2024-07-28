@@ -470,7 +470,8 @@ abstract interface dev.whyoleg.cryptography.algorithms.digest/Digest : dev.whyol
     abstract val id // dev.whyoleg.cryptography.algorithms.digest/Digest.id|{}id[0]
         abstract fun <get-id>(): dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> // dev.whyoleg.cryptography.algorithms.digest/Digest.id.<get-id>|<get-id>(){}[0]
 
-    abstract fun hasher(): dev.whyoleg.cryptography.operations.hash/Hasher // dev.whyoleg.cryptography.algorithms.digest/Digest.hasher|hasher(){}[0]
+    abstract fun asyncHasher(): dev.whyoleg.cryptography.operations/AsyncHasher // dev.whyoleg.cryptography.algorithms.digest/Digest.asyncHasher|asyncHasher(){}[0]
+    open fun hasher(): dev.whyoleg.cryptography.operations/AsyncHasher // dev.whyoleg.cryptography.algorithms.digest/Digest.hasher|hasher(){}[0]
 }
 
 abstract interface dev.whyoleg.cryptography.algorithms.symmetric/HMAC : dev.whyoleg.cryptography/CryptographyAlgorithm { // dev.whyoleg.cryptography.algorithms.symmetric/HMAC|null[0]
@@ -536,11 +537,6 @@ abstract interface dev.whyoleg.cryptography.operations.cipher/Encryptor { // dev
     open suspend fun encrypt(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations.cipher/Encryptor.encrypt|encrypt(kotlin.ByteArray){}[0]
 }
 
-abstract interface dev.whyoleg.cryptography.operations.hash/Hasher { // dev.whyoleg.cryptography.operations.hash/Hasher|null[0]
-    abstract fun hashBlocking(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations.hash/Hasher.hashBlocking|hashBlocking(kotlin.ByteArray){}[0]
-    open suspend fun hash(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations.hash/Hasher.hash|hash(kotlin.ByteArray){}[0]
-}
-
 abstract interface dev.whyoleg.cryptography.operations.signature/SignatureGenerator { // dev.whyoleg.cryptography.operations.signature/SignatureGenerator|null[0]
     abstract fun generateSignatureBlocking(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations.signature/SignatureGenerator.generateSignatureBlocking|generateSignatureBlocking(kotlin.ByteArray){}[0]
     open suspend fun generateSignature(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations.signature/SignatureGenerator.generateSignature|generateSignature(kotlin.ByteArray){}[0]
@@ -549,6 +545,15 @@ abstract interface dev.whyoleg.cryptography.operations.signature/SignatureGenera
 abstract interface dev.whyoleg.cryptography.operations.signature/SignatureVerifier { // dev.whyoleg.cryptography.operations.signature/SignatureVerifier|null[0]
     abstract fun verifySignatureBlocking(kotlin/ByteArray, kotlin/ByteArray): kotlin/Boolean // dev.whyoleg.cryptography.operations.signature/SignatureVerifier.verifySignatureBlocking|verifySignatureBlocking(kotlin.ByteArray;kotlin.ByteArray){}[0]
     open suspend fun verifySignature(kotlin/ByteArray, kotlin/ByteArray): kotlin/Boolean // dev.whyoleg.cryptography.operations.signature/SignatureVerifier.verifySignature|verifySignature(kotlin.ByteArray;kotlin.ByteArray){}[0]
+}
+
+abstract interface dev.whyoleg.cryptography.operations/AsyncHasher { // dev.whyoleg.cryptography.operations/AsyncHasher|null[0]
+    abstract fun hashBlocking(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations/AsyncHasher.hashBlocking|hashBlocking(kotlin.ByteArray){}[0]
+    abstract suspend fun hash(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations/AsyncHasher.hash|hash(kotlin.ByteArray){}[0]
+}
+
+abstract interface dev.whyoleg.cryptography.operations/Hasher { // dev.whyoleg.cryptography.operations/Hasher|null[0]
+    abstract fun hash(kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.operations/Hasher.hash|hash(kotlin.ByteArray){}[0]
 }
 
 abstract interface dev.whyoleg.cryptography/CryptographyAlgorithm { // dev.whyoleg.cryptography/CryptographyAlgorithm|null[0]
@@ -660,4 +665,5 @@ final object dev.whyoleg.cryptography.algorithms.digest/SHA3_512 : dev.whyoleg.c
 
 final object dev.whyoleg.cryptography.algorithms.digest/SHA512 : dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> // dev.whyoleg.cryptography.algorithms.digest/SHA512|null[0]
 
+final fun (dev.whyoleg.cryptography.operations/Hasher).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncHasher // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.Hasher(){}[0]
 final fun <#A: dev.whyoleg.cryptography.materials.key/Key> (dev.whyoleg.cryptography.operations/SecretDerivation<#A>).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncSecretDerivation<#A> // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.SecretDerivation<0:0>(){0§<dev.whyoleg.cryptography.materials.key.Key>}[0]

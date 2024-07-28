@@ -414,8 +414,9 @@ public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/R
 }
 
 public abstract interface class dev/whyoleg/cryptography/algorithms/digest/Digest : dev/whyoleg/cryptography/CryptographyAlgorithm {
+	public abstract fun asyncHasher ()Ldev/whyoleg/cryptography/operations/AsyncHasher;
 	public abstract fun getId ()Ldev/whyoleg/cryptography/CryptographyAlgorithmId;
-	public abstract fun hasher ()Ldev/whyoleg/cryptography/operations/hash/Hasher;
+	public fun hasher ()Ldev/whyoleg/cryptography/operations/AsyncHasher;
 }
 
 public final class dev/whyoleg/cryptography/algorithms/digest/MD5 : dev/whyoleg/cryptography/CryptographyAlgorithmId {
@@ -614,8 +615,21 @@ public abstract interface class dev/whyoleg/cryptography/materials/key/KeyGenera
 	public abstract fun generateKeyBlocking ()Ldev/whyoleg/cryptography/materials/key/Key;
 }
 
+public abstract interface class dev/whyoleg/cryptography/operations/AsyncHasher {
+	public abstract fun hash ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun hashBlocking ([B)[B
+}
+
 public abstract interface class dev/whyoleg/cryptography/operations/AsyncSecretDerivation {
 	public abstract fun deriveSecret (Ldev/whyoleg/cryptography/materials/key/Key;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class dev/whyoleg/cryptography/operations/Hasher {
+	public abstract fun hash ([B)[B
+}
+
+public final class dev/whyoleg/cryptography/operations/HasherKt {
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Hasher;)Ldev/whyoleg/cryptography/operations/AsyncHasher;
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/SecretDerivation {
@@ -660,12 +674,6 @@ public abstract interface class dev/whyoleg/cryptography/operations/cipher/Encry
 	public fun encrypt ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun encrypt$suspendImpl (Ldev/whyoleg/cryptography/operations/cipher/Encryptor;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun encryptBlocking ([B)[B
-}
-
-public abstract interface class dev/whyoleg/cryptography/operations/hash/Hasher {
-	public fun hash ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun hash$suspendImpl (Ldev/whyoleg/cryptography/operations/hash/Hasher;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun hashBlocking ([B)[B
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/signature/SignatureGenerator {
