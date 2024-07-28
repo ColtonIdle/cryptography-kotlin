@@ -22,14 +22,12 @@ internal class JdkEcdh(state: JdkCryptographyState) : JdkEc<ECDH.PublicKey, ECDH
     private class EcdhPublicKey(
         private val state: JdkCryptographyState,
         val key: JPublicKey,
-    ) : ECDH.PublicKey, BaseEcPublicKey(key), SharedSecretDerivation<ECDH.PrivateKey> {
+    ) : ECDH.PublicKey, BaseEcPublicKey(key), SecretDerivation<ECDH.PrivateKey> {
         private val keyAgreement = state.keyAgreement("ECDH")
-        override fun sharedSecretDerivation(): SharedSecretDerivation<ECDH.PrivateKey> = this
-        override suspend fun deriveSharedSecret(other: ECDH.PrivateKey): ByteArray = deriveSharedSecretBlocking(other)
-
-        override fun deriveSharedSecretBlocking(other: ECDH.PrivateKey): ByteArray {
+        override fun secretDerivation(): SecretDerivation<ECDH.PrivateKey> = this
+        override fun asyncSecretDerivation(): AsyncSecretDerivation<ECDH.PrivateKey> = asAsync()
+        override fun deriveSecret(other: ECDH.PrivateKey): ByteArray {
             check(other is EcdhPrivateKey) { "Only key produced by JDK provider is supported" }
-
             return keyAgreement.doAgreement(state, other.key, key)
         }
     }
@@ -37,14 +35,12 @@ internal class JdkEcdh(state: JdkCryptographyState) : JdkEc<ECDH.PublicKey, ECDH
     private class EcdhPrivateKey(
         private val state: JdkCryptographyState,
         val key: JPrivateKey,
-    ) : ECDH.PrivateKey, BaseEcPrivateKey(key), SharedSecretDerivation<ECDH.PublicKey> {
+    ) : ECDH.PrivateKey, BaseEcPrivateKey(key), SecretDerivation<ECDH.PublicKey> {
         private val keyAgreement = state.keyAgreement("ECDH")
-        override fun sharedSecretDerivation(): SharedSecretDerivation<ECDH.PublicKey> = this
-        override suspend fun deriveSharedSecret(other: ECDH.PublicKey): ByteArray = deriveSharedSecretBlocking(other)
-
-        override fun deriveSharedSecretBlocking(other: ECDH.PublicKey): ByteArray {
+        override fun secretDerivation(): SecretDerivation<ECDH.PublicKey> = this
+        override fun asyncSecretDerivation(): AsyncSecretDerivation<ECDH.PublicKey> = asAsync()
+        override fun deriveSecret(other: ECDH.PublicKey): ByteArray {
             check(other is EcdhPublicKey) { "Only key produced by JDK provider is supported" }
-
             return keyAgreement.doAgreement(state, key, other.key)
         }
     }

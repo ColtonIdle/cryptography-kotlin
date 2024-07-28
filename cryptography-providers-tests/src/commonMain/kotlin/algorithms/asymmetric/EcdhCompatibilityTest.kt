@@ -32,10 +32,10 @@ abstract class EcdhCompatibilityTest(
                 ) { otherKeyPair, otherKeyReference, _ ->
 
                     val secrets = listOf(
-                        keyPair.privateKey.sharedSecretDerivation().deriveSharedSecret(otherKeyPair.publicKey),
-                        keyPair.publicKey.sharedSecretDerivation().deriveSharedSecret(otherKeyPair.privateKey),
-                        otherKeyPair.privateKey.sharedSecretDerivation().deriveSharedSecret(keyPair.publicKey),
-                        otherKeyPair.publicKey.sharedSecretDerivation().deriveSharedSecret(keyPair.privateKey),
+                        keyPair.privateKey.asyncSecretDerivation().deriveSecret(otherKeyPair.publicKey),
+                        keyPair.publicKey.asyncSecretDerivation().deriveSecret(otherKeyPair.privateKey),
+                        otherKeyPair.privateKey.asyncSecretDerivation().deriveSecret(keyPair.publicKey),
+                        otherKeyPair.publicKey.asyncSecretDerivation().deriveSecret(keyPair.privateKey),
                     )
 
                     repeat(secrets.size) { i ->
@@ -69,12 +69,12 @@ abstract class EcdhCompatibilityTest(
                     otherPrivateKeys.forEach { otherPrivateKey ->
                         assertContentEquals(
                             sharedSecret,
-                            publicKey.sharedSecretDerivation().deriveSharedSecret(otherPrivateKey),
+                            publicKey.asyncSecretDerivation().deriveSecret(otherPrivateKey),
                             "Public + Other Private"
                         )
                         assertContentEquals(
                             sharedSecret,
-                            otherPrivateKey.sharedSecretDerivation().deriveSharedSecret(publicKey),
+                            otherPrivateKey.asyncSecretDerivation().deriveSecret(publicKey),
                             "Other Private + Public"
                         )
                     }
@@ -83,12 +83,12 @@ abstract class EcdhCompatibilityTest(
                     otherPublicKeys.forEach { otherPublicKey ->
                         assertContentEquals(
                             sharedSecret,
-                            otherPublicKey.sharedSecretDerivation().deriveSharedSecret(privateKey),
+                            otherPublicKey.asyncSecretDerivation().deriveSecret(privateKey),
                             "Other Public + Private"
                         )
                         assertContentEquals(
                             sharedSecret,
-                            privateKey.sharedSecretDerivation().deriveSharedSecret(otherPublicKey),
+                            privateKey.asyncSecretDerivation().deriveSecret(otherPublicKey),
                             "Private + Other Public"
                         )
                     }

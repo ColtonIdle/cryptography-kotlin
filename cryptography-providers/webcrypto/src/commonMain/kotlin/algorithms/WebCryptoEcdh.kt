@@ -22,10 +22,11 @@ internal object WebCryptoEcdh : WebCryptoEc<ECDH.PublicKey, ECDH.PrivateKey, ECD
 
     private class EcdhPublicKey(
         publicKey: CryptoKey,
-    ) : EcPublicKey(publicKey), ECDH.PublicKey, SharedSecretDerivation<ECDH.PrivateKey> {
-        override fun sharedSecretDerivation(): SharedSecretDerivation<ECDH.PrivateKey> = this
+    ) : EcPublicKey(publicKey), ECDH.PublicKey, AsyncSecretDerivation<ECDH.PrivateKey> {
+        override fun asyncSecretDerivation(): AsyncSecretDerivation<ECDH.PrivateKey> = this
+        override fun secretDerivation(): SecretDerivation<ECDH.PrivateKey> = nonBlocking()
 
-        override suspend fun deriveSharedSecret(other: ECDH.PrivateKey): ByteArray {
+        override suspend fun deriveSecret(other: ECDH.PrivateKey): ByteArray {
             check(other is EcdhPrivateKey)
             return WebCrypto.deriveBits(
                 algorithm = EcdhKeyDeriveAlgorithm(publicKey),
@@ -33,15 +34,15 @@ internal object WebCryptoEcdh : WebCryptoEc<ECDH.PublicKey, ECDH.PrivateKey, ECD
                 length = curveOrderSize(publicKey.algorithm.ecKeyAlgorithmNamedCurve) * 8
             )
         }
-
-        override fun deriveSharedSecretBlocking(other: ECDH.PrivateKey): ByteArray = nonBlocking()
     }
 
     private class EcdhPrivateKey(
         privateKey: CryptoKey,
-    ) : EcPrivateKey(privateKey), ECDH.PrivateKey, SharedSecretDerivation<ECDH.PublicKey> {
-        override fun sharedSecretDerivation(): SharedSecretDerivation<ECDH.PublicKey> = this
-        override suspend fun deriveSharedSecret(other: ECDH.PublicKey): ByteArray {
+    ) : EcPrivateKey(privateKey), ECDH.PrivateKey, AsyncSecretDerivation<ECDH.PublicKey> {
+        override fun asyncSecretDerivation(): AsyncSecretDerivation<ECDH.PublicKey> = this
+        override fun secretDerivation(): SecretDerivation<ECDH.PublicKey> = nonBlocking()
+
+        override suspend fun deriveSecret(other: ECDH.PublicKey): ByteArray {
             check(other is EcdhPublicKey)
             return WebCrypto.deriveBits(
                 algorithm = EcdhKeyDeriveAlgorithm(other.publicKey),
@@ -49,7 +50,5 @@ internal object WebCryptoEcdh : WebCryptoEc<ECDH.PublicKey, ECDH.PrivateKey, ECD
                 length = curveOrderSize(privateKey.algorithm.ecKeyAlgorithmNamedCurve) * 8
             )
         }
-
-        override fun deriveSharedSecretBlocking(other: ECDH.PublicKey): ByteArray = nonBlocking()
     }
 }

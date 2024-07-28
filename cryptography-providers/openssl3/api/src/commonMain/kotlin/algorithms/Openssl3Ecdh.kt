@@ -82,7 +82,10 @@ internal object Openssl3Ecdh : ECDH {
 
     private class EcPrivateKey(
         key: CPointer<EVP_PKEY>,
-    ) : ECDH.PrivateKey, Openssl3PrivateKeyEncodable<EC.PrivateKey.Format>(key), SharedSecretDerivation<ECDH.PublicKey> {
+    ) : ECDH.PrivateKey, Openssl3PrivateKeyEncodable<EC.PrivateKey.Format>(key), SecretDerivation<ECDH.PublicKey> {
+        override fun secretDerivation(): SecretDerivation<ECDH.PublicKey> = this
+        override fun asyncSecretDerivation(): AsyncSecretDerivation<ECDH.PublicKey> = asAsync()
+
         override fun outputType(format: EC.PrivateKey.Format): String = when (format) {
             EC.PrivateKey.Format.DER, EC.PrivateKey.Format.DER.SEC1 -> "DER"
             EC.PrivateKey.Format.PEM, EC.PrivateKey.Format.PEM.SEC1 -> "PEM"
@@ -94,20 +97,18 @@ internal object Openssl3Ecdh : ECDH {
             else                                                         -> super.outputStruct(format)
         }
 
-        override fun sharedSecretDerivation(): SharedSecretDerivation<ECDH.PublicKey> = this
-
-        override fun deriveSharedSecretBlocking(other: ECDH.PublicKey): ByteArray {
-            check(other is EcPublicKey)
-
+        override fun deriveSecret(other: ECDH.PublicKey): ByteArray {
+            check(other is EcPublicKey) { "Only key produced by Openssl3 provider is supported" }
             return deriveSharedSecret(publicKey = other.key, privateKey = key)
         }
-
-        override suspend fun deriveSharedSecret(other: ECDH.PublicKey): ByteArray = deriveSharedSecretBlocking(other)
     }
 
     private class EcPublicKey(
         key: CPointer<EVP_PKEY>,
-    ) : ECDH.PublicKey, Openssl3PublicKeyEncodable<EC.PublicKey.Format>(key), SharedSecretDerivation<ECDH.PrivateKey> {
+    ) : ECDH.PublicKey, Openssl3PublicKeyEncodable<EC.PublicKey.Format>(key), SecretDerivation<ECDH.PrivateKey> {
+        override fun secretDerivation(): SecretDerivation<ECDH.PrivateKey> = this
+        override fun asyncSecretDerivation(): AsyncSecretDerivation<ECDH.PrivateKey> = asAsync()
+
         override fun outputType(format: EC.PublicKey.Format): String = when (format) {
             EC.PublicKey.Format.DER -> "DER"
             EC.PublicKey.Format.PEM -> "PEM"
@@ -120,15 +121,10 @@ internal object Openssl3Ecdh : ECDH {
             else                    -> super.encodeToBlocking(format)
         }
 
-        override fun sharedSecretDerivation(): SharedSecretDerivation<ECDH.PrivateKey> = this
-
-        override fun deriveSharedSecretBlocking(other: ECDH.PrivateKey): ByteArray {
-            check(other is EcPrivateKey)
-
+        override fun deriveSecret(other: ECDH.PrivateKey): ByteArray {
+            check(other is EcPrivateKey) { "Only key produced by Openssl3 provider is supported" }
             return deriveSharedSecret(publicKey = key, privateKey = other.key)
         }
-
-        override suspend fun deriveSharedSecret(other: ECDH.PrivateKey): ByteArray = deriveSharedSecretBlocking(other)
     }
 }
 

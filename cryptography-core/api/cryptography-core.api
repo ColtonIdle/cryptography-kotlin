@@ -197,11 +197,13 @@ public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/E
 }
 
 public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH$PrivateKey : dev/whyoleg/cryptography/algorithms/asymmetric/EC$PrivateKey {
-	public abstract fun sharedSecretDerivation ()Ldev/whyoleg/cryptography/operations/SharedSecretDerivation;
+	public abstract fun asyncSecretDerivation ()Ldev/whyoleg/cryptography/operations/AsyncSecretDerivation;
+	public abstract fun secretDerivation ()Ldev/whyoleg/cryptography/operations/SecretDerivation;
 }
 
 public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDH$PublicKey : dev/whyoleg/cryptography/algorithms/asymmetric/EC$PublicKey {
-	public abstract fun sharedSecretDerivation ()Ldev/whyoleg/cryptography/operations/SharedSecretDerivation;
+	public abstract fun asyncSecretDerivation ()Ldev/whyoleg/cryptography/operations/AsyncSecretDerivation;
+	public abstract fun secretDerivation ()Ldev/whyoleg/cryptography/operations/SecretDerivation;
 }
 
 public abstract interface class dev/whyoleg/cryptography/algorithms/asymmetric/ECDSA : dev/whyoleg/cryptography/algorithms/asymmetric/EC {
@@ -612,9 +614,16 @@ public abstract interface class dev/whyoleg/cryptography/materials/key/KeyGenera
 	public abstract fun generateKeyBlocking ()Ldev/whyoleg/cryptography/materials/key/Key;
 }
 
-public abstract interface class dev/whyoleg/cryptography/operations/SharedSecretDerivation {
-	public abstract fun deriveSharedSecret (Ldev/whyoleg/cryptography/materials/key/Key;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun deriveSharedSecretBlocking (Ldev/whyoleg/cryptography/materials/key/Key;)[B
+public abstract interface class dev/whyoleg/cryptography/operations/AsyncSecretDerivation {
+	public abstract fun deriveSecret (Ldev/whyoleg/cryptography/materials/key/Key;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class dev/whyoleg/cryptography/operations/SecretDerivation {
+	public abstract fun deriveSecret (Ldev/whyoleg/cryptography/materials/key/Key;)[B
+}
+
+public final class dev/whyoleg/cryptography/operations/SecretDerivationKt {
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SecretDerivation;)Ldev/whyoleg/cryptography/operations/AsyncSecretDerivation;
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/cipher/AuthenticatedCipher : dev/whyoleg/cryptography/operations/cipher/AuthenticatedDecryptor, dev/whyoleg/cryptography/operations/cipher/AuthenticatedEncryptor, dev/whyoleg/cryptography/operations/cipher/Cipher {
