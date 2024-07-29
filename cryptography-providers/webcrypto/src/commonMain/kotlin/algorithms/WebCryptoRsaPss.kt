@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.webcrypto.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.BinarySize.Companion.bytes
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 import dev.whyoleg.cryptography.providers.webcrypto.operations.*
@@ -24,21 +24,21 @@ internal object WebCryptoRsaPss : WebCryptoRsa<RSA.PSS.PublicKey, RSA.PSS.Privat
     ) : RSA.PSS.KeyPair
 
     private class RsaPssPublicKey(publicKey: CryptoKey) : RsaPublicKey(publicKey), RSA.PSS.PublicKey {
-        override fun signatureVerifier(): SignatureVerifier {
-            return signatureVerifier(hashSize(publicKey.algorithm.rsaKeyAlgorithmHashName).bytes)
+        override fun asyncSignatureVerifier(): AsyncSignatureVerifier {
+            return asyncSignatureVerifier(hashSize(publicKey.algorithm.rsaKeyAlgorithmHashName).bytes)
         }
 
-        override fun signatureVerifier(saltLength: BinarySize): SignatureVerifier {
+        override fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier {
             return WebCryptoSignatureVerifier(RsaPssSignatureAlgorithm(saltLength.inBytes), publicKey)
         }
     }
 
     private class RsaPssPrivateKey(privateKey: CryptoKey) : RsaPrivateKey(privateKey), RSA.PSS.PrivateKey {
-        override fun signatureGenerator(): SignatureGenerator {
-            return signatureGenerator(hashSize(privateKey.algorithm.rsaKeyAlgorithmHashName).bytes)
+        override fun asyncSignatureGenerator(): AsyncSignatureGenerator {
+            return asyncSignatureGenerator(hashSize(privateKey.algorithm.rsaKeyAlgorithmHashName).bytes)
         }
 
-        override fun signatureGenerator(saltLength: BinarySize): SignatureGenerator {
+        override fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator {
             return WebCryptoSignatureGenerator(RsaPssSignatureAlgorithm(saltLength.inBytes), privateKey)
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.openssl3.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.BinarySize.Companion.bytes
 import dev.whyoleg.cryptography.algorithms.asymmetric.RSA
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import dev.whyoleg.cryptography.providers.openssl3.operations.*
@@ -34,30 +34,30 @@ internal object Openssl3RsaPss : Openssl3Rsa<RSA.PSS.PublicKey, RSA.PSS.PrivateK
         key: CPointer<EVP_PKEY>,
         private val hashAlgorithm: String,
     ) : RsaPublicKey(key), RSA.PSS.PublicKey {
-        override fun signatureVerifier(): SignatureVerifier {
+        override fun asyncSignatureVerifier(): AsyncSignatureVerifier {
             val md = EVP_MD_fetch(null, hashAlgorithm, null)
             val digestSize = EVP_MD_get_size(md)
             EVP_MD_free(md)
-            return signatureVerifier(digestSize.bytes)
+            return asyncSignatureVerifier(digestSize.bytes)
         }
 
-        override fun signatureVerifier(saltLength: BinarySize): SignatureVerifier =
-            RsaPssSignatureVerifier(key, hashAlgorithm, saltLength.inBytes)
+        override fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier =
+            RsaPssSignatureVerifier(key, hashAlgorithm, saltLength.inBytes).asAsync()
     }
 
     private class RsaPssPrivateKey(
         key: CPointer<EVP_PKEY>,
         private val hashAlgorithm: String,
     ) : RsaPrivateKey(key), RSA.PSS.PrivateKey {
-        override fun signatureGenerator(): SignatureGenerator {
+        override fun asyncSignatureGenerator(): AsyncSignatureGenerator {
             val md = EVP_MD_fetch(null, hashAlgorithm, null)
             val digestSize = EVP_MD_get_size(md)
             EVP_MD_free(md)
-            return signatureGenerator(digestSize.bytes)
+            return asyncSignatureGenerator(digestSize.bytes)
         }
 
-        override fun signatureGenerator(saltLength: BinarySize): SignatureGenerator =
-            RsaPssSignatureGenerator(key, hashAlgorithm, saltLength.inBytes)
+        override fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator =
+            RsaPssSignatureGenerator(key, hashAlgorithm, saltLength.inBytes).asAsync()
     }
 }
 

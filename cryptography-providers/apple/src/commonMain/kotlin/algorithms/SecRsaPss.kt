@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import platform.Security.*
 
@@ -31,15 +31,15 @@ internal object SecRsaPss : SecRsa<RSA.PSS.PublicKey, RSA.PSS.PrivateKey, RSA.PS
         publicKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
     ) : RsaPublicKey(publicKey), RSA.PSS.PublicKey {
-        override fun signatureVerifier(): SignatureVerifier = SecSignatureVerifier(publicKey, algorithm)
-        override fun signatureVerifier(saltLength: BinarySize): SignatureVerifier = error("custom saltLength is not supported")
+        override fun asyncSignatureVerifier(): AsyncSignatureVerifier = SecSignatureVerifier(publicKey, algorithm).asAsync()
+        override fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier = error("custom saltLength is not supported")
     }
 
     private class RsaPssPrivateKey(
         privateKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
     ) : RsaPrivateKey(privateKey), RSA.PSS.PrivateKey {
-        override fun signatureGenerator(): SignatureGenerator = SecSignatureGenerator(privateKey, algorithm)
-        override fun signatureGenerator(saltLength: BinarySize): SignatureGenerator = error("custom saltLength is not supported")
+        override fun asyncSignatureGenerator(): AsyncSignatureGenerator = SecSignatureGenerator(privateKey, algorithm).asAsync()
+        override fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator = error("custom saltLength is not supported")
     }
 }

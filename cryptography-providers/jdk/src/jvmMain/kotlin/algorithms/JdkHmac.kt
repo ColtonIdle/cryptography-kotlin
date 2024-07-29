@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import dev.whyoleg.cryptography.providers.jdk.operations.*
@@ -19,8 +19,8 @@ internal class JdkHmac(
     private val keyWrapper: (JSecretKey) -> HMAC.Key = { key ->
         object : HMAC.Key, JdkEncodableKey<HMAC.Key.Format>(key) {
             private val signature = JdkMacSignature(state, key, key.algorithm)
-            override fun signatureGenerator(): SignatureGenerator = signature
-            override fun signatureVerifier(): SignatureVerifier = signature
+            override fun asyncSignatureGenerator(): AsyncSignatureGenerator = (signature as SignatureGenerator).asAsync()
+            override fun asyncSignatureVerifier(): AsyncSignatureVerifier = (signature as SignatureVerifier).asAsync()
 
             override fun encodeToBlocking(format: HMAC.Key.Format): ByteArray = when (format) {
                 HMAC.Key.Format.JWK -> error("$format is not supported")

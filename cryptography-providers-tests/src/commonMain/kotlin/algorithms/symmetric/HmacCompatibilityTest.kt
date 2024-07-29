@@ -42,8 +42,8 @@ abstract class HmacCompatibilityTest(provider: CryptographyProvider) : Compatibi
                     KeyData(key.encodeTo(HMAC.Key.Format.entries, ::supportsKeyFormat))
                 )
 
-                val signatureGenerator = key.signatureGenerator()
-                val signatureVerifier = key.signatureVerifier()
+                val signatureGenerator = key.asyncSignatureGenerator()
+                val signatureVerifier = key.asyncSignatureVerifier()
                 repeat(dataIterations) {
                     val dataSize = CryptographyRandom.nextInt(maxDataSize)
                     logger.log { "data.size      = $dataSize" }
@@ -84,8 +84,8 @@ abstract class HmacCompatibilityTest(provider: CryptographyProvider) : Compatibi
         api.signatures.getParameters<TestParameters.Empty> { _, parametersId, _ ->
             api.signatures.getData<SignatureData>(parametersId) { (keyReference, data, signature), _, _ ->
                 keys[keyReference]?.forEach { key ->
-                    val verifier = key.signatureVerifier()
-                    val generator = key.signatureGenerator()
+                    val verifier = key.asyncSignatureVerifier()
+                    val generator = key.asyncSignatureGenerator()
 
                     assertTrue(verifier.verifySignature(data, signature), "Verify")
                     assertTrue(verifier.verifySignature(data, generator.generateSignature(data)), "Sign-Verify")

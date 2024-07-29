@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.operations
 
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import kotlinx.cinterop.*
@@ -20,7 +20,7 @@ internal abstract class Openssl3DigestSignatureVerifier(
     protected abstract fun MemScope.createParams(): CValuesRef<OSSL_PARAM>?
 
     @OptIn(UnsafeNumber::class)
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean = memScoped {
+    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean = memScoped {
         val context = checkError(EVP_MD_CTX_new())
         try {
             checkError(

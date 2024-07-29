@@ -54,9 +54,9 @@ abstract class EcdsaCompatibilityTest(
                 signatureParametersList.forEach { (signatureParametersId, signatureParameters) ->
                     logger.log { "digest = ${signatureParameters.digestName}, signatureFormat = ${signatureParameters.signatureFormat}" }
                     val signer =
-                        keyPair.privateKey.signatureGenerator(signatureParameters.digest, signatureParameters.signatureFormat)
+                        keyPair.privateKey.asyncSignatureGenerator(signatureParameters.digest, signatureParameters.signatureFormat)
                     val verifier =
-                        keyPair.publicKey.signatureVerifier(signatureParameters.digest, signatureParameters.signatureFormat)
+                        keyPair.publicKey.asyncSignatureVerifier(signatureParameters.digest, signatureParameters.signatureFormat)
 
                     repeat(signatureIterations) {
                         val dataSize = CryptographyRandom.nextInt(maxDataSize)
@@ -82,8 +82,18 @@ abstract class EcdsaCompatibilityTest(
 
             api.signatures.getData<SignatureData>(parametersId) { (keyReference, data, signature), _, _ ->
                 val (publicKeys, privateKeys) = keyPairs[keyReference] ?: return@getData
-                val verifiers = publicKeys.map { it.signatureVerifier(signatureParameters.digest, signatureParameters.signatureFormat) }
-                val generators = privateKeys.map { it.signatureGenerator(signatureParameters.digest, signatureParameters.signatureFormat) }
+                val verifiers = publicKeys.map {
+                    it.asyncSignatureVerifier(
+                        signatureParameters.digest,
+                        signatureParameters.signatureFormat
+                    )
+                }
+                val generators = privateKeys.map {
+                    it.asyncSignatureGenerator(
+                        signatureParameters.digest,
+                        signatureParameters.signatureFormat
+                    )
+                }
 
                 verifiers.forEach { verifier ->
                     assertTrue(verifier.verifySignature(data, signature), "Verify")

@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.internal.*
 import dev.whyoleg.cryptography.providers.jdk.operations.*
@@ -30,12 +30,15 @@ internal class JdkEcdsa(state: JdkCryptographyState) : JdkEc<ECDSA.PublicKey, EC
         private val state: JdkCryptographyState,
         private val key: JPublicKey,
     ) : ECDSA.PublicKey, BaseEcPublicKey(key) {
-        override fun signatureVerifier(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureVerifier {
+        override fun asyncSignatureVerifier(
+            digest: CryptographyAlgorithmId<Digest>,
+            format: ECDSA.SignatureFormat,
+        ): AsyncSignatureVerifier {
             val verifier = JdkSignatureVerifier(state, key, digest.hashAlgorithmName() + "withECDSA", null)
             return when (format) {
                 ECDSA.SignatureFormat.DER -> verifier
                 ECDSA.SignatureFormat.RAW -> EcdsaRawSignatureVerifier(verifier, (key as ECKey).params.curveOrderSize())
-            }
+            }.asAsync()
         }
     }
 
@@ -43,12 +46,15 @@ internal class JdkEcdsa(state: JdkCryptographyState) : JdkEc<ECDSA.PublicKey, EC
         private val state: JdkCryptographyState,
         private val key: JPrivateKey,
     ) : ECDSA.PrivateKey, BaseEcPrivateKey(key) {
-        override fun signatureGenerator(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureGenerator {
+        override fun asyncSignatureGenerator(
+            digest: CryptographyAlgorithmId<Digest>,
+            format: ECDSA.SignatureFormat,
+        ): AsyncSignatureGenerator {
             val generator = JdkSignatureGenerator(state, key, digest.hashAlgorithmName() + "withECDSA", null)
             return when (format) {
                 ECDSA.SignatureFormat.DER -> generator
                 ECDSA.SignatureFormat.RAW -> EcdsaRawSignatureGenerator(generator, (key as ECKey).params.curveOrderSize())
-            }
+            }.asAsync()
         }
     }
 }
@@ -57,8 +63,8 @@ private class EcdsaRawSignatureGenerator(
     private val derGenerator: SignatureGenerator,
     private val curveOrderSize: Int,
 ) : SignatureGenerator {
-    override fun generateSignatureBlocking(dataInput: ByteArray): ByteArray {
-        val derSignature = derGenerator.generateSignatureBlocking(dataInput)
+    override fun generateSignature(dataInput: ByteArray): ByteArray {
+        val derSignature = derGenerator.generateSignature(dataInput)
 
         val signature = DER.decodeFromByteArray(EcdsaSignatureValue.serializer(), derSignature)
 
@@ -78,7 +84,7 @@ private class EcdsaRawSignatureVerifier(
     private val derVerifier: SignatureVerifier,
     private val curveOrderSize: Int,
 ) : SignatureVerifier {
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
+    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
         check(signatureInput.size == curveOrderSize * 2) {
             "Expected signature size ${curveOrderSize * 2}, received: ${signatureInput.size}"
         }
@@ -93,7 +99,7 @@ private class EcdsaRawSignatureVerifier(
 
         val derSignature = DER.encodeToByteArray(EcdsaSignatureValue.serializer(), signature)
 
-        return derVerifier.verifySignatureBlocking(dataInput, derSignature)
+        return derVerifier.verifySignature(dataInput, derSignature)
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.apple.algorithms
@@ -7,9 +7,8 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
-
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import dev.whyoleg.cryptography.random.*
 import kotlinx.cinterop.*
@@ -47,7 +46,7 @@ private class HmacKeyDecoder(
     override fun decodeFromBlocking(format: HMAC.Key.Format, input: ByteArray): HMAC.Key = when (format) {
         HMAC.Key.Format.RAW -> {
             require(input.size == keySizeBytes) { "Invalid key size: ${input.size}, expected: $keySizeBytes" }
-            wrapKey(hmacAlgorithm, input.copyOf(), digestSize)
+            HmacKey(hmacAlgorithm, input.copyOf(), digestSize)
         }
         HMAC.Key.Format.JWK -> error("JWK is not supported")
     }
@@ -60,31 +59,24 @@ private class HmacKeyGenerator(
 ) : KeyGenerator<HMAC.Key> {
     override fun generateKeyBlocking(): HMAC.Key {
         val key = CryptographyRandom.nextBytes(keySizeBytes)
-        return wrapKey(hmacAlgorithm, key, digestSize)
+        return HmacKey(hmacAlgorithm, key, digestSize)
     }
 }
 
-private fun wrapKey(
-    hmacAlgorithm: CCHmacAlgorithm,
-    key: ByteArray,
-    digestSize: Int,
-): HMAC.Key = object : HMAC.Key {
-    private val signature = HmacSignature(hmacAlgorithm, key, digestSize)
-    override fun signatureGenerator(): SignatureGenerator = signature
-    override fun signatureVerifier(): SignatureVerifier = signature
+private class HmacKey(
+    private val hmacAlgorithm: CCHmacAlgorithm,
+    private val key: ByteArray,
+    private val digestSize: Int,
+) : HMAC.Key, SignatureGenerator, SignatureVerifier {
+    override fun asyncSignatureGenerator(): AsyncSignatureGenerator = (this as SignatureGenerator).asAsync()
+    override fun asyncSignatureVerifier(): AsyncSignatureVerifier = (this as SignatureVerifier).asAsync()
 
     override fun encodeToBlocking(format: HMAC.Key.Format): ByteArray = when (format) {
         HMAC.Key.Format.RAW -> key.copyOf()
         HMAC.Key.Format.JWK -> error("JWK is not supported")
     }
-}
 
-private class HmacSignature(
-    private val hmacAlgorithm: CCHmacAlgorithm,
-    private val key: ByteArray,
-    private val digestSize: Int,
-) : SignatureGenerator, SignatureVerifier {
-    override fun generateSignatureBlocking(dataInput: ByteArray): ByteArray {
+    override fun generateSignature(dataInput: ByteArray): ByteArray {
         val macOutput = ByteArray(digestSize)
         @OptIn(UnsafeNumber::class)
         CCHmac(
@@ -98,7 +90,7 @@ private class HmacSignature(
         return macOutput
     }
 
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
-        return generateSignatureBlocking(dataInput).contentEquals(signatureInput)
+    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
+        return generateSignature(dataInput).contentEquals(signatureInput)
     }
 }

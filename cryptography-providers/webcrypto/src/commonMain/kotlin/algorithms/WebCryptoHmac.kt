@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 import dev.whyoleg.cryptography.providers.webcrypto.operations.*
@@ -30,8 +30,8 @@ internal object WebCryptoHmac : HMAC {
         key = key,
         keyProcessor = HmacKeyProcessor
     ), HMAC.Key {
-        override fun signatureGenerator(): SignatureGenerator = WebCryptoSignatureGenerator(Algorithm("HMAC"), key)
-        override fun signatureVerifier(): SignatureVerifier = WebCryptoSignatureVerifier(Algorithm("HMAC"), key)
+        override fun asyncSignatureGenerator(): AsyncSignatureGenerator = WebCryptoSignatureGenerator(Algorithm("HMAC"), key)
+        override fun asyncSignatureVerifier(): AsyncSignatureVerifier = WebCryptoSignatureVerifier(Algorithm("HMAC"), key)
     }
 
 }

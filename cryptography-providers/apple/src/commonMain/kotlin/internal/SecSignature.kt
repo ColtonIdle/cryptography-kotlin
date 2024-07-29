@@ -4,7 +4,7 @@
 
 package dev.whyoleg.cryptography.providers.apple.internal
 
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import kotlinx.cinterop.*
 import platform.CoreFoundation.*
 import platform.Foundation.*
@@ -14,7 +14,7 @@ internal class SecSignatureVerifier(
     private val publicKey: SecKeyRef,
     private val algorithm: SecKeyAlgorithm?,
 ) : SignatureVerifier {
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean = memScoped {
+    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean = memScoped {
         val error = alloc<CFErrorRefVar>()
         dataInput.useNSData { data ->
             signatureInput.useNSData { signature ->
@@ -39,7 +39,7 @@ internal class SecSignatureGenerator(
     private val privateKey: SecKeyRef,
     private val algorithm: SecKeyAlgorithm?,
 ) : SignatureGenerator {
-    override fun generateSignatureBlocking(dataInput: ByteArray): ByteArray = memScoped {
+    override fun generateSignature(dataInput: ByteArray): ByteArray = memScoped {
         val error = alloc<CFErrorRefVar>()
         dataInput.useNSData { data ->
             val signature = SecKeyCreateSignature(

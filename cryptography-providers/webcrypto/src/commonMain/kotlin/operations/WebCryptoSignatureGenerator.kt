@@ -4,13 +4,13 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.operations
 
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
 internal class WebCryptoSignatureGenerator(
     private val algorithm: Algorithm,
     private val key: CryptoKey,
-) : SignatureGenerator {
+) : AsyncSignatureGenerator {
     override suspend fun generateSignature(dataInput: ByteArray): ByteArray {
         return WebCrypto.sign(algorithm, key, dataInput)
     }

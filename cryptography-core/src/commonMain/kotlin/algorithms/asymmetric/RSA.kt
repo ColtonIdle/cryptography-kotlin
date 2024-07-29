@@ -9,8 +9,8 @@ import dev.whyoleg.cryptography.BinarySize.Companion.bits
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.operations.cipher.*
-import dev.whyoleg.cryptography.operations.signature.*
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RSA.KeyPair<PublicK, PrivateK>> : CryptographyAlgorithm {
@@ -126,16 +126,45 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PublicKey : RSA.PublicKey {
+            @Deprecated(
+                "Renamed to asyncSignatureVerifier",
+                ReplaceWith("asyncSignatureVerifier()"),
+                DeprecationLevel.ERROR
+            )
+            public fun signatureVerifier(): AsyncSignatureVerifier = asyncSignatureVerifier()
+
+            @Deprecated(
+                "Renamed to asyncSignatureVerifier",
+                ReplaceWith("asyncSignatureVerifier(saltLength)"),
+                DeprecationLevel.ERROR
+            )
+            public fun signatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier = asyncSignatureVerifier(saltLength)
+
             // default salt = digest.outputSize
-            public fun signatureVerifier(): SignatureVerifier
-            public fun signatureVerifier(saltLength: BinarySize): SignatureVerifier
+            public fun asyncSignatureVerifier(): AsyncSignatureVerifier
+            public fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier
         }
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PrivateKey : RSA.PrivateKey {
+
+            @Deprecated(
+                "Renamed to asyncSignatureGenerator",
+                ReplaceWith("asyncSignatureGenerator()"),
+                DeprecationLevel.ERROR
+            )
+            public fun signatureGenerator(): AsyncSignatureGenerator = asyncSignatureGenerator()
+
+            @Deprecated(
+                "Renamed to asyncSignatureGenerator",
+                ReplaceWith("asyncSignatureGenerator(saltLength)"),
+                DeprecationLevel.ERROR
+            )
+            public fun signatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator = asyncSignatureGenerator(saltLength)
+
             // default salt = digest.outputSize
-            public fun signatureGenerator(): SignatureGenerator
-            public fun signatureGenerator(saltLength: BinarySize): SignatureGenerator
+            public fun asyncSignatureGenerator(): AsyncSignatureGenerator
+            public fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator
         }
     }
 
@@ -150,7 +179,13 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PublicKey : RSA.PublicKey {
-            public fun signatureVerifier(): SignatureVerifier
+            @Deprecated(
+                "Renamed to asyncSignatureVerifier",
+                ReplaceWith("asyncSignatureVerifier()"),
+                DeprecationLevel.ERROR
+            )
+            public fun signatureVerifier(): AsyncSignatureVerifier = asyncSignatureVerifier()
+            public fun asyncSignatureVerifier(): AsyncSignatureVerifier
 
             // digest is not used at all
             @DelicateCryptographyApi
@@ -159,7 +194,13 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PrivateKey : RSA.PrivateKey {
-            public fun signatureGenerator(): SignatureGenerator
+            @Deprecated(
+                "Renamed to asyncSignatureGenerator",
+                ReplaceWith("asyncSignatureGenerator()"),
+                DeprecationLevel.ERROR
+            )
+            public fun signatureGenerator(): AsyncSignatureGenerator = asyncSignatureGenerator()
+            public fun asyncSignatureGenerator(): AsyncSignatureGenerator
 
             // digest is not used at all
             @DelicateCryptographyApi

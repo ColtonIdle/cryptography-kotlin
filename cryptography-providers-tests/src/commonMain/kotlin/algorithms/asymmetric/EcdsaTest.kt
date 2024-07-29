@@ -48,8 +48,8 @@ abstract class EcdsaTest(provider: CryptographyProvider) : ProviderTest(provider
 
                 // RAW signature
                 run {
-                    val verifier = keyPair.publicKey.signatureVerifier(digest, ECDSA.SignatureFormat.RAW)
-                    keyPair.privateKey.signatureGenerator(digest, ECDSA.SignatureFormat.RAW).run {
+                    val verifier = keyPair.publicKey.asyncSignatureVerifier(digest, ECDSA.SignatureFormat.RAW)
+                    keyPair.privateKey.asyncSignatureGenerator(digest, ECDSA.SignatureFormat.RAW).run {
                         assertEquals(rawSignatureSize, generateSignature(ByteArray(0)).size)
                         repeat(8) { n ->
                             val size = 10.0.pow(n).toInt()
@@ -62,8 +62,8 @@ abstract class EcdsaTest(provider: CryptographyProvider) : ProviderTest(provider
                 }
                 // DER signature
                 run {
-                    val verifier = keyPair.publicKey.signatureVerifier(digest, ECDSA.SignatureFormat.DER)
-                    keyPair.privateKey.signatureGenerator(digest, ECDSA.SignatureFormat.DER).run {
+                    val verifier = keyPair.publicKey.asyncSignatureVerifier(digest, ECDSA.SignatureFormat.DER)
+                    keyPair.privateKey.asyncSignatureGenerator(digest, ECDSA.SignatureFormat.DER).run {
                         fun assertSignatureSize(signature: ByteArray) {
                             if (signature.size in derSignatureSizes) return
                             // enhance a message with Base64 encoded signature

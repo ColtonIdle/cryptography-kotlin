@@ -22,8 +22,8 @@ abstract class RsaPkcs1CompatibilityTest(provider: CryptographyProvider) :
         }
         val signatureParametersId = api.signatures.saveParameters(TestParameters.Empty)
         generateKeys(isStressTest) { keyPair, keyReference, _ ->
-            val signer = keyPair.privateKey.signatureGenerator()
-            val verifier = keyPair.publicKey.signatureVerifier()
+            val signer = keyPair.privateKey.asyncSignatureGenerator()
+            val verifier = keyPair.publicKey.asyncSignatureVerifier()
 
             repeat(signatureIterations) {
                 val dataSize = CryptographyRandom.nextInt(maxDataSize)
@@ -45,8 +45,8 @@ abstract class RsaPkcs1CompatibilityTest(provider: CryptographyProvider) :
         api.signatures.getParameters<TestParameters.Empty> { _, parametersId, _ ->
             api.signatures.getData<SignatureData>(parametersId) { (keyReference, data, signature), _, _ ->
                 val (publicKeys, privateKeys) = keyPairs[keyReference] ?: return@getData
-                val verifiers = publicKeys.map { it.signatureVerifier() }
-                val generators = privateKeys.map { it.signatureGenerator() }
+                val verifiers = publicKeys.map { it.asyncSignatureVerifier() }
+                val generators = privateKeys.map { it.asyncSignatureGenerator() }
 
                 verifiers.forEach { verifier ->
                     assertTrue(verifier.verifySignature(data, signature), "Verify")

@@ -4,13 +4,13 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.operations
 
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
 internal class WebCryptoSignatureVerifier(
     private val algorithm: Algorithm,
     private val key: CryptoKey,
-) : SignatureVerifier {
+) : AsyncSignatureVerifier {
     override suspend fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
         return WebCrypto.verify(algorithm, key, signatureInput, dataInput)
     }

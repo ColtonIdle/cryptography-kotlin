@@ -37,8 +37,10 @@ abstract class RsaPssTest(provider: CryptographyProvider) : ProviderTest(provide
                     if (!supportsSaltSize(saltSize)) return@forEach
 
                     val (signatureGenerator, signatureVerifier) = when (saltSize) {
-                        null -> keyPair.privateKey.signatureGenerator() to keyPair.publicKey.signatureVerifier()
-                        else -> keyPair.privateKey.signatureGenerator(saltSize.bytes) to keyPair.publicKey.signatureVerifier(saltSize.bytes)
+                        null -> keyPair.privateKey.asyncSignatureGenerator() to keyPair.publicKey.asyncSignatureVerifier()
+                        else -> keyPair.privateKey.asyncSignatureGenerator(saltSize.bytes) to keyPair.publicKey.asyncSignatureVerifier(
+                            saltSize.bytes
+                        )
                     }
 
                     assertEquals(keySize.inBytes, signatureGenerator.generateSignature(ByteArray(0)).size)

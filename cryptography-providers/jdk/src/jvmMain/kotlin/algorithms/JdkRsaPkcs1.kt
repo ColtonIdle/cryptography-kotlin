@@ -9,8 +9,8 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.operations.cipher.*
-import dev.whyoleg.cryptography.operations.signature.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import dev.whyoleg.cryptography.providers.jdk.operations.*
@@ -81,8 +81,8 @@ private class RsaPkcs1PublicKey(
     private val key: JPublicKey,
     private val hashAlgorithmName: String,
 ) : RSA.PKCS1.PublicKey, RsaPublicEncodableKey(key) {
-    override fun signatureVerifier(): SignatureVerifier {
-        return JdkSignatureVerifier(state, key, hashAlgorithmName + "withRSA", null)
+    override fun asyncSignatureVerifier(): AsyncSignatureVerifier {
+        return JdkSignatureVerifier(state, key, hashAlgorithmName + "withRSA", null).asAsync()
     }
 
     override fun encryptor(): Encryptor = RsaPkcs1Encryptor(state, key)
@@ -93,8 +93,8 @@ private class RsaPkcs1PrivateKey(
     private val key: JPrivateKey,
     private val hashAlgorithmName: String,
 ) : RSA.PKCS1.PrivateKey, RsaPrivateEncodableKey(key) {
-    override fun signatureGenerator(): SignatureGenerator {
-        return JdkSignatureGenerator(state, key, hashAlgorithmName + "withRSA", null)
+    override fun asyncSignatureGenerator(): AsyncSignatureGenerator {
+        return JdkSignatureGenerator(state, key, hashAlgorithmName + "withRSA", null).asAsync()
     }
 
     override fun decryptor(): Decryptor = RsaPkcs1Decryptor(state, key)

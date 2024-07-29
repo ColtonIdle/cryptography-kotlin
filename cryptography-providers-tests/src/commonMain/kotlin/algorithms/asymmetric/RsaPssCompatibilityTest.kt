@@ -42,8 +42,10 @@ abstract class RsaPssCompatibilityTest(provider: CryptographyProvider) :
                 logger.log { "salt.size      = $saltSizeBytes" }
 
                 val (signatureGenerator, signatureVerifier) = when (saltSizeBytes) {
-                    null -> keyPair.privateKey.signatureGenerator() to keyPair.publicKey.signatureVerifier()
-                    else -> keyPair.privateKey.signatureGenerator(saltSizeBytes.bytes) to keyPair.publicKey.signatureVerifier(saltSizeBytes.bytes)
+                    null -> keyPair.privateKey.asyncSignatureGenerator() to keyPair.publicKey.asyncSignatureVerifier()
+                    else -> keyPair.privateKey.asyncSignatureGenerator(saltSizeBytes.bytes) to keyPair.publicKey.asyncSignatureVerifier(
+                        saltSizeBytes.bytes
+                    )
                 }
 
                 repeat(signatureIterations) {
@@ -71,14 +73,14 @@ abstract class RsaPssCompatibilityTest(provider: CryptographyProvider) :
                 val (publicKeys, privateKeys) = keyPairs[keyReference] ?: return@getData
                 val verifiers = publicKeys.map {
                     when (saltSizeBytes) {
-                        null -> it.signatureVerifier()
-                        else -> it.signatureVerifier(saltSizeBytes.bytes)
+                        null -> it.asyncSignatureVerifier()
+                        else -> it.asyncSignatureVerifier(saltSizeBytes.bytes)
                     }
                 }
                 val generators = privateKeys.map {
                     when (saltSizeBytes) {
-                        null -> it.signatureGenerator()
-                        else -> it.signatureGenerator(saltSizeBytes.bytes)
+                        null -> it.asyncSignatureGenerator()
+                        else -> it.asyncSignatureGenerator(saltSizeBytes.bytes)
                     }
                 }
 

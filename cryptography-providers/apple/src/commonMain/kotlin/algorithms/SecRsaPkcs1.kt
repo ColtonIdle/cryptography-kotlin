@@ -7,8 +7,8 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.operations.cipher.*
-import dev.whyoleg.cryptography.operations.signature.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import platform.Security.*
 
@@ -32,7 +32,7 @@ internal object SecRsaPkcs1 : SecRsa<RSA.PKCS1.PublicKey, RSA.PKCS1.PrivateKey, 
         publicKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
     ) : RsaPublicKey(publicKey), RSA.PKCS1.PublicKey {
-        override fun signatureVerifier(): SignatureVerifier = SecSignatureVerifier(publicKey, algorithm)
+        override fun asyncSignatureVerifier(): AsyncSignatureVerifier = SecSignatureVerifier(publicKey, algorithm).asAsync()
         override fun encryptor(): Encryptor = RsaPkcs1Encryptor(publicKey)
     }
 
@@ -40,7 +40,7 @@ internal object SecRsaPkcs1 : SecRsa<RSA.PKCS1.PublicKey, RSA.PKCS1.PrivateKey, 
         privateKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
     ) : RsaPrivateKey(privateKey), RSA.PKCS1.PrivateKey {
-        override fun signatureGenerator(): SignatureGenerator = SecSignatureGenerator(privateKey, algorithm)
+        override fun asyncSignatureGenerator(): AsyncSignatureGenerator = SecSignatureGenerator(privateKey, algorithm).asAsync()
         override fun decryptor(): Decryptor = RsaPkcs1Decryptor(privateKey)
     }
 }

@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 import dev.whyoleg.cryptography.providers.webcrypto.operations.*
@@ -27,7 +27,10 @@ internal object WebCryptoEcdsa : WebCryptoEc<ECDSA.PublicKey, ECDSA.PrivateKey, 
     ) : ECDSA.KeyPair
 
     private class EcdsaPublicKey(publicKey: CryptoKey) : EcPublicKey(publicKey), ECDSA.PublicKey {
-        override fun signatureVerifier(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureVerifier {
+        override fun asyncSignatureVerifier(
+            digest: CryptographyAlgorithmId<Digest>,
+            format: ECDSA.SignatureFormat,
+        ): AsyncSignatureVerifier {
             val verifier = WebCryptoSignatureVerifier(EcdsaSignatureAlgorithm(digest.hashAlgorithmName()), publicKey)
             return when (format) {
                 ECDSA.SignatureFormat.RAW -> verifier
@@ -40,7 +43,10 @@ internal object WebCryptoEcdsa : WebCryptoEc<ECDSA.PublicKey, ECDSA.PrivateKey, 
     }
 
     private class EcdsaPrivateKey(privateKey: CryptoKey) : EcPrivateKey(privateKey), ECDSA.PrivateKey {
-        override fun signatureGenerator(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureGenerator {
+        override fun asyncSignatureGenerator(
+            digest: CryptographyAlgorithmId<Digest>,
+            format: ECDSA.SignatureFormat,
+        ): AsyncSignatureGenerator {
             val generator = WebCryptoSignatureGenerator(EcdsaSignatureAlgorithm(digest.hashAlgorithmName()), privateKey)
             return when (format) {
                 ECDSA.SignatureFormat.RAW -> generator
@@ -51,8 +57,8 @@ internal object WebCryptoEcdsa : WebCryptoEc<ECDSA.PublicKey, ECDSA.PrivateKey, 
 }
 
 private class EcdsaDerSignatureGenerator(
-    private val rawGenerator: SignatureGenerator,
-) : SignatureGenerator {
+    private val rawGenerator: AsyncSignatureGenerator,
+) : AsyncSignatureGenerator {
     override suspend fun generateSignature(dataInput: ByteArray): ByteArray {
         val rawSignature = rawGenerator.generateSignature(dataInput)
 
@@ -71,9 +77,9 @@ private class EcdsaDerSignatureGenerator(
 }
 
 private class EcdsaDerSignatureVerifier(
-    private val rawVerifier: SignatureVerifier,
+    private val rawVerifier: AsyncSignatureVerifier,
     private val curveOrderSize: Int,
-) : SignatureVerifier {
+) : AsyncSignatureVerifier {
     override suspend fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
         val signature = DER.decodeFromByteArray(EcdsaSignatureValue.serializer(), signatureInput)
 

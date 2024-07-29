@@ -5,8 +5,8 @@
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.RSA
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.operations.cipher.*
-import dev.whyoleg.cryptography.operations.signature.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import dev.whyoleg.cryptography.providers.openssl3.operations.*
@@ -35,7 +35,7 @@ internal object Openssl3RsaPkcs1 : Openssl3Rsa<RSA.PKCS1.PublicKey, RSA.PKCS1.Pr
         key: CPointer<EVP_PKEY>,
         private val hashAlgorithm: String,
     ) : RsaPublicKey(key), RSA.PKCS1.PublicKey {
-        override fun signatureVerifier(): SignatureVerifier = RsaPkcs1SignatureVerifier(key, hashAlgorithm)
+        override fun asyncSignatureVerifier(): AsyncSignatureVerifier = RsaPkcs1SignatureVerifier(key, hashAlgorithm).asAsync()
         override fun encryptor(): Encryptor = RsaPkcs1Encryptor(key)
     }
 
@@ -43,7 +43,7 @@ internal object Openssl3RsaPkcs1 : Openssl3Rsa<RSA.PKCS1.PublicKey, RSA.PKCS1.Pr
         key: CPointer<EVP_PKEY>,
         private val hashAlgorithm: String,
     ) : RsaPrivateKey(key), RSA.PKCS1.PrivateKey {
-        override fun signatureGenerator(): SignatureGenerator = RsaPkcs1SignatureGenerator(key, hashAlgorithm)
+        override fun asyncSignatureGenerator(): AsyncSignatureGenerator = RsaPkcs1SignatureGenerator(key, hashAlgorithm).asAsync()
         override fun decryptor(): Decryptor = RsaPkcs1Decryptor(key)
     }
 }

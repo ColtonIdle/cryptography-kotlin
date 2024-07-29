@@ -26,8 +26,8 @@ abstract class RsaPkcs1Test(provider: CryptographyProvider) : ProviderTest(provi
                     assertEquals(keySize.inBytes + 38, keyPair.publicKey.encodeTo(RSA.PublicKey.Format.DER).size)
                 }
 
-                val signatureGenerator = keyPair.privateKey.signatureGenerator()
-                val signatureVerifier = keyPair.publicKey.signatureVerifier()
+                val signatureGenerator = keyPair.privateKey.asyncSignatureGenerator()
+                val signatureVerifier = keyPair.publicKey.asyncSignatureVerifier()
 
                 assertEquals(keySize.inBytes, signatureGenerator.generateSignature(ByteArray(0)).size)
                 repeat(8) { n ->

@@ -10,7 +10,7 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import dev.whyoleg.cryptography.providers.jdk.operations.*
@@ -82,12 +82,12 @@ private class RsaPssPublicKey(
     private val key: JPublicKey,
     private val hashAlgorithmName: String,
 ) : RSA.PSS.PublicKey, RsaPublicEncodableKey(key) {
-    override fun signatureVerifier(): SignatureVerifier {
+    override fun asyncSignatureVerifier(): AsyncSignatureVerifier {
         val digestSize = state.messageDigest(hashAlgorithmName).use { it.digestLength }
-        return signatureVerifier(digestSize.bytes)
+        return asyncSignatureVerifier(digestSize.bytes)
     }
 
-    override fun signatureVerifier(saltLength: BinarySize): SignatureVerifier {
+    override fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier {
         val parameters = PSSParameterSpec(
             hashAlgorithmName,
             "MGF1",
@@ -95,7 +95,7 @@ private class RsaPssPublicKey(
             saltLength.inBytes,
             1
         )
-        return JdkSignatureVerifier(state, key, "RSASSA-PSS", parameters)
+        return JdkSignatureVerifier(state, key, "RSASSA-PSS", parameters).asAsync()
     }
 }
 
@@ -104,12 +104,12 @@ private class RsaPssPrivateKey(
     private val key: JPrivateKey,
     private val hashAlgorithmName: String,
 ) : RSA.PSS.PrivateKey, RsaPrivateEncodableKey(key) {
-    override fun signatureGenerator(): SignatureGenerator {
+    override fun asyncSignatureGenerator(): AsyncSignatureGenerator {
         val digestSize = state.messageDigest(hashAlgorithmName).use { it.digestLength }
-        return signatureGenerator(digestSize.bytes)
+        return asyncSignatureGenerator(digestSize.bytes)
     }
 
-    override fun signatureGenerator(saltLength: BinarySize): SignatureGenerator {
+    override fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator {
         val parameters = PSSParameterSpec(
             hashAlgorithmName,
             "MGF1",
@@ -117,6 +117,6 @@ private class RsaPssPrivateKey(
             saltLength.inBytes,
             1
         )
-        return JdkSignatureGenerator(state, key, "RSASSA-PSS", parameters)
+        return JdkSignatureGenerator(state, key, "RSASSA-PSS", parameters).asAsync()
     }
 }

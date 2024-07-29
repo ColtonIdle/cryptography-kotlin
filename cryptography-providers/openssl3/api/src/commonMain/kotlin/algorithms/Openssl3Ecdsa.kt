@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import dev.whyoleg.cryptography.providers.openssl3.materials.*
@@ -96,12 +96,15 @@ internal object Openssl3Ecdsa : ECDSA {
             else                                                         -> super.outputStruct(format)
         }
 
-        override fun signatureGenerator(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureGenerator {
+        override fun asyncSignatureGenerator(
+            digest: CryptographyAlgorithmId<Digest>,
+            format: ECDSA.SignatureFormat,
+        ): AsyncSignatureGenerator {
             val derSignatureGenerator = EcdsaDerSignatureGenerator(key, hashAlgorithm(digest))
             return when (format) {
                 ECDSA.SignatureFormat.DER -> derSignatureGenerator
                 ECDSA.SignatureFormat.RAW -> EcdsaRawSignatureGenerator(EC_order_size(key), derSignatureGenerator)
-            }
+            }.asAsync()
         }
     }
 
@@ -120,12 +123,15 @@ internal object Openssl3Ecdsa : ECDSA {
             else                    -> super.encodeToBlocking(format)
         }
 
-        override fun signatureVerifier(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureVerifier {
+        override fun asyncSignatureVerifier(
+            digest: CryptographyAlgorithmId<Digest>,
+            format: ECDSA.SignatureFormat,
+        ): AsyncSignatureVerifier {
             val derSignatureVerifier = EcdsaDerSignatureVerifier(key, hashAlgorithm(digest))
             return when (format) {
                 ECDSA.SignatureFormat.DER -> derSignatureVerifier
                 ECDSA.SignatureFormat.RAW -> EcdsaRawSignatureVerifier(EC_order_size(key), derSignatureVerifier)
-            }
+            }.asAsync()
         }
     }
 }
@@ -141,8 +147,8 @@ private class EcdsaRawSignatureGenerator(
     private val orderSizeBytes: Int,
     private val derSignatureGenerator: EcdsaDerSignatureGenerator,
 ) : SignatureGenerator {
-    override fun generateSignatureBlocking(dataInput: ByteArray): ByteArray {
-        val derSignature = derSignatureGenerator.generateSignatureBlocking(dataInput)
+    override fun generateSignature(dataInput: ByteArray): ByteArray {
+        val derSignature = derSignatureGenerator.generateSignature(dataInput)
 
         return memScoped {
             val pdataVar = alloc<CPointerVar<UByteVar>> { value = allocArrayOf(derSignature).reinterpret() }
@@ -172,7 +178,7 @@ private class EcdsaRawSignatureVerifier(
     private val orderSizeBytes: Int,
     private val derSignatureVerifier: EcdsaDerSignatureVerifier,
 ) : SignatureVerifier {
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
+    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
         if (signatureInput.size != orderSizeBytes * 2) return false
 
         return memScoped {
@@ -184,7 +190,7 @@ private class EcdsaRawSignatureVerifier(
                 val outVar = alloc<CPointerVar<UByteVar>>()
                 val signatureLength = checkError(i2d_ECDSA_SIG(sig, outVar.ptr))
                 val derSignature = outVar.value!!.readBytes(signatureLength)
-                derSignatureVerifier.verifySignatureBlocking(dataInput, derSignature)
+                derSignatureVerifier.verifySignature(dataInput, derSignature)
             } finally {
                 ECDSA_SIG_free(sig)
             }

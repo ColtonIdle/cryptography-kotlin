@@ -9,7 +9,7 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.signature.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import dev.whyoleg.cryptography.serialization.asn1.*
 import dev.whyoleg.cryptography.serialization.asn1.modules.*
@@ -163,12 +163,12 @@ private class EcdsaPublicKey(
     @OptIn(ExperimentalNativeApi::class)
     private val cleanup = createCleaner(publicKey, SecKeyRef::release)
 
-    override fun signatureVerifier(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureVerifier {
+    override fun asyncSignatureVerifier(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): AsyncSignatureVerifier {
         val verifier = SecSignatureVerifier(publicKey, digest.ecdsaSecKeyAlgorithm())
         return when (format) {
             ECDSA.SignatureFormat.DER -> verifier
             ECDSA.SignatureFormat.RAW -> EcdsaRawSignatureVerifier(verifier, curve.orderSize)
-        }
+        }.asAsync()
     }
 
     override fun encodeToBlocking(format: EC.PublicKey.Format): ByteArray {
@@ -199,12 +199,12 @@ private class EcdsaPrivateKey(
     @OptIn(ExperimentalNativeApi::class)
     private val cleanup = createCleaner(privateKey, SecKeyRef::release)
 
-    override fun signatureGenerator(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): SignatureGenerator {
+    override fun asyncSignatureGenerator(digest: CryptographyAlgorithmId<Digest>, format: ECDSA.SignatureFormat): AsyncSignatureGenerator {
         val generator = SecSignatureGenerator(privateKey, digest.ecdsaSecKeyAlgorithm())
         return when (format) {
             ECDSA.SignatureFormat.DER -> generator
             ECDSA.SignatureFormat.RAW -> EcdsaRawSignatureGenerator(generator, curve.orderSize)
-        }
+        }.asAsync()
     }
 
     override fun encodeToBlocking(format: EC.PrivateKey.Format): ByteArray {
@@ -243,8 +243,8 @@ private class EcdsaRawSignatureGenerator(
     private val derGenerator: SignatureGenerator,
     private val curveOrderSize: Int,
 ) : SignatureGenerator {
-    override fun generateSignatureBlocking(dataInput: ByteArray): ByteArray {
-        val derSignature = derGenerator.generateSignatureBlocking(dataInput)
+    override fun generateSignature(dataInput: ByteArray): ByteArray {
+        val derSignature = derGenerator.generateSignature(dataInput)
 
         val signature = DER.decodeFromByteArray(EcdsaSignatureValue.serializer(), derSignature)
 
@@ -264,7 +264,7 @@ private class EcdsaRawSignatureVerifier(
     private val derVerifier: SignatureVerifier,
     private val curveOrderSize: Int,
 ) : SignatureVerifier {
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
+    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
         check(signatureInput.size == curveOrderSize * 2) {
             "Expected signature size ${curveOrderSize * 2}, received: ${signatureInput.size}"
         }
@@ -279,7 +279,7 @@ private class EcdsaRawSignatureVerifier(
 
         val derSignature = DER.encodeToByteArray(EcdsaSignatureValue.serializer(), signature)
 
-        return derVerifier.verifySignatureBlocking(dataInput, derSignature)
+        return derVerifier.verifySignature(dataInput, derSignature)
     }
 }
 
