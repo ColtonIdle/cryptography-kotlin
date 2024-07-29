@@ -675,6 +675,26 @@ final value class dev.whyoleg.cryptography.algorithms.symmetric/SymmetricKeySize
     }
 }
 
+final value class dev.whyoleg.cryptography/BinaryData { // dev.whyoleg.cryptography/BinaryData|null[0]
+    final val size // dev.whyoleg.cryptography/BinaryData.size|{}size[0]
+        final fun <get-size>(): dev.whyoleg.cryptography/BinarySize // dev.whyoleg.cryptography/BinaryData.size.<get-size>|<get-size>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.whyoleg.cryptography/BinaryData.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.whyoleg.cryptography/BinaryData.hashCode|hashCode(){}[0]
+    final fun toBase64String(kotlin.io.encoding/Base64 = ...): kotlin/String // dev.whyoleg.cryptography/BinaryData.toBase64String|toBase64String(kotlin.io.encoding.Base64){}[0]
+    final fun toByteArray(): kotlin/ByteArray // dev.whyoleg.cryptography/BinaryData.toByteArray|toByteArray(){}[0]
+    final fun toHexString(kotlin.text/HexFormat = ...): kotlin/String // dev.whyoleg.cryptography/BinaryData.toHexString|toHexString(kotlin.text.HexFormat){}[0]
+    final fun toString(): kotlin/String // dev.whyoleg.cryptography/BinaryData.toString|toString(){}[0]
+    final fun toUtf8String(): kotlin/String // dev.whyoleg.cryptography/BinaryData.toUtf8String|toUtf8String(){}[0]
+
+    final object Companion { // dev.whyoleg.cryptography/BinaryData.Companion|null[0]
+        final fun fromBase64String(kotlin/String, kotlin.io.encoding/Base64): dev.whyoleg.cryptography/BinaryData // dev.whyoleg.cryptography/BinaryData.Companion.fromBase64String|fromBase64String(kotlin.String;kotlin.io.encoding.Base64){}[0]
+        final fun fromByteArray(kotlin/ByteArray...): dev.whyoleg.cryptography/BinaryData // dev.whyoleg.cryptography/BinaryData.Companion.fromByteArray|fromByteArray(kotlin.ByteArray...){}[0]
+        final fun fromHexString(kotlin/String, kotlin.text/HexFormat = ...): dev.whyoleg.cryptography/BinaryData // dev.whyoleg.cryptography/BinaryData.Companion.fromHexString|fromHexString(kotlin.String;kotlin.text.HexFormat){}[0]
+        final fun fromUtf8String(kotlin/String): dev.whyoleg.cryptography/BinaryData // dev.whyoleg.cryptography/BinaryData.Companion.fromUtf8String|fromUtf8String(kotlin.String){}[0]
+    }
+}
+
 final value class dev.whyoleg.cryptography/BinarySize : kotlin/Comparable<dev.whyoleg.cryptography/BinarySize> { // dev.whyoleg.cryptography/BinarySize|null[0]
     final val inBits // dev.whyoleg.cryptography/BinarySize.inBits|{}inBits[0]
         final fun <get-inBits>(): kotlin/Int // dev.whyoleg.cryptography/BinarySize.inBits.<get-inBits>|<get-inBits>(){}[0]
