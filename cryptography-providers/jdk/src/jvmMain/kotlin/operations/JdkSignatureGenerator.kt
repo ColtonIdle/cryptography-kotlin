@@ -16,10 +16,10 @@ internal class JdkSignatureGenerator(
 ) : SignatureGenerator {
     private val signature = state.signature(algorithm)
 
-    override fun generateSignature(dataInput: ByteArray): ByteArray = signature.use { signature ->
+    override fun generateSignature(data: ByteArray): ByteArray = signature.use { signature ->
         signature.initSign(key, state.secureRandom)
         parameters?.let(signature::setParameter)
-        signature.update(dataInput)
+        signature.update(data)
         signature.sign()
     }
 }

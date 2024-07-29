@@ -14,10 +14,10 @@ internal class SecSignatureVerifier(
     private val publicKey: SecKeyRef,
     private val algorithm: SecKeyAlgorithm?,
 ) : SignatureVerifier {
-    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean = memScoped {
+    override fun verifySignature(data: ByteArray, signature: ByteArray): Boolean = memScoped {
         val error = alloc<CFErrorRefVar>()
-        dataInput.useNSData { data ->
-            signatureInput.useNSData { signature ->
+        data.useNSData { data ->
+            signature.useNSData { signature ->
                 val result = SecKeyVerifySignature(
                     key = publicKey,
                     algorithm = algorithm,
@@ -39,9 +39,9 @@ internal class SecSignatureGenerator(
     private val privateKey: SecKeyRef,
     private val algorithm: SecKeyAlgorithm?,
 ) : SignatureGenerator {
-    override fun generateSignature(dataInput: ByteArray): ByteArray = memScoped {
+    override fun generateSignature(data: ByteArray): ByteArray = memScoped {
         val error = alloc<CFErrorRefVar>()
-        dataInput.useNSData { data ->
+        data.useNSData { data ->
             val signature = SecKeyCreateSignature(
                 key = privateKey,
                 algorithm = algorithm,

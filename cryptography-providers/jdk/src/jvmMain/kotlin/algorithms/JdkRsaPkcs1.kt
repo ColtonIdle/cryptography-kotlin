@@ -105,9 +105,9 @@ private class RsaPkcs1Encryptor(
 ) : Encryptor {
     private val cipher = state.cipher("RSA/ECB/PKCS1Padding")
 
-    override fun encrypt(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintext: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.ENCRYPT_MODE, key, state.secureRandom)
-        cipher.doFinal(plaintextInput)
+        cipher.doFinal(plaintext)
     }
 }
 
@@ -117,8 +117,8 @@ private class RsaPkcs1Decryptor(
 ) : Decryptor {
     private val cipher = state.cipher("RSA/ECB/PKCS1Padding")
 
-    override fun decrypt(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertext: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, state.secureRandom)
-        cipher.doFinal(ciphertextInput)
+        cipher.doFinal(ciphertext)
     }
 }

@@ -13,13 +13,13 @@ public interface Cipher : Encryptor, Decryptor
 // not used until 0.5.0
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface Encryptor {
-    public fun encrypt(plaintextInput: ByteArray): ByteArray
+    public fun encrypt(plaintext: ByteArray): ByteArray
 }
 
 // not used until 0.5.0
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface Decryptor {
-    public fun decrypt(ciphertextInput: ByteArray): ByteArray
+    public fun decrypt(ciphertext: ByteArray): ByteArray
 }
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
@@ -27,37 +27,37 @@ public interface AsyncCipher : AsyncEncryptor, AsyncDecryptor
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AsyncEncryptor {
-    public suspend fun encrypt(plaintextInput: ByteArray): ByteArray
+    public suspend fun encrypt(plaintext: ByteArray): ByteArray
 
     // will be deprecated in 0.5.0
-    public fun encryptBlocking(plaintextInput: ByteArray): ByteArray
+    public fun encryptBlocking(plaintext: ByteArray): ByteArray
 }
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AsyncDecryptor {
-    public suspend fun decrypt(ciphertextInput: ByteArray): ByteArray
+    public suspend fun decrypt(ciphertext: ByteArray): ByteArray
 
     // will be deprecated in 0.5.0
-    public fun decryptBlocking(ciphertextInput: ByteArray): ByteArray
+    public fun decryptBlocking(ciphertext: ByteArray): ByteArray
 }
 
 @CryptographyProviderApi
 public fun Encryptor.asAsync(): AsyncEncryptor = object : AsyncEncryptor {
-    override suspend fun encrypt(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+    override suspend fun encrypt(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
+    override fun encryptBlocking(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
 }
 
 @CryptographyProviderApi
 public fun Decryptor.asAsync(): AsyncDecryptor = object : AsyncDecryptor {
-    override suspend fun decrypt(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+    override suspend fun decrypt(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
+    override fun decryptBlocking(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
 }
 
 @CryptographyProviderApi
 public fun Cipher.asAsync(): AsyncCipher = object : AsyncCipher {
-    override suspend fun encrypt(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+    override suspend fun encrypt(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
+    override fun encryptBlocking(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
 
-    override suspend fun decrypt(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+    override suspend fun decrypt(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
+    override fun decryptBlocking(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
 }

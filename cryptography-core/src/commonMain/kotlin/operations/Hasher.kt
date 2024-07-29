@@ -9,19 +9,19 @@ import dev.whyoleg.cryptography.*
 // not used until 0.5.0
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface Hasher {
-    public fun hash(dataInput: ByteArray): ByteArray
+    public fun hash(data: ByteArray): ByteArray
 }
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AsyncHasher {
-    public suspend fun hash(dataInput: ByteArray): ByteArray
+    public suspend fun hash(data: ByteArray): ByteArray
 
     // will be deprecated in 0.5.0
-    public fun hashBlocking(dataInput: ByteArray): ByteArray
+    public fun hashBlocking(data: ByteArray): ByteArray
 }
 
 @CryptographyProviderApi
 public fun Hasher.asAsync(): AsyncHasher = object : AsyncHasher {
-    override suspend fun hash(dataInput: ByteArray): ByteArray = this@asAsync.hash(dataInput)
-    override fun hashBlocking(dataInput: ByteArray): ByteArray = this@asAsync.hash(dataInput)
+    override suspend fun hash(data: ByteArray): ByteArray = this@asAsync.hash(data)
+    override fun hashBlocking(data: ByteArray): ByteArray = this@asAsync.hash(data)
 }

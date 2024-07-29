@@ -38,7 +38,7 @@ private class AesEcbCipher(
     @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(cipher, ::EVP_CIPHER_free)
 
-    override fun encrypt(plaintextInput: ByteArray): ByteArray = memScoped {
+    override fun encrypt(plaintext: ByteArray): ByteArray = memScoped {
         val context = EVP_CIPHER_CTX_new()
         try {
             checkError(
@@ -53,7 +53,7 @@ private class AesEcbCipher(
             checkError(EVP_CIPHER_CTX_set_padding(context, if (padding) 1 else 0))
 
             val blockSize = checkError(EVP_CIPHER_CTX_get_block_size(context))
-            val ciphertextOutput = ByteArray(blockSize + plaintextInput.size)
+            val ciphertextOutput = ByteArray(blockSize + plaintext.size)
 
             val outl = alloc<IntVar>()
 
@@ -62,8 +62,8 @@ private class AesEcbCipher(
                     ctx = context,
                     out = ciphertextOutput.refToU(0),
                     outl = outl.ptr,
-                    `in` = plaintextInput.safeRefToU(0),
-                    inl = plaintextInput.size
+                    `in` = plaintext.safeRefToU(0),
+                    inl = plaintext.size
                 )
             )
 
@@ -84,7 +84,7 @@ private class AesEcbCipher(
         }
     }
 
-    override fun decrypt(ciphertextInput: ByteArray): ByteArray = memScoped {
+    override fun decrypt(ciphertext: ByteArray): ByteArray = memScoped {
         val context = EVP_CIPHER_CTX_new()
         try {
             checkError(
@@ -99,7 +99,7 @@ private class AesEcbCipher(
             checkError(EVP_CIPHER_CTX_set_padding(context, if (padding) 1 else 0))
 
             val blockSize = checkError(EVP_CIPHER_CTX_get_block_size(context))
-            val plaintextOutput = ByteArray(blockSize + ciphertextInput.size)
+            val plaintextOutput = ByteArray(blockSize + ciphertext.size)
 
             val outl = alloc<IntVar>()
 
@@ -108,8 +108,8 @@ private class AesEcbCipher(
                     ctx = context,
                     out = plaintextOutput.refToU(0),
                     outl = outl.ptr,
-                    `in` = ciphertextInput.safeRefToU(0),
-                    inl = ciphertextInput.size
+                    `in` = ciphertext.safeRefToU(0),
+                    inl = ciphertext.size
                 )
             )
 

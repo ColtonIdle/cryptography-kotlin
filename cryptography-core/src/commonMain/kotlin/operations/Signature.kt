@@ -9,42 +9,42 @@ import dev.whyoleg.cryptography.*
 // not used until 0.5.0
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface SignatureGenerator {
-    public fun generateSignature(dataInput: ByteArray): ByteArray
+    public fun generateSignature(data: ByteArray): ByteArray
 }
 
 // not used until 0.5.0
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface SignatureVerifier {
-    public fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean
+    public fun verifySignature(data: ByteArray, signature: ByteArray): Boolean
 }
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AsyncSignatureGenerator {
-    public suspend fun generateSignature(dataInput: ByteArray): ByteArray
+    public suspend fun generateSignature(data: ByteArray): ByteArray
 
     // will be deprecated in 0.5.0
-    public fun generateSignatureBlocking(dataInput: ByteArray): ByteArray
+    public fun generateSignatureBlocking(data: ByteArray): ByteArray
 }
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AsyncSignatureVerifier {
-    public suspend fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean
+    public suspend fun verifySignature(data: ByteArray, signature: ByteArray): Boolean
 
     // will be deprecated in 0.5.0
-    public fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean
+    public fun verifySignatureBlocking(data: ByteArray, signature: ByteArray): Boolean
 }
 
 @CryptographyProviderApi
 public fun SignatureGenerator.asAsync(): AsyncSignatureGenerator = object : AsyncSignatureGenerator {
-    override suspend fun generateSignature(dataInput: ByteArray): ByteArray = this@asAsync.generateSignature(dataInput)
-    override fun generateSignatureBlocking(dataInput: ByteArray): ByteArray = this@asAsync.generateSignature(dataInput)
+    override suspend fun generateSignature(data: ByteArray): ByteArray = this@asAsync.generateSignature(data)
+    override fun generateSignatureBlocking(data: ByteArray): ByteArray = this@asAsync.generateSignature(data)
 }
 
 @CryptographyProviderApi
 public fun SignatureVerifier.asAsync(): AsyncSignatureVerifier = object : AsyncSignatureVerifier {
-    override suspend fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean =
-        this@asAsync.verifySignature(dataInput, signatureInput)
+    override suspend fun verifySignature(data: ByteArray, signature: ByteArray): Boolean =
+        this@asAsync.verifySignature(data, signature)
 
-    override fun verifySignatureBlocking(dataInput: ByteArray, signatureInput: ByteArray): Boolean =
-        this@asAsync.verifySignature(dataInput, signatureInput)
+    override fun verifySignatureBlocking(data: ByteArray, signature: ByteArray): Boolean =
+        this@asAsync.verifySignature(data, signature)
 }

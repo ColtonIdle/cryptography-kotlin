@@ -41,8 +41,8 @@ internal object Openssl3RsaPss : Openssl3Rsa<RSA.PSS.PublicKey, RSA.PSS.PrivateK
             return asyncSignatureVerifier(digestSize.bytes)
         }
 
-        override fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier =
-            RsaPssSignatureVerifier(key, hashAlgorithm, saltLength.inBytes).asAsync()
+        override fun asyncSignatureVerifier(saltSize: BinarySize): AsyncSignatureVerifier =
+            RsaPssSignatureVerifier(key, hashAlgorithm, saltSize.inBytes).asAsync()
     }
 
     private class RsaPssPrivateKey(
@@ -56,8 +56,8 @@ internal object Openssl3RsaPss : Openssl3Rsa<RSA.PSS.PublicKey, RSA.PSS.PrivateK
             return asyncSignatureGenerator(digestSize.bytes)
         }
 
-        override fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator =
-            RsaPssSignatureGenerator(key, hashAlgorithm, saltLength.inBytes).asAsync()
+        override fun asyncSignatureGenerator(saltSize: BinarySize): AsyncSignatureGenerator =
+            RsaPssSignatureGenerator(key, hashAlgorithm, saltSize.inBytes).asAsync()
     }
 }
 

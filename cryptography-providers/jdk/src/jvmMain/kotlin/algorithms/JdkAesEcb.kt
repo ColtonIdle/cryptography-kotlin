@@ -44,13 +44,13 @@ private class AesEcbCipher(
         }
     )
 
-    override fun encrypt(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintext: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.ENCRYPT_MODE, key, state.secureRandom)
-        cipher.doFinal(plaintextInput)
+        cipher.doFinal(plaintext)
     }
 
-    override fun decrypt(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertext: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, state.secureRandom)
-        cipher.doFinal(ciphertextInput)
+        cipher.doFinal(ciphertext)
     }
 }

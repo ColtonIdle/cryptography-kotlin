@@ -29,15 +29,15 @@ internal object SecRsaRaw : SecRsa<RSA.RAW.PublicKey, RSA.RAW.PrivateKey, RSA.RA
 
     private class RsaRawPublicKey(publicKey: SecKeyRef) : RsaPublicKey(publicKey), RSA.RAW.PublicKey, Encryptor {
         override fun asyncEncryptor(): AsyncEncryptor = asAsync()
-        override fun encrypt(plaintextInput: ByteArray): ByteArray {
-            return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionRaw, plaintextInput)
+        override fun encrypt(plaintext: ByteArray): ByteArray {
+            return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionRaw, plaintext)
         }
     }
 
     private class RsaRawPrivateKey(privateKey: SecKeyRef) : RsaPrivateKey(privateKey), RSA.RAW.PrivateKey, Decryptor {
         override fun asyncDecryptor(): AsyncDecryptor = asAsync()
-        override fun decrypt(ciphertextInput: ByteArray): ByteArray {
-            return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionRaw, ciphertextInput)
+        override fun decrypt(ciphertext: ByteArray): ByteArray {
+            return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionRaw, ciphertext)
         }
     }
 }

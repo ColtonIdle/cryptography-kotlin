@@ -43,16 +43,16 @@ private class AesGcmCipher(
 ) : AuthenticatedCipher {
     private val cipher = state.cipher("AES/GCM/NoPadding")
 
-    override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintext: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         val iv = ByteArray(ivSizeBytes).also(state.secureRandom::nextBytes)
         cipher.init(JCipher.ENCRYPT_MODE, key, GCMParameterSpec(tagSize.inBits, iv), state.secureRandom)
         associatedData?.let(cipher::updateAAD)
-        iv + cipher.doFinal(plaintextInput)
+        iv + cipher.doFinal(plaintext)
     }
 
-    override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
-        cipher.init(JCipher.DECRYPT_MODE, key, GCMParameterSpec(tagSize.inBits, ciphertextInput, 0, ivSizeBytes), state.secureRandom)
+    override fun decrypt(ciphertext: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+        cipher.init(JCipher.DECRYPT_MODE, key, GCMParameterSpec(tagSize.inBits, ciphertext, 0, ivSizeBytes), state.secureRandom)
         associatedData?.let(cipher::updateAAD)
-        cipher.doFinal(ciphertextInput, ivSizeBytes, ciphertextInput.size - ivSizeBytes)
+        cipher.doFinal(ciphertext, ivSizeBytes, ciphertext.size - ivSizeBytes)
     }
 }

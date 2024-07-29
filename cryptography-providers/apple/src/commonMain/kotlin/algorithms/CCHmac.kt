@@ -76,21 +76,21 @@ private class HmacKey(
         HMAC.Key.Format.JWK -> error("JWK is not supported")
     }
 
-    override fun generateSignature(dataInput: ByteArray): ByteArray {
+    override fun generateSignature(data: ByteArray): ByteArray {
         val macOutput = ByteArray(digestSize)
         @OptIn(UnsafeNumber::class)
         CCHmac(
             algorithm = hmacAlgorithm,
             key = key.refTo(0),
             keyLength = key.size.convert(),
-            data = dataInput.fixEmpty().refTo(0),
-            dataLength = dataInput.size.convert(),
+            data = data.fixEmpty().refTo(0),
+            dataLength = data.size.convert(),
             macOut = macOutput.refTo(0)
         )
         return macOutput
     }
 
-    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
-        return generateSignature(dataInput).contentEquals(signatureInput)
+    override fun verifySignature(data: ByteArray, signature: ByteArray): Boolean {
+        return generateSignature(data).contentEquals(signature)
     }
 }

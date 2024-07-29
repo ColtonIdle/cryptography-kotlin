@@ -20,7 +20,7 @@ internal abstract class Openssl3DigestSignatureVerifier(
     protected abstract fun MemScope.createParams(): CValuesRef<OSSL_PARAM>?
 
     @OptIn(UnsafeNumber::class)
-    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean = memScoped {
+    override fun verifySignature(data: ByteArray, signature: ByteArray): Boolean = memScoped {
         val context = checkError(EVP_MD_CTX_new())
         try {
             checkError(
@@ -35,9 +35,9 @@ internal abstract class Openssl3DigestSignatureVerifier(
                 )
             )
 
-            checkError(EVP_DigestVerifyUpdate(context, dataInput.safeRefTo(0), dataInput.size.convert()))
+            checkError(EVP_DigestVerifyUpdate(context, data.safeRefTo(0), data.size.convert()))
 
-            val result = EVP_DigestVerifyFinal(context, signatureInput.safeRefToU(0), signatureInput.size.convert())
+            val result = EVP_DigestVerifyFinal(context, signature.safeRefToU(0), signature.size.convert())
             // 0     - means verification failed
             // 1     - means verification succeeded
             // other - means error

@@ -101,7 +101,7 @@ private class RsaOaepEncryptor(
 ) : AuthenticatedEncryptor {
     private val cipher = state.cipher("RSA/ECB/OAEPPadding")
 
-    override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintext: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         val parameters = OAEPParameterSpec(
             hashAlgorithmName,
             "MGF1",
@@ -109,7 +109,7 @@ private class RsaOaepEncryptor(
             associatedData?.let(PSource::PSpecified) ?: PSource.PSpecified.DEFAULT
         )
         cipher.init(JCipher.ENCRYPT_MODE, key, parameters, state.secureRandom)
-        cipher.doFinal(plaintextInput)
+        cipher.doFinal(plaintext)
     }
 }
 
@@ -120,7 +120,7 @@ private class RsaOaepDecryptor(
 ) : AuthenticatedDecryptor {
     private val cipher = state.cipher("RSA/ECB/OAEPPadding")
 
-    override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertext: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         val parameters = OAEPParameterSpec(
             hashAlgorithmName,
             "MGF1",
@@ -128,6 +128,6 @@ private class RsaOaepDecryptor(
             associatedData?.let(PSource::PSpecified) ?: PSource.PSpecified.DEFAULT
         )
         cipher.init(JCipher.DECRYPT_MODE, key, parameters, state.secureRandom)
-        cipher.doFinal(ciphertextInput)
+        cipher.doFinal(ciphertext)
     }
 }

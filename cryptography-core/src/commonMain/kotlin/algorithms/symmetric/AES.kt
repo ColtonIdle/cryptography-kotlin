@@ -100,14 +100,14 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
     @SubclassOptInRequired(CryptographyProviderApi::class)
     public interface IvEncryptor : Encryptor {
         @DelicateCryptographyApi
-        public fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray
+        public fun encrypt(iv: ByteArray, plaintext: ByteArray): ByteArray
     }
 
     // not used until 0.5.0
     @SubclassOptInRequired(CryptographyProviderApi::class)
     public interface IvDecryptor : Decryptor {
         @DelicateCryptographyApi
-        public fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray
+        public fun decrypt(iv: ByteArray, ciphertext: ByteArray): ByteArray
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
@@ -116,65 +116,65 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
     @SubclassOptInRequired(CryptographyProviderApi::class)
     public interface AsyncIvEncryptor : AsyncEncryptor {
         @DelicateCryptographyApi
-        public suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray
+        public suspend fun encrypt(iv: ByteArray, plaintext: ByteArray): ByteArray
 
         // will be deprecated in 0.5.0
         @DelicateCryptographyApi
-        public fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray
+        public fun encryptBlocking(iv: ByteArray, plaintext: ByteArray): ByteArray
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
     public interface AsyncIvDecryptor : AsyncDecryptor {
         @DelicateCryptographyApi
-        public suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray
+        public suspend fun decrypt(iv: ByteArray, ciphertext: ByteArray): ByteArray
 
         // will be deprecated in 0.5.0
         @DelicateCryptographyApi
-        public fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray
+        public fun decryptBlocking(iv: ByteArray, ciphertext: ByteArray): ByteArray
     }
 }
 
 @CryptographyProviderApi
 public fun AES.IvEncryptor.asAsync(): AES.AsyncIvEncryptor = object : AES.AsyncIvEncryptor {
-    override suspend fun encrypt(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+    override suspend fun encrypt(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
+    override fun encryptBlocking(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
 
     @DelicateCryptographyApi
-    override suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+    override suspend fun encrypt(iv: ByteArray, plaintext: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintext)
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+    override fun encryptBlocking(iv: ByteArray, plaintext: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintext)
 }
 
 @CryptographyProviderApi
 public fun AES.IvDecryptor.asAsync(): AES.AsyncIvDecryptor = object : AES.AsyncIvDecryptor {
-    override suspend fun decrypt(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+    override suspend fun decrypt(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
+    override fun decryptBlocking(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
 
     @DelicateCryptographyApi
-    override suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+    override suspend fun decrypt(iv: ByteArray, ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertext)
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+    override fun decryptBlocking(iv: ByteArray, ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertext)
 }
 
 @CryptographyProviderApi
 public fun AES.IvCipher.asAsync(): AES.AsyncIvCipher = object : AES.AsyncIvCipher {
-    override suspend fun encrypt(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+    override suspend fun encrypt(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
+    override fun encryptBlocking(plaintext: ByteArray): ByteArray = this@asAsync.encrypt(plaintext)
 
     @DelicateCryptographyApi
-    override suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+    override suspend fun encrypt(iv: ByteArray, plaintext: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintext)
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+    override fun encryptBlocking(iv: ByteArray, plaintext: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintext)
 
-    override suspend fun decrypt(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
-
-    @DelicateCryptographyApi
-    override suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+    override suspend fun decrypt(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
+    override fun decryptBlocking(ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(ciphertext)
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+    override suspend fun decrypt(iv: ByteArray, ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertext)
+
+    @DelicateCryptographyApi
+    override fun decryptBlocking(iv: ByteArray, ciphertext: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertext)
 }

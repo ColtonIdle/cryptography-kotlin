@@ -33,37 +33,37 @@ private class AesCbcCipher(key: ByteArray, padding: Boolean) : AES.IvCipher {
         key = key
     )
 
-    override fun encrypt(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintext: ByteArray): ByteArray {
         val iv = CryptographyRandom.nextBytes(ivSizeBytes)
-        return iv + encrypt(iv, plaintextInput)
+        return iv + encrypt(iv, plaintext)
     }
 
     @DelicateCryptographyApi
-    override fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(iv: ByteArray, plaintext: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
-        return cipher.encrypt(iv, plaintextInput)
+        return cipher.encrypt(iv, plaintext)
     }
 
-    override fun decrypt(ciphertextInput: ByteArray): ByteArray {
-        require(ciphertextInput.size >= ivSizeBytes) { "Ciphertext is too short" }
-        require(ciphertextInput.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
+    override fun decrypt(ciphertext: ByteArray): ByteArray {
+        require(ciphertext.size >= ivSizeBytes) { "Ciphertext is too short" }
+        require(ciphertext.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
 
         return cipher.decrypt(
-            iv = ciphertextInput,
-            ciphertext = ciphertextInput,
+            iv = ciphertext,
+            ciphertext = ciphertext,
             ciphertextStartIndex = ivSizeBytes
         )
     }
 
     @DelicateCryptographyApi
-    override fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(iv: ByteArray, ciphertext: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
-        require(ciphertextInput.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
+        require(ciphertext.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
 
         return cipher.decrypt(
             iv = iv,
-            ciphertext = ciphertextInput,
+            ciphertext = ciphertext,
             ciphertextStartIndex = 0
         )
     }

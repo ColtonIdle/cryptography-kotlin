@@ -32,7 +32,7 @@ internal object SecRsaPss : SecRsa<RSA.PSS.PublicKey, RSA.PSS.PrivateKey, RSA.PS
         private val algorithm: SecKeyAlgorithm?,
     ) : RsaPublicKey(publicKey), RSA.PSS.PublicKey {
         override fun asyncSignatureVerifier(): AsyncSignatureVerifier = SecSignatureVerifier(publicKey, algorithm).asAsync()
-        override fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier = error("custom saltLength is not supported")
+        override fun asyncSignatureVerifier(saltSize: BinarySize): AsyncSignatureVerifier = error("custom saltLength is not supported")
     }
 
     private class RsaPssPrivateKey(
@@ -40,6 +40,6 @@ internal object SecRsaPss : SecRsa<RSA.PSS.PublicKey, RSA.PSS.PrivateKey, RSA.PS
         private val algorithm: SecKeyAlgorithm?,
     ) : RsaPrivateKey(privateKey), RSA.PSS.PrivateKey {
         override fun asyncSignatureGenerator(): AsyncSignatureGenerator = SecSignatureGenerator(privateKey, algorithm).asAsync()
-        override fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator = error("custom saltLength is not supported")
+        override fun asyncSignatureGenerator(saltSize: BinarySize): AsyncSignatureGenerator = error("custom saltLength is not supported")
     }
 }

@@ -16,10 +16,10 @@ internal class JdkSignatureVerifier(
 ) : SignatureVerifier {
     private val signature = state.signature(algorithm)
 
-    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean = signature.use { signature ->
-        signature.initVerify(key)
-        parameters?.let(signature::setParameter)
-        signature.update(dataInput)
-        signature.verify(signatureInput)
+    override fun verifySignature(data: ByteArray, signature: ByteArray): Boolean = this.signature.use { jsignature ->
+        jsignature.initVerify(key)
+        parameters?.let(jsignature::setParameter)
+        jsignature.update(data)
+        jsignature.verify(signature)
     }
 }

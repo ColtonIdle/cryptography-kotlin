@@ -17,8 +17,8 @@ internal class JdkDigest(
     override fun asyncHasher(): AsyncHasher = asAsync()
     private val messageDigest = state.messageDigest(algorithm)
 
-    override fun hash(dataInput: ByteArray): ByteArray = messageDigest.use { messageDigest ->
+    override fun hash(data: ByteArray): ByteArray = messageDigest.use { messageDigest ->
         messageDigest.reset()
-        messageDigest.digest(dataInput)
+        messageDigest.digest(data)
     }
 }

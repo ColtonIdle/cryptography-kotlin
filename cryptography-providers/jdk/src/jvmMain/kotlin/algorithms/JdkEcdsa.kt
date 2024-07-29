@@ -63,8 +63,8 @@ private class EcdsaRawSignatureGenerator(
     private val derGenerator: SignatureGenerator,
     private val curveOrderSize: Int,
 ) : SignatureGenerator {
-    override fun generateSignature(dataInput: ByteArray): ByteArray {
-        val derSignature = derGenerator.generateSignature(dataInput)
+    override fun generateSignature(data: ByteArray): ByteArray {
+        val derSignature = derGenerator.generateSignature(data)
 
         val signature = DER.decodeFromByteArray(EcdsaSignatureValue.serializer(), derSignature)
 
@@ -84,22 +84,22 @@ private class EcdsaRawSignatureVerifier(
     private val derVerifier: SignatureVerifier,
     private val curveOrderSize: Int,
 ) : SignatureVerifier {
-    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
-        check(signatureInput.size == curveOrderSize * 2) {
-            "Expected signature size ${curveOrderSize * 2}, received: ${signatureInput.size}"
+    override fun verifySignature(data: ByteArray, signature: ByteArray): Boolean {
+        check(signature.size == curveOrderSize * 2) {
+            "Expected signature size ${curveOrderSize * 2}, received: ${signature.size}"
         }
 
-        val r = signatureInput.copyOfRange(0, curveOrderSize).makePositive()
-        val s = signatureInput.copyOfRange(curveOrderSize, signatureInput.size).makePositive()
+        val r = signature.copyOfRange(0, curveOrderSize).makePositive()
+        val s = signature.copyOfRange(curveOrderSize, signature.size).makePositive()
 
-        val signature = EcdsaSignatureValue(
+        val signatureValue = EcdsaSignatureValue(
             r = r.decodeToBigInt(),
             s = s.decodeToBigInt()
         )
 
-        val derSignature = DER.encodeToByteArray(EcdsaSignatureValue.serializer(), signature)
+        val derSignature = DER.encodeToByteArray(EcdsaSignatureValue.serializer(), signatureValue)
 
-        return derVerifier.verifySignature(dataInput, derSignature)
+        return derVerifier.verifySignature(data, derSignature)
     }
 }
 

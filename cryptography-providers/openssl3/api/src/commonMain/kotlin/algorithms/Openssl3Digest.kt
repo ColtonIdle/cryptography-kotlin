@@ -26,13 +26,13 @@ internal class Openssl3Digest(
 
     private val digestSize = EVP_MD_get_size(md)
 
-    override fun hash(dataInput: ByteArray): ByteArray {
+    override fun hash(data: ByteArray): ByteArray {
         val context = checkError(EVP_MD_CTX_new())
         try {
             val digest = ByteArray(digestSize)
             checkError(EVP_DigestInit(context, md))
             @OptIn(UnsafeNumber::class)
-            checkError(EVP_DigestUpdate(context, dataInput.safeRefTo(0), dataInput.size.convert()))
+            checkError(EVP_DigestUpdate(context, data.safeRefTo(0), data.size.convert()))
             checkError(EVP_DigestFinal(context, digest.refToU(0), null))
             return digest
         } finally {

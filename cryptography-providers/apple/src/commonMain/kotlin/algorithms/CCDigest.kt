@@ -17,11 +17,11 @@ internal class CCDigest(
     override fun asyncHasher(): AsyncHasher = asAsync()
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    override fun hash(dataInput: ByteArray): ByteArray {
+    override fun hash(data: ByteArray): ByteArray {
         val output = ByteArray(hashAlgorithm.digestSize)
         hashAlgorithm.ccHash(
-            data = dataInput.fixEmpty().refTo(0),
-            dataLength = dataInput.size.convert(),
+            data = data.fixEmpty().refTo(0),
+            dataLength = data.size.convert(),
             digest = output.asUByteArray().refTo(0)
         )
         return output

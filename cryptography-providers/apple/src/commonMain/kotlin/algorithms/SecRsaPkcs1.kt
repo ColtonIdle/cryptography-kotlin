@@ -33,8 +33,8 @@ internal object SecRsaPkcs1 : SecRsa<RSA.PKCS1.PublicKey, RSA.PKCS1.PrivateKey, 
     ) : RsaPublicKey(publicKey), RSA.PKCS1.PublicKey, Encryptor {
         override fun asyncSignatureVerifier(): AsyncSignatureVerifier = SecSignatureVerifier(publicKey, algorithm).asAsync()
         override fun asyncEncryptor(): AsyncEncryptor = asAsync()
-        override fun encrypt(plaintextInput: ByteArray): ByteArray {
-            return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionPKCS1, plaintextInput)
+        override fun encrypt(plaintext: ByteArray): ByteArray {
+            return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionPKCS1, plaintext)
         }
     }
 
@@ -45,8 +45,8 @@ internal object SecRsaPkcs1 : SecRsa<RSA.PKCS1.PublicKey, RSA.PKCS1.PrivateKey, 
         override fun asyncSignatureGenerator(): AsyncSignatureGenerator = SecSignatureGenerator(privateKey, algorithm).asAsync()
         override fun asyncDecryptor(): AsyncDecryptor = asAsync()
 
-        override fun decrypt(ciphertextInput: ByteArray): ByteArray {
-            return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionPKCS1, ciphertextInput)
+        override fun decrypt(ciphertext: ByteArray): ByteArray {
+            return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionPKCS1, ciphertext)
         }
     }
 }

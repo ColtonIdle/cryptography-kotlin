@@ -68,7 +68,7 @@ private class HmacKey(
     }
 
     @OptIn(UnsafeNumber::class)
-    override fun generateSignature(dataInput: ByteArray): ByteArray = memScoped {
+    override fun generateSignature(data: ByteArray): ByteArray = memScoped {
         val mac = checkError(EVP_MAC_fetch(null, "HMAC", null))
         val context = checkError(EVP_MAC_CTX_new(mac))
         try {
@@ -82,7 +82,7 @@ private class HmacKey(
                     )
                 )
             )
-            checkError(EVP_MAC_update(context, dataInput.safeRefToU(0), dataInput.size.convert()))
+            checkError(EVP_MAC_update(context, data.safeRefToU(0), data.size.convert()))
             val signature = ByteArray(checkError(EVP_MAC_CTX_get_mac_size(context)).convert())
             checkError(EVP_MAC_final(context, signature.refToU(0), null, signature.size.convert()))
             signature
@@ -92,7 +92,7 @@ private class HmacKey(
         }
     }
 
-    override fun verifySignature(dataInput: ByteArray, signatureInput: ByteArray): Boolean {
-        return generateSignature(dataInput).contentEquals(signatureInput)
+    override fun verifySignature(data: ByteArray, signature: ByteArray): Boolean {
+        return generateSignature(data).contentEquals(signature)
     }
 }

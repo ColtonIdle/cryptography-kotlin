@@ -146,14 +146,14 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
             @Deprecated(
                 "Renamed to asyncSignatureVerifier",
-                ReplaceWith("asyncSignatureVerifier(saltLength)"),
+                ReplaceWith("asyncSignatureVerifier(saltSize)"),
                 DeprecationLevel.ERROR
             )
-            public fun signatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier = asyncSignatureVerifier(saltLength)
+            public fun signatureVerifier(saltSize: BinarySize): AsyncSignatureVerifier = asyncSignatureVerifier(saltSize)
 
             // default salt = digest.outputSize
             public fun asyncSignatureVerifier(): AsyncSignatureVerifier
-            public fun asyncSignatureVerifier(saltLength: BinarySize): AsyncSignatureVerifier
+            public fun asyncSignatureVerifier(saltSize: BinarySize): AsyncSignatureVerifier
         }
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
@@ -168,14 +168,14 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
             @Deprecated(
                 "Renamed to asyncSignatureGenerator",
-                ReplaceWith("asyncSignatureGenerator(saltLength)"),
+                ReplaceWith("asyncSignatureGenerator(saltSize)"),
                 DeprecationLevel.ERROR
             )
-            public fun signatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator = asyncSignatureGenerator(saltLength)
+            public fun signatureGenerator(saltSize: BinarySize): AsyncSignatureGenerator = asyncSignatureGenerator(saltSize)
 
             // default salt = digest.outputSize
             public fun asyncSignatureGenerator(): AsyncSignatureGenerator
-            public fun asyncSignatureGenerator(saltLength: BinarySize): AsyncSignatureGenerator
+            public fun asyncSignatureGenerator(saltSize: BinarySize): AsyncSignatureGenerator
         }
     }
 
