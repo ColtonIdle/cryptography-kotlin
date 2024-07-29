@@ -2,10 +2,14 @@
  * Copyright (c) 2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("OperationsKt")
+
 package dev.whyoleg.cryptography.operations
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.materials.key.*
+import kotlin.jvm.*
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface SecretDerivation<K : Key> {

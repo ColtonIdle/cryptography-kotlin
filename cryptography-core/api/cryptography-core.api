@@ -707,12 +707,6 @@ public abstract interface class dev/whyoleg/cryptography/operations/AsyncSignatu
 public abstract interface class dev/whyoleg/cryptography/operations/AuthenticatedCipher : dev/whyoleg/cryptography/operations/AuthenticatedDecryptor, dev/whyoleg/cryptography/operations/AuthenticatedEncryptor, dev/whyoleg/cryptography/operations/Cipher {
 }
 
-public final class dev/whyoleg/cryptography/operations/AuthenticatedCipherKt {
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/AuthenticatedCipher;)Ldev/whyoleg/cryptography/operations/AsyncAuthenticatedCipher;
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/AuthenticatedDecryptor;)Ldev/whyoleg/cryptography/operations/AsyncAuthenticatedDecryptor;
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/AuthenticatedEncryptor;)Ldev/whyoleg/cryptography/operations/AsyncAuthenticatedEncryptor;
-}
-
 public abstract interface class dev/whyoleg/cryptography/operations/AuthenticatedDecryptor : dev/whyoleg/cryptography/operations/Decryptor {
 	public fun decrypt ([B)[B
 	public abstract fun decrypt ([B[B)[B
@@ -724,12 +718,6 @@ public abstract interface class dev/whyoleg/cryptography/operations/Authenticate
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/Cipher : dev/whyoleg/cryptography/operations/Decryptor, dev/whyoleg/cryptography/operations/Encryptor {
-}
-
-public final class dev/whyoleg/cryptography/operations/CipherKt {
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Cipher;)Ldev/whyoleg/cryptography/operations/AsyncCipher;
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Decryptor;)Ldev/whyoleg/cryptography/operations/AsyncDecryptor;
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Encryptor;)Ldev/whyoleg/cryptography/operations/AsyncEncryptor;
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/Decryptor {
@@ -744,25 +732,25 @@ public abstract interface class dev/whyoleg/cryptography/operations/Hasher {
 	public abstract fun hash ([B)[B
 }
 
-public final class dev/whyoleg/cryptography/operations/HasherKt {
+public final class dev/whyoleg/cryptography/operations/OperationsKt {
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/AuthenticatedCipher;)Ldev/whyoleg/cryptography/operations/AsyncAuthenticatedCipher;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/AuthenticatedDecryptor;)Ldev/whyoleg/cryptography/operations/AsyncAuthenticatedDecryptor;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/AuthenticatedEncryptor;)Ldev/whyoleg/cryptography/operations/AsyncAuthenticatedEncryptor;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Cipher;)Ldev/whyoleg/cryptography/operations/AsyncCipher;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Decryptor;)Ldev/whyoleg/cryptography/operations/AsyncDecryptor;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Encryptor;)Ldev/whyoleg/cryptography/operations/AsyncEncryptor;
 	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/Hasher;)Ldev/whyoleg/cryptography/operations/AsyncHasher;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SecretDerivation;)Ldev/whyoleg/cryptography/operations/AsyncSecretDerivation;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SignatureGenerator;)Ldev/whyoleg/cryptography/operations/AsyncSignatureGenerator;
+	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SignatureVerifier;)Ldev/whyoleg/cryptography/operations/AsyncSignatureVerifier;
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/SecretDerivation {
 	public abstract fun deriveSecret (Ldev/whyoleg/cryptography/materials/key/Key;)[B
 }
 
-public final class dev/whyoleg/cryptography/operations/SecretDerivationKt {
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SecretDerivation;)Ldev/whyoleg/cryptography/operations/AsyncSecretDerivation;
-}
-
 public abstract interface class dev/whyoleg/cryptography/operations/SignatureGenerator {
 	public abstract fun generateSignature ([B)[B
-}
-
-public final class dev/whyoleg/cryptography/operations/SignatureKt {
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SignatureGenerator;)Ldev/whyoleg/cryptography/operations/AsyncSignatureGenerator;
-	public static final fun asAsync (Ldev/whyoleg/cryptography/operations/SignatureVerifier;)Ldev/whyoleg/cryptography/operations/AsyncSignatureVerifier;
 }
 
 public abstract interface class dev/whyoleg/cryptography/operations/SignatureVerifier {

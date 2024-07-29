@@ -2,9 +2,13 @@
  * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("OperationsKt")
+
 package dev.whyoleg.cryptography.operations
 
 import dev.whyoleg.cryptography.*
+import kotlin.jvm.*
 
 // not used until 0.5.0
 @SubclassOptInRequired(CryptographyProviderApi::class)
