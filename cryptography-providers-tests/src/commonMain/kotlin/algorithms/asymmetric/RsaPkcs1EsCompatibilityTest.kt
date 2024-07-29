@@ -28,8 +28,8 @@ abstract class RsaPkcs1EsCompatibilityTest(provider: CryptographyProvider) :
         generateKeys(isStressTest, singleDigest = SHA512) { keyPair, keyReference, keyParameters ->
             val maxPlaintextSize = keyParameters.keySizeBits.bits.inBytes - 11 // PKCS1 padding
             logger.log { "maxPlaintextSize.size = $maxPlaintextSize" }
-            val encryptor = keyPair.publicKey.encryptor()
-            val decryptor = keyPair.privateKey.decryptor()
+            val encryptor = keyPair.publicKey.asyncEncryptor()
+            val decryptor = keyPair.privateKey.asyncDecryptor()
 
             repeat(cipherIterations) {
                 // zero plaintexts are not supported for Apple provider
@@ -54,8 +54,8 @@ abstract class RsaPkcs1EsCompatibilityTest(provider: CryptographyProvider) :
         api.ciphers.getParameters<TestParameters.Empty> { _, parametersId, _ ->
             api.ciphers.getData<CipherData>(parametersId) { (keyReference, plaintext, ciphertext), _, _ ->
                 val (publicKeys, privateKeys) = keyPairs[keyReference] ?: return@getData
-                val encryptors = publicKeys.map { it.encryptor() }
-                val decryptors = privateKeys.map { it.decryptor() }
+                val encryptors = publicKeys.map { it.asyncEncryptor() }
+                val decryptors = privateKeys.map { it.asyncDecryptor() }
 
                 decryptors.forEach { decryptor ->
                     assertContentEquals(plaintext, decryptor.decrypt(ciphertext), "Decrypt")

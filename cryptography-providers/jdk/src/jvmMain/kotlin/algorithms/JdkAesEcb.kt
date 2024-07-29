@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.jdk.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import javax.crypto.spec.*
@@ -17,7 +17,7 @@ internal class JdkAesEcb(
 ) : AES.ECB {
     private val keyWrapper: (JSecretKey) -> AES.ECB.Key = { key ->
         object : AES.ECB.Key, JdkEncodableKey<AES.Key.Format>(key) {
-            override fun cipher(padding: Boolean): Cipher = AesEcbCipher(state, key, padding)
+            override fun asyncCipher(padding: Boolean): AsyncCipher = AesEcbCipher(state, key, padding).asAsync()
             override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
                 AES.Key.Format.JWK -> error("$format is not supported")
                 AES.Key.Format.RAW -> encodeToRaw()
@@ -44,12 +44,12 @@ private class AesEcbCipher(
         }
     )
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.ENCRYPT_MODE, key, state.secureRandom)
         cipher.doFinal(plaintextInput)
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, state.secureRandom)
         cipher.doFinal(ciphertextInput)
     }

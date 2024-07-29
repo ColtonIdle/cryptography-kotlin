@@ -5,7 +5,7 @@
 package dev.whyoleg.cryptography.providers.webcrypto.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 
@@ -21,15 +21,15 @@ internal object WebCryptoRsaOaep : WebCryptoRsa<RSA.OAEP.PublicKey, RSA.OAEP.Pri
     ) : RSA.OAEP.KeyPair
 
     private class RsaOaepPublicKey(publicKey: CryptoKey) : RsaPublicKey(publicKey), RSA.OAEP.PublicKey {
-        override fun encryptor(): AuthenticatedEncryptor = RsaOaepEncryptor(publicKey)
+        override fun asyncEncryptor(): AsyncAuthenticatedEncryptor = RsaOaepEncryptor(publicKey)
     }
 
     private class RsaOaepPrivateKey(privateKey: CryptoKey) : RsaPrivateKey(privateKey), RSA.OAEP.PrivateKey {
-        override fun decryptor(): AuthenticatedDecryptor = RsaOaepDecryptor(privateKey)
+        override fun asyncDecryptor(): AsyncAuthenticatedDecryptor = RsaOaepDecryptor(privateKey)
     }
 }
 
-private class RsaOaepEncryptor(private val key: CryptoKey) : AuthenticatedEncryptor {
+private class RsaOaepEncryptor(private val key: CryptoKey) : AsyncAuthenticatedEncryptor {
 
     override suspend fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray {
         return WebCrypto.encrypt(
@@ -42,7 +42,7 @@ private class RsaOaepEncryptor(private val key: CryptoKey) : AuthenticatedEncryp
     override fun encryptBlocking(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = nonBlocking()
 }
 
-private class RsaOaepDecryptor(private val key: CryptoKey) : AuthenticatedDecryptor {
+private class RsaOaepDecryptor(private val key: CryptoKey) : AsyncAuthenticatedDecryptor {
 
     override suspend fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray {
         return WebCrypto.decrypt(

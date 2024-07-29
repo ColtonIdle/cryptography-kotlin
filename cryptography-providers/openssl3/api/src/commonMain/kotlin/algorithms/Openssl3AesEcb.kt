@@ -5,7 +5,7 @@
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.algorithms.symmetric.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import kotlinx.cinterop.*
@@ -23,7 +23,7 @@ internal object Openssl3AesEcb : AES.ECB, Openssl3Aes<AES.ECB.Key>() {
             else                  -> error("Unsupported key size")
         }
 
-        override fun cipher(padding: Boolean): Cipher = AesEcbCipher(algorithm, key, padding)
+        override fun asyncCipher(padding: Boolean): AsyncCipher = AesEcbCipher(algorithm, key, padding).asAsync()
     }
 }
 
@@ -38,7 +38,7 @@ private class AesEcbCipher(
     @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(cipher, ::EVP_CIPHER_free)
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = memScoped {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray = memScoped {
         val context = EVP_CIPHER_CTX_new()
         try {
             checkError(
@@ -84,7 +84,7 @@ private class AesEcbCipher(
         }
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = memScoped {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = memScoped {
         val context = EVP_CIPHER_CTX_new()
         try {
             checkError(

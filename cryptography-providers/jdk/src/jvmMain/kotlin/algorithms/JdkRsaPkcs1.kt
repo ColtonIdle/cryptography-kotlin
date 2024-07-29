@@ -10,7 +10,6 @@ import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
 import dev.whyoleg.cryptography.operations.*
-import dev.whyoleg.cryptography.operations.cipher.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import dev.whyoleg.cryptography.providers.jdk.operations.*
@@ -85,7 +84,7 @@ private class RsaPkcs1PublicKey(
         return JdkSignatureVerifier(state, key, hashAlgorithmName + "withRSA", null).asAsync()
     }
 
-    override fun encryptor(): Encryptor = RsaPkcs1Encryptor(state, key)
+    override fun asyncEncryptor(): AsyncEncryptor = RsaPkcs1Encryptor(state, key).asAsync()
 }
 
 private class RsaPkcs1PrivateKey(
@@ -97,7 +96,7 @@ private class RsaPkcs1PrivateKey(
         return JdkSignatureGenerator(state, key, hashAlgorithmName + "withRSA", null).asAsync()
     }
 
-    override fun decryptor(): Decryptor = RsaPkcs1Decryptor(state, key)
+    override fun asyncDecryptor(): AsyncDecryptor = RsaPkcs1Decryptor(state, key).asAsync()
 }
 
 private class RsaPkcs1Encryptor(
@@ -106,7 +105,7 @@ private class RsaPkcs1Encryptor(
 ) : Encryptor {
     private val cipher = state.cipher("RSA/ECB/PKCS1Padding")
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.ENCRYPT_MODE, key, state.secureRandom)
         cipher.doFinal(plaintextInput)
     }
@@ -118,7 +117,7 @@ private class RsaPkcs1Decryptor(
 ) : Decryptor {
     private val cipher = state.cipher("RSA/ECB/PKCS1Padding")
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, state.secureRandom)
         cipher.doFinal(ciphertextInput)
     }

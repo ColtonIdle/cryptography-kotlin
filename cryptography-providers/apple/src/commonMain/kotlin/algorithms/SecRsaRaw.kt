@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import platform.Security.*
 
@@ -27,23 +27,17 @@ internal object SecRsaRaw : SecRsa<RSA.RAW.PublicKey, RSA.RAW.PrivateKey, RSA.RA
         override val privateKey: RSA.RAW.PrivateKey,
     ) : RSA.RAW.KeyPair
 
-    private class RsaRawPublicKey(publicKey: SecKeyRef) : RsaPublicKey(publicKey), RSA.RAW.PublicKey {
-        override fun encryptor(): Encryptor = RsaRawEncryptor(publicKey)
+    private class RsaRawPublicKey(publicKey: SecKeyRef) : RsaPublicKey(publicKey), RSA.RAW.PublicKey, Encryptor {
+        override fun asyncEncryptor(): AsyncEncryptor = asAsync()
+        override fun encrypt(plaintextInput: ByteArray): ByteArray {
+            return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionRaw, plaintextInput)
+        }
     }
 
-    private class RsaRawPrivateKey(privateKey: SecKeyRef) : RsaPrivateKey(privateKey), RSA.RAW.PrivateKey {
-        override fun decryptor(): Decryptor = RsaRawDecryptor(privateKey)
-    }
-}
-
-private class RsaRawEncryptor(private val publicKey: SecKeyRef) : Encryptor {
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
-        return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionRaw, plaintextInput)
-    }
-}
-
-private class RsaRawDecryptor(private val privateKey: SecKeyRef) : Decryptor {
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
-        return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionRaw, ciphertextInput)
+    private class RsaRawPrivateKey(privateKey: SecKeyRef) : RsaPrivateKey(privateKey), RSA.RAW.PrivateKey, Decryptor {
+        override fun asyncDecryptor(): AsyncDecryptor = asAsync()
+        override fun decrypt(ciphertextInput: ByteArray): ByteArray {
+            return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionRaw, ciphertextInput)
+        }
     }
 }

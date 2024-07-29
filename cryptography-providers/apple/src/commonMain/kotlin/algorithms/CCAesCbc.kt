@@ -14,7 +14,7 @@ internal object CCAesCbc : CCAes<AES.CBC.Key>(), AES.CBC {
     override fun wrapKey(key: ByteArray): AES.CBC.Key = AesCbcKey(key)
 
     private class AesCbcKey(private val key: ByteArray) : AES.CBC.Key {
-        override fun cipher(padding: Boolean): AES.IvCipher = AesCbcCipher(key, padding)
+        override fun asyncCipher(padding: Boolean): AES.AsyncIvCipher = AesCbcCipher(key, padding).asAsync()
         override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
             AES.Key.Format.RAW -> key.copyOf()
             AES.Key.Format.JWK -> error("JWK is not supported")
@@ -33,19 +33,19 @@ private class AesCbcCipher(key: ByteArray, padding: Boolean) : AES.IvCipher {
         key = key
     )
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray {
         val iv = CryptographyRandom.nextBytes(ivSizeBytes)
-        return iv + encryptBlocking(iv, plaintextInput)
+        return iv + encrypt(iv, plaintextInput)
     }
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         return cipher.encrypt(iv, plaintextInput)
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray {
         require(ciphertextInput.size >= ivSizeBytes) { "Ciphertext is too short" }
         require(ciphertextInput.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
 
@@ -57,7 +57,7 @@ private class AesCbcCipher(key: ByteArray, padding: Boolean) : AES.IvCipher {
     }
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
         require(ciphertextInput.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
 

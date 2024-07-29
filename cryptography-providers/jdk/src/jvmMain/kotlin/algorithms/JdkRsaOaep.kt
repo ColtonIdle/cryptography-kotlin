@@ -9,7 +9,7 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import java.security.spec.*
@@ -81,8 +81,8 @@ private class RsaOaepPublicKey(
     private val key: JPublicKey,
     hashAlgorithmName: String,
 ) : RSA.OAEP.PublicKey, RsaPublicEncodableKey(key) {
-    private val encryptor = RsaOaepEncryptor(state, key, hashAlgorithmName)
-    override fun encryptor(): AuthenticatedEncryptor = encryptor
+    private val encryptor = RsaOaepEncryptor(state, key, hashAlgorithmName).asAsync()
+    override fun asyncEncryptor(): AsyncAuthenticatedEncryptor = encryptor
 }
 
 private class RsaOaepPrivateKey(
@@ -90,8 +90,8 @@ private class RsaOaepPrivateKey(
     private val key: JPrivateKey,
     hashAlgorithmName: String,
 ) : RSA.OAEP.PrivateKey, RsaPrivateEncodableKey(key) {
-    private val decryptor = RsaOaepDecryptor(state, key, hashAlgorithmName)
-    override fun decryptor(): AuthenticatedDecryptor = decryptor
+    private val decryptor = RsaOaepDecryptor(state, key, hashAlgorithmName).asAsync()
+    override fun asyncDecryptor(): AsyncAuthenticatedDecryptor = decryptor
 }
 
 private class RsaOaepEncryptor(
@@ -101,7 +101,7 @@ private class RsaOaepEncryptor(
 ) : AuthenticatedEncryptor {
     private val cipher = state.cipher("RSA/ECB/OAEPPadding")
 
-    override fun encryptBlocking(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         val parameters = OAEPParameterSpec(
             hashAlgorithmName,
             "MGF1",
@@ -120,7 +120,7 @@ private class RsaOaepDecryptor(
 ) : AuthenticatedDecryptor {
     private val cipher = state.cipher("RSA/ECB/OAEPPadding")
 
-    override fun decryptBlocking(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         val parameters = OAEPParameterSpec(
             hashAlgorithmName,
             "MGF1",

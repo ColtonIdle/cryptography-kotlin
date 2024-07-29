@@ -24,7 +24,7 @@ internal object Openssl3AesCtr : AES.CTR, Openssl3Aes<AES.CTR.Key>() {
             else                  -> error("Unsupported key size")
         }
 
-        override fun cipher(): AES.IvCipher = AesCtrCipher(algorithm, key)
+        override fun asyncCipher(): AES.AsyncIvCipher = AesCtrCipher(algorithm, key).asAsync()
     }
 }
 
@@ -40,13 +40,13 @@ private class AesCtrCipher(
     @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(cipher, ::EVP_CIPHER_free)
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray {
         val iv = CryptographyRandom.nextBytes(ivSizeBytes)
-        return iv + encryptBlocking(iv, plaintextInput)
+        return iv + encrypt(iv, plaintextInput)
     }
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = memScoped {
+    override fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = memScoped {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         val context = EVP_CIPHER_CTX_new()
@@ -93,7 +93,7 @@ private class AesCtrCipher(
         }
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray {
         require(ciphertextInput.size >= ivSizeBytes) { "Ciphertext is too short" }
 
         return decrypt(
@@ -104,7 +104,7 @@ private class AesCtrCipher(
     }
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         return decrypt(

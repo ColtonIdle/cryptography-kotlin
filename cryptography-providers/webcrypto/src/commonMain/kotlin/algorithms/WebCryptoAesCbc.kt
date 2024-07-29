@@ -15,7 +15,7 @@ internal object WebCryptoAesCbc : WebCryptoAes<AES.CBC.Key>(
     keyWrapper = WebCryptoKeyWrapper(arrayOf("encrypt", "decrypt"), ::AesCbcKey)
 ), AES.CBC {
     private class AesCbcKey(key: CryptoKey) : AesKey(key), AES.CBC.Key {
-        override fun cipher(padding: Boolean): AES.IvCipher {
+        override fun asyncCipher(padding: Boolean): AES.AsyncIvCipher {
             require(padding) { "Padding is required in WebCrypto" }
             return AesCbcCipher(key)
         }
@@ -24,7 +24,7 @@ internal object WebCryptoAesCbc : WebCryptoAes<AES.CBC.Key>(
 
 private const val ivSizeBytes = 16 //bytes for CBC
 
-private class AesCbcCipher(private val key: CryptoKey) : AES.IvCipher {
+private class AesCbcCipher(private val key: CryptoKey) : AES.AsyncIvCipher {
 
     override suspend fun encrypt(plaintextInput: ByteArray): ByteArray {
         val iv = CryptographyRandom.nextBytes(ivSizeBytes)

@@ -24,7 +24,7 @@ internal object Openssl3AesCbc : AES.CBC, Openssl3Aes<AES.CBC.Key>() {
             else                  -> error("Unsupported key size")
         }
 
-        override fun cipher(padding: Boolean): AES.IvCipher = AesCbcCipher(algorithm, key, padding)
+        override fun asyncCipher(padding: Boolean): AES.AsyncIvCipher = AesCbcCipher(algorithm, key, padding).asAsync()
     }
 }
 
@@ -41,13 +41,13 @@ private class AesCbcCipher(
     @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(cipher, ::EVP_CIPHER_free)
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray {
         val iv = CryptographyRandom.nextBytes(ivSizeBytes)
-        return iv + encryptBlocking(iv, plaintextInput)
+        return iv + encrypt(iv, plaintextInput)
     }
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = memScoped {
+    override fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = memScoped {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         val context = EVP_CIPHER_CTX_new()
@@ -95,7 +95,7 @@ private class AesCbcCipher(
         }
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray {
         require(ciphertextInput.size >= ivSizeBytes) { "Ciphertext is too short" }
 
         return decrypt(
@@ -106,7 +106,7 @@ private class AesCbcCipher(
     }
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         return decrypt(

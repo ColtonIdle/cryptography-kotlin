@@ -21,10 +21,10 @@ abstract class RsaOaepTest(provider: CryptographyProvider) : ProviderTest(provid
     ) {
         if (!supportsAssociatedData(associatedData?.size)) return
 
-        val encryptor = keyPair.publicKey.encryptor()
+        val encryptor = keyPair.publicKey.asyncEncryptor()
         val ciphertext = encryptor.encrypt(plaintext, associatedData)
         assertEquals(expectedSize, ciphertext.size)
-        assertContentEquals(plaintext, keyPair.privateKey.decryptor().decrypt(ciphertext, associatedData))
+        assertContentEquals(plaintext, keyPair.privateKey.asyncDecryptor().decrypt(ciphertext, associatedData))
     }
 
     @Test

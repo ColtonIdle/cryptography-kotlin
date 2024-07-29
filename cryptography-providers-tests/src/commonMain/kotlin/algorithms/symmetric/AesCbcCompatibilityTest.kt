@@ -56,7 +56,7 @@ abstract class AesCbcCompatibilityTest(provider: CryptographyProvider) :
         generateKeys(isStressTest) { key, keyReference, _ ->
             parametersList.forEach { (cipherParametersId, parameters) ->
                 logger.log { "parameters = $parameters" }
-                val cipher = key.cipher(parameters.padding)
+                val cipher = key.asyncCipher(parameters.padding)
                 repeat(cipherIterations) {
                     val plaintextSize = CryptographyRandom.nextInt(maxPlaintextSize).withPadding(parameters.padding)
                     logger.log { "plaintext.size  = $plaintextSize" }
@@ -91,7 +91,7 @@ abstract class AesCbcCompatibilityTest(provider: CryptographyProvider) :
 
             api.ciphers.getData<CipherData>(parametersId) { (keyReference, plaintext, ciphertext), _, _ ->
                 keys[keyReference]?.forEach { key ->
-                    val cipher = key.cipher(padding)
+                    val cipher = key.asyncCipher(padding)
                     when (iv) {
                         null -> {
                             assertContentEquals(plaintext, cipher.decrypt(ciphertext), "Decrypt")

@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
-import dev.whyoleg.cryptography.operations.cipher.*
 import dev.whyoleg.cryptography.random.*
 import kotlinx.cinterop.*
 import kotlin.experimental.*
@@ -25,7 +25,7 @@ internal object Openssl3AesGcm : AES.GCM, Openssl3Aes<AES.GCM.Key>() {
             else                  -> error("Unsupported key size")
         }
 
-        override fun cipher(tagSize: BinarySize): AuthenticatedCipher = AesGcmCipher(algorithm, key, tagSize)
+        override fun asyncCipher(tagSize: BinarySize): AsyncAuthenticatedCipher = AesGcmCipher(algorithm, key, tagSize).asAsync()
     }
 }
 
@@ -42,7 +42,7 @@ private class AesGcmCipher(
     @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(cipher, ::EVP_CIPHER_free)
 
-    override fun encryptBlocking(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
+    override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
         val context = EVP_CIPHER_CTX_new()
         try {
             val iv = ByteArray(ivSizeBytes).also { CryptographyRandom.nextBytes(it) }
@@ -107,7 +107,7 @@ private class AesGcmCipher(
         }
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
+    override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
         require(ciphertextInput.size >= ivSizeBytes + tagSize.inBytes) { "Ciphertext is too short" }
         val context = EVP_CIPHER_CTX_new()
         try {

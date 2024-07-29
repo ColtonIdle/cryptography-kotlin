@@ -8,7 +8,6 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.operations.*
-import dev.whyoleg.cryptography.operations.cipher.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import platform.Security.*
 
@@ -31,28 +30,23 @@ internal object SecRsaPkcs1 : SecRsa<RSA.PKCS1.PublicKey, RSA.PKCS1.PrivateKey, 
     private class RsaPkcs1PublicKey(
         publicKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
-    ) : RsaPublicKey(publicKey), RSA.PKCS1.PublicKey {
+    ) : RsaPublicKey(publicKey), RSA.PKCS1.PublicKey, Encryptor {
         override fun asyncSignatureVerifier(): AsyncSignatureVerifier = SecSignatureVerifier(publicKey, algorithm).asAsync()
-        override fun encryptor(): Encryptor = RsaPkcs1Encryptor(publicKey)
+        override fun asyncEncryptor(): AsyncEncryptor = asAsync()
+        override fun encrypt(plaintextInput: ByteArray): ByteArray {
+            return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionPKCS1, plaintextInput)
+        }
     }
 
     private class RsaPkcs1PrivateKey(
         privateKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
-    ) : RsaPrivateKey(privateKey), RSA.PKCS1.PrivateKey {
+    ) : RsaPrivateKey(privateKey), RSA.PKCS1.PrivateKey, Decryptor {
         override fun asyncSignatureGenerator(): AsyncSignatureGenerator = SecSignatureGenerator(privateKey, algorithm).asAsync()
-        override fun decryptor(): Decryptor = RsaPkcs1Decryptor(privateKey)
-    }
-}
+        override fun asyncDecryptor(): AsyncDecryptor = asAsync()
 
-private class RsaPkcs1Encryptor(private val publicKey: SecKeyRef) : Encryptor {
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
-        return secEncrypt(publicKey, kSecKeyAlgorithmRSAEncryptionPKCS1, plaintextInput)
-    }
-}
-
-private class RsaPkcs1Decryptor(private val privateKey: SecKeyRef) : Decryptor {
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
-        return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionPKCS1, ciphertextInput)
+        override fun decrypt(ciphertextInput: ByteArray): ByteArray {
+            return secDecrypt(privateKey, kSecKeyAlgorithmRSAEncryptionPKCS1, ciphertextInput)
+        }
     }
 }

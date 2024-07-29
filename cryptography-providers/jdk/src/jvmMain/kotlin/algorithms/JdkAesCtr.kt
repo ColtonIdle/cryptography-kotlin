@@ -16,7 +16,7 @@ internal class JdkAesCtr(
 ) : AES.CTR {
     private val keyWrapper: (JSecretKey) -> AES.CTR.Key = { key ->
         object : AES.CTR.Key, JdkEncodableKey<AES.Key.Format>(key) {
-            override fun cipher(): AES.IvCipher = AesCtrCipher(state, key)
+            override fun asyncCipher(): AES.AsyncIvCipher = AesCtrCipher(state, key).asAsync()
             override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
                 AES.Key.Format.JWK -> error("$format is not supported")
                 AES.Key.Format.RAW -> encodeToRaw()
@@ -39,24 +39,24 @@ private class AesCtrCipher(
 ) : AES.IvCipher {
     private val cipher = state.cipher("AES/CTR/NoPadding")
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray {
         val iv = ByteArray(ivSizeBytes).also(state.secureRandom::nextBytes)
-        return iv + encryptBlocking(iv, plaintextInput)
+        return iv + encrypt(iv, plaintextInput)
     }
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.ENCRYPT_MODE, key, IvParameterSpec(iv), state.secureRandom)
         cipher.doFinal(plaintextInput)
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, IvParameterSpec(ciphertextInput, 0, ivSizeBytes), state.secureRandom)
         cipher.doFinal(ciphertextInput, ivSizeBytes, ciphertextInput.size - ivSizeBytes)
     }
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, IvParameterSpec(iv), state.secureRandom)
         cipher.doFinal(ciphertextInput)
     }

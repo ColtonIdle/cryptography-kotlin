@@ -15,7 +15,7 @@ internal object CCAesCtr : CCAes<AES.CTR.Key>(), AES.CTR {
     override fun wrapKey(key: ByteArray): AES.CTR.Key = AesCtrKey(key)
 
     private class AesCtrKey(private val key: ByteArray) : AES.CTR.Key {
-        override fun cipher(): AES.IvCipher = AesCtrCipher(key)
+        override fun asyncCipher(): AES.AsyncIvCipher = AesCtrCipher(key).asAsync()
         override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
             AES.Key.Format.RAW -> key.copyOf()
             AES.Key.Format.JWK -> error("JWK is not supported")
@@ -33,19 +33,19 @@ private class AesCtrCipher(key: ByteArray) : AES.IvCipher {
         key = key
     )
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray {
         val iv = CryptographyRandom.nextBytes(ivSizeBytes)
-        return iv + encryptBlocking(iv, plaintextInput)
+        return iv + encrypt(iv, plaintextInput)
     }
 
     @DelicateCryptographyApi
-    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         return cipher.encrypt(iv, plaintextInput)
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray {
         require(ciphertextInput.size >= ivSizeBytes) { "Ciphertext is too short" }
 
         return cipher.decrypt(
@@ -56,7 +56,7 @@ private class AesCtrCipher(key: ByteArray) : AES.IvCipher {
     }
 
     @DelicateCryptographyApi
-    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray {
         require(iv.size == ivSizeBytes) { "IV size is wrong" }
 
         return cipher.decrypt(

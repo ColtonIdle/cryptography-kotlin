@@ -10,7 +10,7 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import java.security.interfaces.*
@@ -75,14 +75,14 @@ private class RsaRawPublicKey(
     private val state: JdkCryptographyState,
     private val key: JPublicKey,
 ) : RSA.RAW.PublicKey, RsaPublicEncodableKey(key) {
-    override fun encryptor(): Encryptor = RsaRawEncryptor(state, key)
+    override fun asyncEncryptor(): AsyncEncryptor = RsaRawEncryptor(state, key).asAsync()
 }
 
 private class RsaRawPrivateKey(
     private val state: JdkCryptographyState,
     private val key: JPrivateKey,
 ) : RSA.RAW.PrivateKey, RsaPrivateEncodableKey(key) {
-    override fun decryptor(): Decryptor = RsaRawDecryptor(state, key)
+    override fun asyncDecryptor(): AsyncDecryptor = RsaRawDecryptor(state, key).asAsync()
 }
 
 private class RsaRawEncryptor(
@@ -91,7 +91,7 @@ private class RsaRawEncryptor(
 ) : Encryptor {
     private val cipher = state.cipher("RSA/ECB/NoPadding")
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.ENCRYPT_MODE, key, state.secureRandom)
         cipher.doFinal(plaintextInput)
     }
@@ -104,7 +104,7 @@ private class RsaRawDecryptor(
     private val cipher = state.cipher("RSA/ECB/NoPadding")
     private val outputSize = (key as RSAKey).modulus.bitLength().bits.inBytes
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, state.secureRandom)
         // for some reason BC provider output size is truncated, so we need to `pad`
         cipher.doFinal(ciphertextInput).pad(outputSize)

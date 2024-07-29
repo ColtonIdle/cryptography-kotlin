@@ -47,7 +47,7 @@ abstract class AesCtrCompatibilityTest(provider: CryptographyProvider) :
         generateKeys(isStressTest) { key, keyReference, _ ->
             parametersList.forEach { (cipherParametersId, parameters) ->
                 logger.log { "parameters = $parameters" }
-                val cipher = key.cipher()
+                val cipher = key.asyncCipher()
                 repeat(cipherIterations) {
                     val plaintextSize = CryptographyRandom.nextInt(maxPlaintextSize)
                     logger.log { "plaintext.size  = $plaintextSize" }
@@ -80,7 +80,7 @@ abstract class AesCtrCompatibilityTest(provider: CryptographyProvider) :
         api.ciphers.getParameters<CipherParameters> { (iv), parametersId, _ ->
             api.ciphers.getData<CipherData>(parametersId) { (keyReference, plaintext, ciphertext), _, context ->
                 keys[keyReference]?.forEach { key ->
-                    val cipher = key.cipher()
+                    val cipher = key.asyncCipher()
                     when (iv) {
                         null -> {
                             assertContentEquals(plaintext, cipher.decrypt(ciphertext), "Decrypt from $context")

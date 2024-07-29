@@ -5,7 +5,7 @@
 package dev.whyoleg.cryptography.providers.apple.algorithms
 
 import dev.whyoleg.cryptography.algorithms.symmetric.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import platform.CoreCrypto.*
 
@@ -13,7 +13,7 @@ internal object CCAesEcb : CCAes<AES.ECB.Key>(), AES.ECB {
     override fun wrapKey(key: ByteArray): AES.ECB.Key = AesEcbKey(key)
 
     private class AesEcbKey(private val key: ByteArray) : AES.ECB.Key {
-        override fun cipher(padding: Boolean): Cipher = AesEcbCipher(key, padding)
+        override fun asyncCipher(padding: Boolean): AsyncCipher = AesEcbCipher(key, padding).asAsync()
         override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
             AES.Key.Format.RAW -> key.copyOf()
             AES.Key.Format.JWK -> error("JWK is not supported")
@@ -31,11 +31,11 @@ private class AesEcbCipher(key: ByteArray, padding: Boolean) : Cipher {
         key = key
     )
 
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray {
         return cipher.encrypt(null, plaintextInput)
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray {
         require(ciphertextInput.size % blockSizeBytes == 0) { "Ciphertext is not padded" }
 
         return cipher.decrypt(

@@ -6,7 +6,6 @@ package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.RSA
 import dev.whyoleg.cryptography.operations.*
-import dev.whyoleg.cryptography.operations.cipher.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import dev.whyoleg.cryptography.providers.openssl3.operations.*
@@ -36,7 +35,7 @@ internal object Openssl3RsaPkcs1 : Openssl3Rsa<RSA.PKCS1.PublicKey, RSA.PKCS1.Pr
         private val hashAlgorithm: String,
     ) : RsaPublicKey(key), RSA.PKCS1.PublicKey {
         override fun asyncSignatureVerifier(): AsyncSignatureVerifier = RsaPkcs1SignatureVerifier(key, hashAlgorithm).asAsync()
-        override fun encryptor(): Encryptor = RsaPkcs1Encryptor(key)
+        override fun asyncEncryptor(): AsyncEncryptor = RsaPkcs1Encryptor(key).asAsync()
     }
 
     private class RsaPkcs1PrivateKey(
@@ -44,7 +43,7 @@ internal object Openssl3RsaPkcs1 : Openssl3Rsa<RSA.PKCS1.PublicKey, RSA.PKCS1.Pr
         private val hashAlgorithm: String,
     ) : RsaPrivateKey(key), RSA.PKCS1.PrivateKey {
         override fun asyncSignatureGenerator(): AsyncSignatureGenerator = RsaPkcs1SignatureGenerator(key, hashAlgorithm).asAsync()
-        override fun decryptor(): Decryptor = RsaPkcs1Decryptor(key)
+        override fun asyncDecryptor(): AsyncDecryptor = RsaPkcs1Decryptor(key).asAsync()
     }
 }
 
@@ -75,7 +74,7 @@ private class RsaPkcs1Encryptor(
     private val cleaner = publicKey.upRef().cleaner()
 
     @OptIn(UnsafeNumber::class)
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = memScoped {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_pkey(null, publicKey, null))
         try {
             checkError(
@@ -121,7 +120,7 @@ private class RsaPkcs1Decryptor(
     private val cleaner = privateKey.upRef().cleaner()
 
     @OptIn(UnsafeNumber::class)
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = memScoped {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_pkey(null, privateKey, null))
         try {
             checkError(

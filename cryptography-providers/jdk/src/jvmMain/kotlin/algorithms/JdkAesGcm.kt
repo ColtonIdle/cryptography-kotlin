@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.jdk.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.algorithms.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
@@ -18,7 +18,7 @@ internal class JdkAesGcm(
 ) : AES.GCM {
     private val keyWrapper: (JSecretKey) -> AES.GCM.Key = { key ->
         object : AES.GCM.Key, JdkEncodableKey<AES.Key.Format>(key) {
-            override fun cipher(tagSize: BinarySize): AuthenticatedCipher = AesGcmCipher(state, key, tagSize)
+            override fun asyncCipher(tagSize: BinarySize): AsyncAuthenticatedCipher = AesGcmCipher(state, key, tagSize).asAsync()
 
             override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
                 AES.Key.Format.JWK -> error("$format is not supported")
@@ -43,14 +43,14 @@ private class AesGcmCipher(
 ) : AuthenticatedCipher {
     private val cipher = state.cipher("AES/GCM/NoPadding")
 
-    override fun encryptBlocking(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         val iv = ByteArray(ivSizeBytes).also(state.secureRandom::nextBytes)
         cipher.init(JCipher.ENCRYPT_MODE, key, GCMParameterSpec(tagSize.inBits, iv), state.secureRandom)
         associatedData?.let(cipher::updateAAD)
         iv + cipher.doFinal(plaintextInput)
     }
 
-    override fun decryptBlocking(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
+    override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = cipher.use { cipher ->
         cipher.init(JCipher.DECRYPT_MODE, key, GCMParameterSpec(tagSize.inBits, ciphertextInput, 0, ivSizeBytes), state.secureRandom)
         associatedData?.let(cipher::updateAAD)
         cipher.doFinal(ciphertextInput, ivSizeBytes, ciphertextInput.size - ivSizeBytes)

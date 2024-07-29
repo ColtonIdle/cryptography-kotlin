@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import platform.Security.*
 
@@ -30,30 +30,24 @@ internal object SecRsaOaep : SecRsa<RSA.OAEP.PublicKey, RSA.OAEP.PrivateKey, RSA
     private class RsaOaepPublicKey(
         publicKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
-    ) : RsaPublicKey(publicKey), RSA.OAEP.PublicKey {
-        override fun encryptor(): AuthenticatedEncryptor = RsaOaepEncryptor(publicKey, algorithm)
+    ) : RsaPublicKey(publicKey), RSA.OAEP.PublicKey, AuthenticatedEncryptor {
+        override fun asyncEncryptor(): AsyncAuthenticatedEncryptor = asAsync()
+        override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray {
+            require(associatedData == null) { "Associated data inclusion is not supported" }
+
+            return secEncrypt(publicKey, algorithm, plaintextInput)
+        }
     }
 
     private class RsaOaepPrivateKey(
         privateKey: SecKeyRef,
         private val algorithm: SecKeyAlgorithm?,
-    ) : RsaPrivateKey(privateKey), RSA.OAEP.PrivateKey {
-        override fun decryptor(): AuthenticatedDecryptor = RsaOaepDecryptor(privateKey, algorithm)
-    }
-}
+    ) : RsaPrivateKey(privateKey), RSA.OAEP.PrivateKey, AuthenticatedDecryptor {
+        override fun asyncDecryptor(): AsyncAuthenticatedDecryptor = asAsync()
+        override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray {
+            require(associatedData == null) { "Associated data inclusion is not supported" }
 
-private class RsaOaepEncryptor(private val publicKey: SecKeyRef, private val algorithm: SecKeyAlgorithm?) : AuthenticatedEncryptor {
-    override fun encryptBlocking(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray {
-        require(associatedData == null) { "Associated data inclusion is not supported" }
-
-        return secEncrypt(publicKey, algorithm, plaintextInput)
-    }
-}
-
-private class RsaOaepDecryptor(private val privateKey: SecKeyRef, private val algorithm: SecKeyAlgorithm?) : AuthenticatedDecryptor {
-    override fun decryptBlocking(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray {
-        require(associatedData == null) { "Associated data inclusion is not supported" }
-
-        return secDecrypt(privateKey, algorithm, ciphertextInput)
+            return secDecrypt(privateKey, algorithm, ciphertextInput)
+        }
     }
 }

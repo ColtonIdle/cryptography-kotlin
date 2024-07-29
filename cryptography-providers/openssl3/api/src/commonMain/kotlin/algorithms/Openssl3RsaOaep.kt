@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.RSA
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import kotlinx.cinterop.*
@@ -33,16 +33,16 @@ internal object Openssl3RsaOaep : Openssl3Rsa<RSA.OAEP.PublicKey, RSA.OAEP.Priva
         key: CPointer<EVP_PKEY>,
         hashAlgorithm: String,
     ) : RsaPublicKey(key), RSA.OAEP.PublicKey {
-        private val encryptor = RsaOaepEncryptor(key, hashAlgorithm)
-        override fun encryptor(): AuthenticatedEncryptor = encryptor
+        private val encryptor = RsaOaepEncryptor(key, hashAlgorithm).asAsync()
+        override fun asyncEncryptor(): AsyncAuthenticatedEncryptor = encryptor
     }
 
     private class RsaOaepPrivateKey(
         key: CPointer<EVP_PKEY>,
         hashAlgorithm: String,
     ) : RsaPrivateKey(key), RSA.OAEP.PrivateKey {
-        private val decryptor = RsaOaepDecryptor(key, hashAlgorithm)
-        override fun decryptor(): AuthenticatedDecryptor = decryptor
+        private val decryptor = RsaOaepDecryptor(key, hashAlgorithm).asAsync()
+        override fun asyncDecryptor(): AsyncAuthenticatedDecryptor = decryptor
     }
 }
 
@@ -54,7 +54,7 @@ private class RsaOaepEncryptor(
     private val cleaner = publicKey.upRef().cleaner()
 
     @OptIn(UnsafeNumber::class)
-    override fun encryptBlocking(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
+    override fun encrypt(plaintextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_pkey(null, publicKey, null))
         try {
             checkError(
@@ -103,7 +103,7 @@ private class RsaOaepDecryptor(
     private val cleaner = privateKey.upRef().cleaner()
 
     @OptIn(UnsafeNumber::class)
-    override fun decryptBlocking(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
+    override fun decrypt(ciphertextInput: ByteArray, associatedData: ByteArray?): ByteArray = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_pkey(null, privateKey, null))
         try {
             checkError(

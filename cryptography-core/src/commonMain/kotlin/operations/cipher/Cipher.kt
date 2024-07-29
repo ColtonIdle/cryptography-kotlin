@@ -1,10 +1,14 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.operations.cipher
 
-import dev.whyoleg.cryptography.*
+import dev.whyoleg.cryptography.operations.*
 
-@SubclassOptInRequired(CryptographyProviderApi::class)
-public interface Cipher : Encryptor, Decryptor
+@Deprecated(
+    "Replaced with AsyncCipher",
+    ReplaceWith("AsyncCipher", "dev.whyoleg.cryptography.operations.AsyncCipher"),
+    DeprecationLevel.ERROR
+)
+public typealias Cipher = AsyncCipher

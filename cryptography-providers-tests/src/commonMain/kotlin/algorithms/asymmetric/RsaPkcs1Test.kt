@@ -64,8 +64,8 @@ abstract class RsaPkcs1Test(provider: CryptographyProvider) : ProviderTest(provi
         expectedSize: Int,
         plaintext: ByteArray,
     ) {
-        val encryptor = keyPair.publicKey.encryptor()
-        val decryptor = keyPair.privateKey.decryptor()
+        val encryptor = keyPair.publicKey.asyncEncryptor()
+        val decryptor = keyPair.privateKey.asyncDecryptor()
         val ciphertext = encryptor.encrypt(plaintext)
         assertEquals(expectedSize, ciphertext.size, "plaintext size: ${plaintext.size}")
         assertContentEquals(plaintext, decryptor.decrypt(ciphertext))

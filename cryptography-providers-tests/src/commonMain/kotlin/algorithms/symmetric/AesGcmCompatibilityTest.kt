@@ -40,7 +40,7 @@ abstract class AesGcmCompatibilityTest(provider: CryptographyProvider) :
         generateKeys(isStressTest) { key, keyReference, _ ->
             tagSizes.forEach { (cipherParametersId, tagSize) ->
                 logger.log { "tagSize = $tagSize" }
-                val cipher = key.cipher(tagSize)
+                val cipher = key.asyncCipher(tagSize)
                 repeat(associatedDataIterations) { adIndex ->
                     val associatedDataSize = if (adIndex == 0) null else CryptographyRandom.nextInt(maxAssociatedDataSize)
                     logger.log { "associatedData.size = $associatedDataSize" }
@@ -70,7 +70,7 @@ abstract class AesGcmCompatibilityTest(provider: CryptographyProvider) :
         api.ciphers.getParameters<CipherParameters> { (tagSize), parametersId, _ ->
             api.ciphers.getData<AuthenticatedCipherData>(parametersId) { (keyReference, associatedData, plaintext, ciphertext), _, _ ->
                 keys[keyReference]?.forEach { key ->
-                    val cipher = key.cipher(tagSize.bits)
+                    val cipher = key.asyncCipher(tagSize.bits)
                     assertContentEquals(plaintext, cipher.decrypt(ciphertext, associatedData), "Decrypt")
                     assertContentEquals(
                         plaintext,

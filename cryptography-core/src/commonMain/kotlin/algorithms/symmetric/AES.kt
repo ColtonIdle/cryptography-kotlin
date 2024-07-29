@@ -7,7 +7,7 @@ package dev.whyoleg.cryptography.algorithms.symmetric
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.BinarySize.Companion.bits
 import dev.whyoleg.cryptography.materials.key.*
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AES<K : AES.Key> : CryptographyAlgorithm {
@@ -28,7 +28,13 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Key : AES.Key {
-            public fun cipher(padding: Boolean = true): Cipher
+            @Deprecated(
+                "Renamed to asyncCipher",
+                ReplaceWith("asyncCipher(padding)"),
+                DeprecationLevel.ERROR
+            )
+            public fun cipher(padding: Boolean = true): AsyncCipher = asyncCipher(padding)
+            public fun asyncCipher(padding: Boolean = true): AsyncCipher
         }
     }
 
@@ -40,7 +46,13 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Key : AES.Key {
-            public fun cipher(padding: Boolean = true): IvCipher
+            @Deprecated(
+                "Renamed to asyncCipher",
+                ReplaceWith("asyncCipher(padding)"),
+                DeprecationLevel.ERROR
+            )
+            public fun cipher(padding: Boolean = true): AsyncIvCipher = asyncCipher(padding)
+            public fun asyncCipher(padding: Boolean = true): AsyncIvCipher
         }
     }
 
@@ -52,7 +64,13 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Key : AES.Key {
-            public fun cipher(): IvCipher
+            @Deprecated(
+                "Renamed to asyncCipher",
+                ReplaceWith("asyncCipher()"),
+                DeprecationLevel.ERROR
+            )
+            public fun cipher(): AsyncIvCipher = asyncCipher()
+            public fun asyncCipher(): AsyncIvCipher
         }
     }
 
@@ -64,28 +82,99 @@ public interface AES<K : AES.Key> : CryptographyAlgorithm {
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface Key : AES.Key {
-            public fun cipher(tagSize: BinarySize = 128.bits): AuthenticatedCipher
+            @Deprecated(
+                "Renamed to asyncCipher",
+                ReplaceWith("asyncCipher(tagSize)"),
+                DeprecationLevel.ERROR
+            )
+            public fun cipher(tagSize: BinarySize = 128.bits): AsyncAuthenticatedCipher = asyncCipher(tagSize)
+            public fun asyncCipher(tagSize: BinarySize = 128.bits): AsyncAuthenticatedCipher
         }
     }
 
+    // not used until 0.5.0
     @SubclassOptInRequired(CryptographyProviderApi::class)
     public interface IvCipher : IvEncryptor, IvDecryptor
 
+    // not used until 0.5.0
     @SubclassOptInRequired(CryptographyProviderApi::class)
     public interface IvEncryptor : Encryptor {
         @DelicateCryptographyApi
-        public suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = encryptBlocking(iv, plaintextInput)
+        public fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray
+    }
 
+    // not used until 0.5.0
+    @SubclassOptInRequired(CryptographyProviderApi::class)
+    public interface IvDecryptor : Decryptor {
+        @DelicateCryptographyApi
+        public fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray
+    }
+
+    @SubclassOptInRequired(CryptographyProviderApi::class)
+    public interface AsyncIvCipher : AsyncIvEncryptor, AsyncIvDecryptor
+
+    @SubclassOptInRequired(CryptographyProviderApi::class)
+    public interface AsyncIvEncryptor : AsyncEncryptor {
+        @DelicateCryptographyApi
+        public suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray
+
+        // will be deprecated in 0.5.0
         @DelicateCryptographyApi
         public fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface IvDecryptor : Decryptor {
+    public interface AsyncIvDecryptor : AsyncDecryptor {
         @DelicateCryptographyApi
-        public suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = decryptBlocking(iv, ciphertextInput)
+        public suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray
 
+        // will be deprecated in 0.5.0
         @DelicateCryptographyApi
         public fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray
     }
+}
+
+@CryptographyProviderApi
+public fun AES.IvEncryptor.asAsync(): AES.AsyncIvEncryptor = object : AES.AsyncIvEncryptor {
+    override suspend fun encrypt(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+
+    @DelicateCryptographyApi
+    override suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+
+    @DelicateCryptographyApi
+    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+}
+
+@CryptographyProviderApi
+public fun AES.IvDecryptor.asAsync(): AES.AsyncIvDecryptor = object : AES.AsyncIvDecryptor {
+    override suspend fun decrypt(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+
+    @DelicateCryptographyApi
+    override suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+
+    @DelicateCryptographyApi
+    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+}
+
+@CryptographyProviderApi
+public fun AES.IvCipher.asAsync(): AES.AsyncIvCipher = object : AES.AsyncIvCipher {
+    override suspend fun encrypt(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(plaintextInput)
+
+    @DelicateCryptographyApi
+    override suspend fun encrypt(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+
+    @DelicateCryptographyApi
+    override fun encryptBlocking(iv: ByteArray, plaintextInput: ByteArray): ByteArray = this@asAsync.encrypt(iv, plaintextInput)
+
+    override suspend fun decrypt(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(ciphertextInput)
+
+    @DelicateCryptographyApi
+    override suspend fun decrypt(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
+
+    @DelicateCryptographyApi
+    override fun decryptBlocking(iv: ByteArray, ciphertextInput: ByteArray): ByteArray = this@asAsync.decrypt(iv, ciphertextInput)
 }

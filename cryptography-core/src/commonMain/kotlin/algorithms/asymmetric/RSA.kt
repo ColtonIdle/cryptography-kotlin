@@ -10,7 +10,6 @@ import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
 import dev.whyoleg.cryptography.operations.*
-import dev.whyoleg.cryptography.operations.cipher.*
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RSA.KeyPair<PublicK, PrivateK>> : CryptographyAlgorithm {
@@ -106,12 +105,24 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PublicKey : RSA.PublicKey {
-            public fun encryptor(): AuthenticatedEncryptor
+            @Deprecated(
+                "Renamed to asyncEncryptor",
+                ReplaceWith("asyncEncryptor()"),
+                DeprecationLevel.ERROR
+            )
+            public fun encryptor(): AsyncAuthenticatedEncryptor = asyncEncryptor()
+            public fun asyncEncryptor(): AsyncAuthenticatedEncryptor
         }
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PrivateKey : RSA.PrivateKey {
-            public fun decryptor(): AuthenticatedDecryptor
+            @Deprecated(
+                "Renamed to asyncDecryptor",
+                ReplaceWith("asyncDecryptor()"),
+                DeprecationLevel.ERROR
+            )
+            public fun decryptor(): AsyncAuthenticatedDecryptor = asyncDecryptor()
+            public fun asyncDecryptor(): AsyncAuthenticatedDecryptor
         }
     }
 
@@ -188,8 +199,16 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
             public fun asyncSignatureVerifier(): AsyncSignatureVerifier
 
             // digest is not used at all
+            @Deprecated(
+                "Renamed to asyncEncryptor",
+                ReplaceWith("asyncEncryptor()"),
+                DeprecationLevel.ERROR
+            )
             @DelicateCryptographyApi
-            public fun encryptor(): Encryptor
+            public fun encryptor(): AsyncEncryptor = asyncEncryptor()
+
+            @DelicateCryptographyApi
+            public fun asyncEncryptor(): AsyncEncryptor
         }
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
@@ -203,8 +222,16 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
             public fun asyncSignatureGenerator(): AsyncSignatureGenerator
 
             // digest is not used at all
+            @Deprecated(
+                "Renamed to asyncDecryptor",
+                ReplaceWith("asyncDecryptor()"),
+                DeprecationLevel.ERROR
+            )
             @DelicateCryptographyApi
-            public fun decryptor(): Decryptor
+            public fun decryptor(): AsyncDecryptor = asyncDecryptor()
+
+            @DelicateCryptographyApi
+            public fun asyncDecryptor(): AsyncDecryptor
         }
     }
 
@@ -221,12 +248,24 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PublicKey : RSA.PublicKey {
-            public fun encryptor(): Encryptor
+            @Deprecated(
+                "Renamed to asyncEncryptor",
+                ReplaceWith("asyncEncryptor()"),
+                DeprecationLevel.ERROR
+            )
+            public fun encryptor(): AsyncEncryptor = asyncEncryptor()
+            public fun asyncEncryptor(): AsyncEncryptor
         }
 
         @SubclassOptInRequired(CryptographyProviderApi::class)
         public interface PrivateKey : RSA.PrivateKey {
-            public fun decryptor(): Decryptor
+            @Deprecated(
+                "Renamed to asyncDecryptor",
+                ReplaceWith("asyncDecryptor()"),
+                DeprecationLevel.ERROR
+            )
+            public fun decryptor(): AsyncDecryptor = asyncDecryptor()
+            public fun asyncDecryptor(): AsyncDecryptor
         }
     }
 }

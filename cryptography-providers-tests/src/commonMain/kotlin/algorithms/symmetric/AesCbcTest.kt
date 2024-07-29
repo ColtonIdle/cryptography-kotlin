@@ -19,7 +19,7 @@ abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC
         val key = algorithm.keyGenerator(keySize).generateKey()
         assertEquals(keySize.value.inBytes, key.encodeTo(AES.Key.Format.RAW).size)
 
-        key.cipher(padding = true).run {
+        key.asyncCipher(padding = true).run {
             assertEquals(ivSize + blockSize * 1, encrypt(ByteArray(0)).size)
             assertEquals(ivSize + blockSize * 1, encrypt(ByteArray(15)).size)
             assertEquals(ivSize + blockSize * 2, encrypt(ByteArray(16)).size)
@@ -38,7 +38,7 @@ abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC
             assertFails { decrypt(ByteArray(319)) }
             assertFails { decrypt(ByteArray(321)) }
         }
-        if (supportsPadding(padding = false)) key.cipher(padding = false).run {
+        if (supportsPadding(padding = false)) key.asyncCipher(padding = false).run {
             assertEquals(ivSize + blockSize * 0, encrypt(ByteArray(0)).size)
             assertEquals(ivSize + blockSize * 1, encrypt(ByteArray(16)).size)
             assertEquals(ivSize + blockSize * 20, encrypt(ByteArray(320)).size)
@@ -63,8 +63,8 @@ abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC
 
         val key = algorithm.keyGenerator(keySize).generateKey()
 
-        val ciphertext = key.cipher(padding = true).encrypt(data)
-        val plaintext = key.cipher(padding = true).decrypt(ciphertext)
+        val ciphertext = key.asyncCipher(padding = true).encrypt(data)
+        val plaintext = key.asyncCipher(padding = true).decrypt(ciphertext)
 
         assertContentEquals(data, plaintext)
     }
@@ -76,10 +76,10 @@ abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC
         val key = algorithm.keyGenerator(keySize).generateKey()
         val wrongKey = algorithm.keyGenerator(keySize).generateKey()
 
-        val ciphertext = key.cipher(padding = true).encrypt(data)
+        val ciphertext = key.asyncCipher(padding = true).encrypt(data)
 
         val result = runCatching {
-            wrongKey.cipher(padding = true).decrypt(ciphertext)
+            wrongKey.asyncCipher(padding = true).decrypt(ciphertext)
         }
 
         result.onFailure {

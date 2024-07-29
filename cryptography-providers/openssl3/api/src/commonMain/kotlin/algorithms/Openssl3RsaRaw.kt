@@ -5,7 +5,7 @@
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.RSA
-import dev.whyoleg.cryptography.operations.cipher.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import kotlinx.cinterop.*
@@ -32,13 +32,13 @@ internal object Openssl3RsaRaw : Openssl3Rsa<RSA.RAW.PublicKey, RSA.RAW.PrivateK
     private class RsaRawPublicKey(
         key: CPointer<EVP_PKEY>,
     ) : RsaPublicKey(key), RSA.RAW.PublicKey {
-        override fun encryptor(): Encryptor = RsaRawEncryptor(key)
+        override fun asyncEncryptor(): AsyncEncryptor = RsaRawEncryptor(key).asAsync()
     }
 
     private class RsaRawPrivateKey(
         key: CPointer<EVP_PKEY>,
     ) : RsaPrivateKey(key), RSA.RAW.PrivateKey {
-        override fun decryptor(): Decryptor = RsaRawDecryptor(key)
+        override fun asyncDecryptor(): AsyncDecryptor = RsaRawDecryptor(key).asAsync()
     }
 }
 
@@ -49,7 +49,7 @@ private class RsaRawEncryptor(
     private val cleaner = publicKey.upRef().cleaner()
 
     @OptIn(UnsafeNumber::class)
-    override fun encryptBlocking(plaintextInput: ByteArray): ByteArray = memScoped {
+    override fun encrypt(plaintextInput: ByteArray): ByteArray = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_pkey(null, publicKey, null))
         try {
             checkError(
@@ -95,7 +95,7 @@ private class RsaRawDecryptor(
     private val cleaner = privateKey.upRef().cleaner()
 
     @OptIn(UnsafeNumber::class)
-    override fun decryptBlocking(ciphertextInput: ByteArray): ByteArray = memScoped {
+    override fun decrypt(ciphertextInput: ByteArray): ByteArray = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_pkey(null, privateKey, null))
         try {
             checkError(

@@ -6,7 +6,6 @@ package dev.whyoleg.cryptography.providers.webcrypto.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.operations.*
-import dev.whyoleg.cryptography.operations.cipher.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 import dev.whyoleg.cryptography.providers.webcrypto.operations.*
@@ -24,11 +23,11 @@ internal object WebCryptoRsaPkcs1 : WebCryptoRsa<RSA.PKCS1.PublicKey, RSA.PKCS1.
 
     private class RsaPkcs1PublicKey(publicKey: CryptoKey) : RsaPublicKey(publicKey), RSA.PKCS1.PublicKey {
         override fun asyncSignatureVerifier(): AsyncSignatureVerifier = WebCryptoSignatureVerifier(Algorithm(algorithmName), publicKey)
-        override fun encryptor(): Encryptor = error("RSA-PKCS1 encryption is not supported by WebCrypto")
+        override fun asyncEncryptor(): AsyncEncryptor = error("RSA-PKCS1 encryption is not supported by WebCrypto")
     }
 
     private class RsaPkcs1PrivateKey(privateKey: CryptoKey) : RsaPrivateKey(privateKey), RSA.PKCS1.PrivateKey {
         override fun asyncSignatureGenerator(): AsyncSignatureGenerator = WebCryptoSignatureGenerator(Algorithm(algorithmName), privateKey)
-        override fun decryptor(): Decryptor = error("RSA-PKCS1 decryption is not supported by WebCrypto")
+        override fun asyncDecryptor(): AsyncDecryptor = error("RSA-PKCS1 decryption is not supported by WebCrypto")
     }
 }

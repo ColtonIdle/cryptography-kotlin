@@ -20,7 +20,7 @@ abstract class AesGcmTest(provider: CryptographyProvider) : AesBasedTest<AES.GCM
 
         listOf(96, 104, 112, 120, 128).forEach { tagSizeBits ->
             val tagSize = tagSizeBits.bits.inBytes
-            key.cipher(tagSizeBits.bits).run {
+            key.asyncCipher(tagSizeBits.bits).run {
                 listOf(0, 15, 16, 17, 319, 320, 321).forEach { inputSize ->
                     assertEquals(ivSize + inputSize + tagSize, encrypt(ByteArray(inputSize)).size)
                 }
@@ -34,8 +34,8 @@ abstract class AesGcmTest(provider: CryptographyProvider) : AesBasedTest<AES.GCM
 
         val key = algorithm.keyGenerator(keySize).generateKey()
 
-        val ciphertext = key.cipher().encrypt(data)
-        val plaintext = key.cipher().decrypt(ciphertext)
+        val ciphertext = key.asyncCipher().encrypt(data)
+        val plaintext = key.asyncCipher().decrypt(ciphertext)
 
         assertContentEquals(data, plaintext)
     }
@@ -47,8 +47,8 @@ abstract class AesGcmTest(provider: CryptographyProvider) : AesBasedTest<AES.GCM
         val key = algorithm.keyGenerator(keySize).generateKey()
         val wrongKey = algorithm.keyGenerator(keySize).generateKey()
 
-        val ciphertext = key.cipher().encrypt(data)
+        val ciphertext = key.asyncCipher().encrypt(data)
 
-        assertFails { wrongKey.cipher().decrypt(ciphertext) }
+        assertFails { wrongKey.asyncCipher().decrypt(ciphertext) }
     }
 }
