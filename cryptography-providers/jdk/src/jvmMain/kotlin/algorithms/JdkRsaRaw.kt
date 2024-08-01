@@ -20,13 +20,14 @@ internal class JdkRsaRaw(
     private val state: JdkCryptographyState,
 ) : RSA.RAW {
 
-    override fun publicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PublicKey.Format, RSA.RAW.PublicKey> =
-        RsaRawPublicKeyDecoder(state)
+    override fun asyncPublicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PublicKey.Format, RSA.RAW.PublicKey> =
+        RsaRawPublicKeyDecoder(state).asAsync()
 
-    override fun privateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PrivateKey.Format, RSA.RAW.PrivateKey> =
-        RsaRawPrivateKeyDecoder(state)
+    override fun asyncPrivateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PrivateKey.Format, RSA.RAW.PrivateKey> =
+        RsaRawPrivateKeyDecoder(state).asAsync()
 
-    override fun keyPairGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyPairGenerator(
         keySize: BinarySize,
         digest: CryptographyAlgorithmId<Digest>,
         publicExponent: BigInt,
@@ -35,7 +36,7 @@ internal class JdkRsaRaw(
             keySize.inBits,
             publicExponent.toJavaBigInteger(),
         )
-        return RsaRawKeyPairGenerator(state, rsaParameters)
+        return RsaRawKeyPairGenerator(state, rsaParameters).asKeyGenerator()
     }
 }
 

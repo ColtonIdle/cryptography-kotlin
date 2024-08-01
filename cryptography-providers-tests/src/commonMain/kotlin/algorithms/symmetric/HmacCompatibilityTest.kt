@@ -36,10 +36,10 @@ abstract class HmacCompatibilityTest(provider: CryptographyProvider) : Compatibi
             if (!supportsDigest(digest)) return@generateDigests
 
             val keyParametersId = api.keys.saveParameters(KeyParameters(digest.name))
-            algorithm.keyGenerator(digest).generateKeys(keyIterations) { key ->
+            algorithm.asyncKeyGenerator(digest).generateMaterials(keyIterations) { key ->
                 val keyReference = api.keys.saveData(
                     keyParametersId,
-                    KeyData(key.encodeTo(HMAC.Key.Format.entries, ::supportsKeyFormat))
+                    KeyData(key.asyncEncoder().encodeTo(HMAC.Key.Format.entries, ::supportsKeyFormat))
                 )
 
                 val signatureGenerator = key.asyncSignatureGenerator()
@@ -65,7 +65,7 @@ abstract class HmacCompatibilityTest(provider: CryptographyProvider) : Compatibi
             api.keys.getParameters<KeyParameters> { parameters, parametersId, _ ->
                 if (!supportsDigest(parameters.digest)) return@getParameters
 
-                val keyDecoder = algorithm.keyDecoder(parameters.digest)
+                val keyDecoder = algorithm.asyncKeyDecoder(parameters.digest)
                 api.keys.getData<KeyData>(parametersId) { (formats), keyReference, _ ->
                     val keys = keyDecoder.decodeFrom(
                         formats = formats,
@@ -73,7 +73,7 @@ abstract class HmacCompatibilityTest(provider: CryptographyProvider) : Compatibi
                         supports = ::supportsKeyFormat
                     ) { key, format, bytes ->
                         when (format) {
-                            HMAC.Key.Format.RAW -> assertContentEquals(bytes, key.encodeTo(format), "Key $format encoding")
+                            HMAC.Key.Format.RAW -> assertContentEquals(bytes, key.asyncEncoder().encodeTo(format), "Key $format encoding")
                             HMAC.Key.Format.JWK -> {} //no check for JWK yet
                         }
                     }

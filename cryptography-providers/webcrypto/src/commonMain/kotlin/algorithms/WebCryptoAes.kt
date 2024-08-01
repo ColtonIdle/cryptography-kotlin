@@ -6,6 +6,7 @@ package dev.whyoleg.cryptography.providers.webcrypto.algorithms
 
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 
@@ -13,13 +14,14 @@ internal abstract class WebCryptoAes<K : AES.Key>(
     private val algorithmName: String,
     private val keyWrapper: WebCryptoKeyWrapper<K>,
 ) : AES<K> {
-    final override fun keyDecoder(): KeyDecoder<AES.Key.Format, K> = WebCryptoKeyDecoder(
+    final override fun asyncKeyDecoder(): AsyncMaterialDecoder<AES.Key.Format, K> = WebCryptoKeyDecoder(
         algorithm = Algorithm(algorithmName),
         keyProcessor = AesKeyProcessor,
         keyWrapper = keyWrapper
     )
 
-    final override fun keyGenerator(keySize: SymmetricKeySize): KeyGenerator<K> = WebCryptoSymmetricKeyGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    final override fun asyncKeyGenerator(keySize: SymmetricKeySize): KeyGenerator<K> = WebCryptoSymmetricKeyGenerator(
         algorithm = AesKeyGenerationAlgorithm(algorithmName, keySize.value.inBits),
         keyWrapper = keyWrapper
     )

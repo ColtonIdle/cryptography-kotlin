@@ -15,13 +15,15 @@ import dev.whyoleg.cryptography.providers.webcrypto.operations.*
 
 internal object WebCryptoHmac : HMAC {
     private val keyWrapper: WebCryptoKeyWrapper<HMAC.Key> = WebCryptoKeyWrapper(arrayOf("sign", "verify"), ::HmacKey)
-    override fun keyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<HMAC.Key.Format, HMAC.Key> = WebCryptoKeyDecoder(
+    override fun asyncKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<HMAC.Key.Format, HMAC.Key> =
+        WebCryptoKeyDecoder(
         algorithm = HmacKeyAlgorithm(digest.hashAlgorithmName(), digest.blockSize()),
         keyProcessor = HmacKeyProcessor,
         keyWrapper = keyWrapper,
     )
 
-    override fun keyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> = WebCryptoSymmetricKeyGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> = WebCryptoSymmetricKeyGenerator(
         algorithm = HmacKeyAlgorithm(digest.hashAlgorithmName(), digest.blockSize()),
         keyWrapper = keyWrapper
     )

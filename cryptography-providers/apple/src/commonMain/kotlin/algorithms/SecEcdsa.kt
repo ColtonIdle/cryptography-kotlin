@@ -40,28 +40,29 @@ private class EcCurveData private constructor(
 }
 
 internal object SecEcdsa : ECDSA {
-    override fun publicKeyDecoder(curve: EC.Curve): KeyDecoder<EC.PublicKey.Format, ECDSA.PublicKey> {
-        return EcdsaPublicKeyDecoder(EcCurveData(curve))
+    override fun asyncPublicKeyDecoder(curve: EC.Curve): AsyncMaterialDecoder<EC.PublicKey.Format, ECDSA.PublicKey> {
+        return EcdsaPublicKeyDecoder(EcCurveData(curve)).asAsync()
     }
 
-    override fun privateKeyDecoder(curve: EC.Curve): KeyDecoder<EC.PrivateKey.Format, ECDSA.PrivateKey> {
-        return EcdsaPrivateKeyDecoder(EcCurveData(curve))
+    override fun asyncPrivateKeyDecoder(curve: EC.Curve): AsyncMaterialDecoder<EC.PrivateKey.Format, ECDSA.PrivateKey> {
+        return EcdsaPrivateKeyDecoder(EcCurveData(curve)).asAsync()
     }
 
-    override fun keyPairGenerator(curve: EC.Curve): KeyGenerator<ECDSA.KeyPair> {
-        return EcdsaKeyPairGenerator(EcCurveData(curve))
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyPairGenerator(curve: EC.Curve): KeyGenerator<ECDSA.KeyPair> {
+        return EcdsaKeyPairGenerator(EcCurveData(curve)).asKeyGenerator()
     }
 }
 
 private class EcdsaPublicKeyDecoder(
     private val curve: EcCurveData,
-) : KeyDecoder<EC.PublicKey.Format, ECDSA.PublicKey> {
-    override fun decodeFromBlocking(format: EC.PublicKey.Format, input: ByteArray): ECDSA.PublicKey {
+) : MaterialDecoder<EC.PublicKey.Format, ECDSA.PublicKey> {
+    override fun decodeFrom(format: EC.PublicKey.Format, data: ByteArray): ECDSA.PublicKey {
         val rawKey = when (format) {
             EC.PublicKey.Format.JWK -> error("$format is not supported")
-            EC.PublicKey.Format.RAW -> input
-            EC.PublicKey.Format.DER -> decodeDer(input)
-            EC.PublicKey.Format.PEM -> decodeDer(unwrapPem(PemLabel.PublicKey, input))
+            EC.PublicKey.Format.RAW -> data
+            EC.PublicKey.Format.DER -> decodeDer(data)
+            EC.PublicKey.Format.PEM -> decodeDer(unwrapPem(PemLabel.PublicKey, data))
         }
         check(rawKey.size == curve.orderSize * 2 + 1) {
             "Invalid raw key size: ${rawKey.size}, expected: ${curve.orderSize * 2 + 1}"
@@ -85,14 +86,14 @@ private class EcdsaPublicKeyDecoder(
 
 private class EcdsaPrivateKeyDecoder(
     private val curve: EcCurveData,
-) : KeyDecoder<EC.PrivateKey.Format, ECDSA.PrivateKey> {
-    override fun decodeFromBlocking(format: EC.PrivateKey.Format, input: ByteArray): ECDSA.PrivateKey {
+) : MaterialDecoder<EC.PrivateKey.Format, ECDSA.PrivateKey> {
+    override fun decodeFrom(format: EC.PrivateKey.Format, data: ByteArray): ECDSA.PrivateKey {
         val rawKey = when (format) {
             EC.PrivateKey.Format.JWK      -> error("$format is not supported")
-            EC.PrivateKey.Format.DER      -> decodeDerPkcs8(input)
-            EC.PrivateKey.Format.PEM      -> decodeDerPkcs8(unwrapPem(PemLabel.PrivateKey, input))
-            EC.PrivateKey.Format.DER.SEC1 -> decodeDerSec1(input)
-            EC.PrivateKey.Format.PEM.SEC1 -> decodeDerSec1(unwrapPem(PemLabel.EcPrivateKey, input))
+            EC.PrivateKey.Format.DER      -> decodeDerPkcs8(data)
+            EC.PrivateKey.Format.PEM      -> decodeDerPkcs8(unwrapPem(PemLabel.PrivateKey, data))
+            EC.PrivateKey.Format.DER.SEC1 -> decodeDerSec1(data)
+            EC.PrivateKey.Format.PEM.SEC1 -> decodeDerSec1(unwrapPem(PemLabel.EcPrivateKey, data))
         }
         check(rawKey.size == curve.orderSize * 3 + 1) {
             "Invalid raw key size: ${rawKey.size}, expected: ${curve.orderSize * 3 + 1}"
@@ -132,9 +133,8 @@ private class EcdsaPrivateKeyDecoder(
 
 private class EcdsaKeyPairGenerator(
     private val curve: EcCurveData,
-) : KeyGenerator<ECDSA.KeyPair> {
-
-    override fun generateKeyBlocking(): ECDSA.KeyPair {
+) : MaterialGenerator<ECDSA.KeyPair> {
+    override fun generate(): ECDSA.KeyPair {
         val privateKey = CFMutableDictionary(2.convert()) {
             add(kSecAttrKeyType, kSecAttrKeyTypeECSECPrimeRandom)
             @Suppress("CAST_NEVER_SUCCEEDS")
@@ -171,24 +171,28 @@ private class EcdsaPublicKey(
         }.asAsync()
     }
 
-    override fun encodeToBlocking(format: EC.PublicKey.Format): ByteArray {
-        val rawKey = exportSecKey(publicKey)
+    override fun asyncEncoder(): AsyncMaterialSelfEncoder<EC.PublicKey.Format> = encoder().asAsync()
 
-        return when (format) {
-            EC.PublicKey.Format.JWK -> error("$format is not supported")
-            EC.PublicKey.Format.RAW -> rawKey
-            EC.PublicKey.Format.DER -> encodeDer(rawKey)
-            EC.PublicKey.Format.PEM -> wrapPem(PemLabel.PublicKey, encodeDer(rawKey))
+    override fun encoder(): MaterialSelfEncoder<EC.PublicKey.Format> = object : MaterialSelfEncoder<EC.PublicKey.Format> {
+        override fun encodeTo(format: EC.PublicKey.Format): ByteArray {
+            val rawKey = exportSecKey(publicKey)
+
+            return when (format) {
+                EC.PublicKey.Format.JWK -> error("$format is not supported")
+                EC.PublicKey.Format.RAW -> rawKey
+                EC.PublicKey.Format.DER -> encodeDer(rawKey)
+                EC.PublicKey.Format.PEM -> wrapPem(PemLabel.PublicKey, encodeDer(rawKey))
+            }
         }
-    }
 
-    private fun encodeDer(rawKey: ByteArray): ByteArray {
-        val spki = SubjectPublicKeyInfo(
-            algorithm = EcKeyAlgorithmIdentifier(EcParameters(curve.curve)),
-            subjectPublicKey = rawKey.toBitArray(),
-        )
+        private fun encodeDer(rawKey: ByteArray): ByteArray {
+            val spki = SubjectPublicKeyInfo(
+                algorithm = EcKeyAlgorithmIdentifier(EcParameters(curve.curve)),
+                subjectPublicKey = rawKey.toBitArray(),
+            )
 
-        return DER.encodeToByteArray(SubjectPublicKeyInfo.serializer(), spki)
+            return DER.encodeToByteArray(SubjectPublicKeyInfo.serializer(), spki)
+        }
     }
 }
 
@@ -207,35 +211,39 @@ private class EcdsaPrivateKey(
         }.asAsync()
     }
 
-    override fun encodeToBlocking(format: EC.PrivateKey.Format): ByteArray {
-        val rawKey = exportSecKey(privateKey)
-        return when (format) {
-            EC.PrivateKey.Format.JWK      -> error("$format is not supported")
-            EC.PrivateKey.Format.DER      -> encodeDerPkcs8(rawKey)
-            EC.PrivateKey.Format.PEM      -> wrapPem(PemLabel.PrivateKey, encodeDerPkcs8(rawKey))
-            EC.PrivateKey.Format.DER.SEC1 -> encodeDerEcPrivateKey(rawKey)
-            EC.PrivateKey.Format.PEM.SEC1 -> wrapPem(PemLabel.EcPrivateKey, encodeDerEcPrivateKey(rawKey))
+    override fun asyncEncoder(): AsyncMaterialSelfEncoder<EC.PrivateKey.Format> = encoder().asAsync()
+
+    override fun encoder(): MaterialSelfEncoder<EC.PrivateKey.Format> = object : MaterialSelfEncoder<EC.PrivateKey.Format> {
+        override fun encodeTo(format: EC.PrivateKey.Format): ByteArray {
+            val rawKey = exportSecKey(privateKey)
+            return when (format) {
+                EC.PrivateKey.Format.JWK      -> error("$format is not supported")
+                EC.PrivateKey.Format.DER      -> encodeDerPkcs8(rawKey)
+                EC.PrivateKey.Format.PEM      -> wrapPem(PemLabel.PrivateKey, encodeDerPkcs8(rawKey))
+                EC.PrivateKey.Format.DER.SEC1 -> encodeDerEcPrivateKey(rawKey)
+                EC.PrivateKey.Format.PEM.SEC1 -> wrapPem(PemLabel.EcPrivateKey, encodeDerEcPrivateKey(rawKey))
+            }
         }
-    }
 
-    private fun encodeDerPkcs8(rawKey: ByteArray): ByteArray {
-        val pki = PrivateKeyInfo(
-            version = 0,
-            privateKeyAlgorithm = EcKeyAlgorithmIdentifier(EcParameters(curve.curve)),
-            privateKey = encodeDerEcPrivateKey(rawKey)
-        )
-        return DER.encodeToByteArray(PrivateKeyInfo.serializer(), pki)
-    }
+        private fun encodeDerPkcs8(rawKey: ByteArray): ByteArray {
+            val pki = PrivateKeyInfo(
+                version = 0,
+                privateKeyAlgorithm = EcKeyAlgorithmIdentifier(EcParameters(curve.curve)),
+                privateKey = encodeDerEcPrivateKey(rawKey)
+            )
+            return DER.encodeToByteArray(PrivateKeyInfo.serializer(), pki)
+        }
 
-    private fun encodeDerEcPrivateKey(rawKey: ByteArray): ByteArray {
-        val ecPrivateKey = EcPrivateKey(
-            version = 1,
-            privateKey = rawKey.copyOfRange(curve.orderSize * 2 + 1, curve.orderSize * 3 + 1),
-            parameters = EcParameters(curve.curve),
-            publicKey = rawKey.copyOfRange(0, curve.orderSize * 2 + 1).toBitArray()
-        )
+        private fun encodeDerEcPrivateKey(rawKey: ByteArray): ByteArray {
+            val ecPrivateKey = EcPrivateKey(
+                version = 1,
+                privateKey = rawKey.copyOfRange(curve.orderSize * 2 + 1, curve.orderSize * 3 + 1),
+                parameters = EcParameters(curve.curve),
+                publicKey = rawKey.copyOfRange(0, curve.orderSize * 2 + 1).toBitArray()
+            )
 
-        return DER.encodeToByteArray(EcPrivateKey.serializer(), ecPrivateKey)
+            return DER.encodeToByteArray(EcPrivateKey.serializer(), ecPrivateKey)
+        }
     }
 }
 

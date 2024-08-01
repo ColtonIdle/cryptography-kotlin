@@ -8,20 +8,20 @@
 package dev.whyoleg.cryptography.operations
 
 import dev.whyoleg.cryptography.*
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
 import kotlin.jvm.*
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
-public interface SecretDerivation<K : Key> {
-    public fun deriveSecret(other: K): ByteArray
+public interface SecretDerivation<M : Material> {
+    public fun deriveSecret(other: M): ByteArray
 }
 
 @SubclassOptInRequired(CryptographyProviderApi::class)
-public interface AsyncSecretDerivation<K : Key> {
-    public suspend fun deriveSecret(other: K): ByteArray
+public interface AsyncSecretDerivation<M : Material> {
+    public suspend fun deriveSecret(other: M): ByteArray
 }
 
 @CryptographyProviderApi
-public fun <K : Key> SecretDerivation<K>.asAsync(): AsyncSecretDerivation<K> = object : AsyncSecretDerivation<K> {
-    override suspend fun deriveSecret(other: K): ByteArray = this@asAsync.deriveSecret(other)
+public fun <M : Material> SecretDerivation<M>.asAsync(): AsyncSecretDerivation<M> = object : AsyncSecretDerivation<M> {
+    override suspend fun deriveSecret(other: M): ByteArray = this@asAsync.deriveSecret(other)
 }

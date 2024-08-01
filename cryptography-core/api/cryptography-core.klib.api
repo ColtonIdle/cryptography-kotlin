@@ -15,19 +15,25 @@ open annotation class dev.whyoleg.cryptography/DelicateCryptographyApi : kotlin/
 }
 
 abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey, #B: dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey, #C: dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair<#A, #B>> dev.whyoleg.cryptography.algorithms.asymmetric/EC : dev.whyoleg.cryptography/CryptographyAlgorithm { // dev.whyoleg.cryptography.algorithms.asymmetric/EC|null[0]
-    abstract fun keyPairGenerator(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.materials.key/KeyGenerator<#C> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.keyPairGenerator|keyPairGenerator(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
-    abstract fun privateKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.materials.key/KeyDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format, #B> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.privateKeyDecoder|privateKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
-    abstract fun publicKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.materials.key/KeyDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format, #A> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.publicKeyDecoder|publicKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
+    abstract fun asyncKeyPairGenerator(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.materials.key/KeyGenerator<#C> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.asyncKeyPairGenerator|asyncKeyPairGenerator(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
+    abstract fun asyncPrivateKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format, #B> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.asyncPrivateKeyDecoder|asyncPrivateKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
+    abstract fun asyncPublicKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format, #A> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.asyncPublicKeyDecoder|asyncPublicKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
+    open fun keyPairGenerator(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.materials.key/KeyGenerator<#C> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.keyPairGenerator|keyPairGenerator(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
+    open fun privateKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format, #B> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.privateKeyDecoder|privateKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
+    open fun publicKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric/EC.Curve): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format, #A> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.publicKeyDecoder|publicKeyDecoder(dev.whyoleg.cryptography.algorithms.asymmetric.EC.Curve){}[0]
 
-    abstract interface <#A1: dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey, #B1: dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey> KeyPair : dev.whyoleg.cryptography.materials.key/Key { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair|null[0]
+    abstract interface <#A1: dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey, #B1: dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey> KeyPair : dev.whyoleg.cryptography.materials/KeyPair { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair|null[0]
         abstract val privateKey // dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair.privateKey|{}privateKey[0]
             abstract fun <get-privateKey>(): #B1 // dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair.privateKey.<get-privateKey>|<get-privateKey>(){}[0]
         abstract val publicKey // dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair.publicKey|{}publicKey[0]
             abstract fun <get-publicKey>(): #A1 // dev.whyoleg.cryptography.algorithms.asymmetric/EC.KeyPair.publicKey.<get-publicKey>|<get-publicKey>(){}[0]
     }
 
-    abstract interface PrivateKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format> { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey|null[0]
-        sealed class Format : dev.whyoleg.cryptography.materials.key/KeyFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format|null[0]
+    abstract interface PrivateKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format>, dev.whyoleg.cryptography.materials/PrivateKey { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey|null[0]
+        abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.asyncEncoder|asyncEncoder(){}[0]
+        abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.encoder|encoder(){}[0]
+
+        sealed class Format : dev.whyoleg.cryptography.materials/MaterialFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format|null[0]
             constructor <init>() // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format.<init>|<init>(){}[0]
 
             final fun toString(): kotlin/String // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PrivateKey.Format.toString|toString(){}[0]
@@ -76,8 +82,11 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/EC.Public
         }
     }
 
-    abstract interface PublicKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format> { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey|null[0]
-        sealed class Format : dev.whyoleg.cryptography.materials.key/KeyFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format|null[0]
+    abstract interface PublicKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format>, dev.whyoleg.cryptography.materials/PublicKey { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey|null[0]
+        abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.asyncEncoder|asyncEncoder(){}[0]
+        abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.encoder|encoder(){}[0]
+
+        sealed class Format : dev.whyoleg.cryptography.materials/MaterialFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format|null[0]
             constructor <init>() // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format.<init>|<init>(){}[0]
 
             final fun toString(): kotlin/String // dev.whyoleg.cryptography.algorithms.asymmetric/EC.PublicKey.Format.toString|toString(){}[0]
@@ -138,11 +147,14 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/EC.Public
 }
 
 abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey, #B: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey, #C: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.KeyPair<#A, #B>> dev.whyoleg.cryptography.algorithms.asymmetric/RSA : dev.whyoleg.cryptography/CryptographyAlgorithm { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA|null[0]
-    abstract fun keyPairGenerator(dev.whyoleg.cryptography/BinarySize = ..., dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> = ..., dev.whyoleg.cryptography.bigint/BigInt = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<#C> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.keyPairGenerator|keyPairGenerator(dev.whyoleg.cryptography.BinarySize;dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>;dev.whyoleg.cryptography.bigint.BigInt){}[0]
-    abstract fun privateKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.materials.key/KeyDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format, #B> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.privateKeyDecoder|privateKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
-    abstract fun publicKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.materials.key/KeyDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format, #A> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.publicKeyDecoder|publicKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    abstract fun asyncKeyPairGenerator(dev.whyoleg.cryptography/BinarySize = ..., dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> = ..., dev.whyoleg.cryptography.bigint/BigInt = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<#C> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.asyncKeyPairGenerator|asyncKeyPairGenerator(dev.whyoleg.cryptography.BinarySize;dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>;dev.whyoleg.cryptography.bigint.BigInt){}[0]
+    abstract fun asyncPrivateKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format, #B> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.asyncPrivateKeyDecoder|asyncPrivateKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    abstract fun asyncPublicKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format, #A> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.asyncPublicKeyDecoder|asyncPublicKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    open fun keyPairGenerator(dev.whyoleg.cryptography/BinarySize = ..., dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> = ..., dev.whyoleg.cryptography.bigint/BigInt = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<#C> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.keyPairGenerator|keyPairGenerator(dev.whyoleg.cryptography.BinarySize;dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>;dev.whyoleg.cryptography.bigint.BigInt){}[0]
+    open fun privateKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format, #B> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.privateKeyDecoder|privateKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    open fun publicKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format, #A> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.publicKeyDecoder|publicKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
 
-    abstract interface <#A1: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey, #B1: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey> KeyPair : dev.whyoleg.cryptography.materials.key/Key { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.KeyPair|null[0]
+    abstract interface <#A1: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey, #B1: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey> KeyPair : dev.whyoleg.cryptography.materials/KeyPair { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.KeyPair|null[0]
         abstract val privateKey // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.KeyPair.privateKey|{}privateKey[0]
             abstract fun <get-privateKey>(): #B1 // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.KeyPair.privateKey.<get-privateKey>|<get-privateKey>(){}[0]
         abstract val publicKey // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.KeyPair.publicKey|{}publicKey[0]
@@ -214,8 +226,11 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.Publi
         final object Companion : dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PSS> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PSS.Companion|null[0]
     }
 
-    abstract interface PrivateKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format> { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey|null[0]
-        sealed class Format : dev.whyoleg.cryptography.materials.key/KeyFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format|null[0]
+    abstract interface PrivateKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format>, dev.whyoleg.cryptography.materials/PrivateKey { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey|null[0]
+        abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.asyncEncoder|asyncEncoder(){}[0]
+        abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.encoder|encoder(){}[0]
+
+        sealed class Format : dev.whyoleg.cryptography.materials/MaterialFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format|null[0]
             constructor <init>() // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format.<init>|<init>(){}[0]
 
             final fun toString(): kotlin/String // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PrivateKey.Format.toString|toString(){}[0]
@@ -264,8 +279,11 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.Publi
         }
     }
 
-    abstract interface PublicKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format> { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey|null[0]
-        sealed class Format : dev.whyoleg.cryptography.materials.key/KeyFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format|null[0]
+    abstract interface PublicKey : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format>, dev.whyoleg.cryptography.materials/PublicKey { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey|null[0]
+        abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.asyncEncoder|asyncEncoder(){}[0]
+        abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format> // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.encoder|encoder(){}[0]
+
+        sealed class Format : dev.whyoleg.cryptography.materials/MaterialFormat { // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format|null[0]
             constructor <init>() // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format.<init>|<init>(){}[0]
 
             final fun toString(): kotlin/String // dev.whyoleg.cryptography.algorithms.asymmetric/RSA.PublicKey.Format.toString|toString(){}[0]
@@ -335,8 +353,10 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.asymmetric/RSA.Publi
 }
 
 abstract interface <#A: dev.whyoleg.cryptography.algorithms.symmetric/AES.Key> dev.whyoleg.cryptography.algorithms.symmetric/AES : dev.whyoleg.cryptography/CryptographyAlgorithm { // dev.whyoleg.cryptography.algorithms.symmetric/AES|null[0]
-    abstract fun keyDecoder(): dev.whyoleg.cryptography.materials.key/KeyDecoder<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format, #A> // dev.whyoleg.cryptography.algorithms.symmetric/AES.keyDecoder|keyDecoder(){}[0]
-    abstract fun keyGenerator(dev.whyoleg.cryptography.algorithms.symmetric/SymmetricKeySize = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<#A> // dev.whyoleg.cryptography.algorithms.symmetric/AES.keyGenerator|keyGenerator(dev.whyoleg.cryptography.algorithms.symmetric.SymmetricKeySize){}[0]
+    abstract fun asyncKeyDecoder(): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format, #A> // dev.whyoleg.cryptography.algorithms.symmetric/AES.asyncKeyDecoder|asyncKeyDecoder(){}[0]
+    abstract fun asyncKeyGenerator(dev.whyoleg.cryptography.algorithms.symmetric/SymmetricKeySize = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<#A> // dev.whyoleg.cryptography.algorithms.symmetric/AES.asyncKeyGenerator|asyncKeyGenerator(dev.whyoleg.cryptography.algorithms.symmetric.SymmetricKeySize){}[0]
+    open fun keyDecoder(): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format, #A> // dev.whyoleg.cryptography.algorithms.symmetric/AES.keyDecoder|keyDecoder(){}[0]
+    open fun keyGenerator(dev.whyoleg.cryptography.algorithms.symmetric/SymmetricKeySize = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<#A> // dev.whyoleg.cryptography.algorithms.symmetric/AES.keyGenerator|keyGenerator(dev.whyoleg.cryptography.algorithms.symmetric.SymmetricKeySize){}[0]
 
     abstract interface AsyncIvCipher : dev.whyoleg.cryptography.algorithms.symmetric/AES.AsyncIvDecryptor, dev.whyoleg.cryptography.algorithms.symmetric/AES.AsyncIvEncryptor // dev.whyoleg.cryptography.algorithms.symmetric/AES.AsyncIvCipher|null[0]
 
@@ -408,8 +428,11 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.symmetric/AES.Key> d
         abstract fun encrypt(kotlin/ByteArray, kotlin/ByteArray): kotlin/ByteArray // dev.whyoleg.cryptography.algorithms.symmetric/AES.IvEncryptor.encrypt|encrypt(kotlin.ByteArray;kotlin.ByteArray){}[0]
     }
 
-    abstract interface Key : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format> { // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key|null[0]
-        final enum class Format : dev.whyoleg.cryptography.materials.key/KeyFormat, kotlin/Enum<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format> { // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format|null[0]
+    abstract interface Key : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format>, dev.whyoleg.cryptography.materials/SymmetricKey { // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key|null[0]
+        abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format> // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.asyncEncoder|asyncEncoder(){}[0]
+        abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format> // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.encoder|encoder(){}[0]
+
+        final enum class Format : dev.whyoleg.cryptography.materials/MaterialFormat, kotlin/Enum<dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format> { // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format|null[0]
             enum entry JWK // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format.JWK|null[0]
             enum entry RAW // dev.whyoleg.cryptography.algorithms.symmetric/AES.Key.Format.RAW|null[0]
 
@@ -422,27 +445,50 @@ abstract interface <#A: dev.whyoleg.cryptography.algorithms.symmetric/AES.Key> d
     }
 }
 
-abstract interface <#A: dev.whyoleg.cryptography.materials.key/Key> dev.whyoleg.cryptography.materials.key/KeyGenerator { // dev.whyoleg.cryptography.materials.key/KeyGenerator|null[0]
-    abstract fun generateKeyBlocking(): #A // dev.whyoleg.cryptography.materials.key/KeyGenerator.generateKeyBlocking|generateKeyBlocking(){}[0]
+abstract interface <#A: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.materials.key/KeyGenerator : dev.whyoleg.cryptography.operations/AsyncMaterialGenerator<#A> { // dev.whyoleg.cryptography.materials.key/KeyGenerator|null[0]
+    open fun generateKeyBlocking(): #A // dev.whyoleg.cryptography.materials.key/KeyGenerator.generateKeyBlocking|generateKeyBlocking(){}[0]
     open suspend fun generateKey(): #A // dev.whyoleg.cryptography.materials.key/KeyGenerator.generateKey|generateKey(){}[0]
 }
 
-abstract interface <#A: dev.whyoleg.cryptography.materials.key/Key> dev.whyoleg.cryptography.operations/AsyncSecretDerivation { // dev.whyoleg.cryptography.operations/AsyncSecretDerivation|null[0]
+abstract interface <#A: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.operations/AsyncMaterialGenerator { // dev.whyoleg.cryptography.operations/AsyncMaterialGenerator|null[0]
+    abstract fun generateBlocking(): #A // dev.whyoleg.cryptography.operations/AsyncMaterialGenerator.generateBlocking|generateBlocking(){}[0]
+    abstract suspend fun generate(): #A // dev.whyoleg.cryptography.operations/AsyncMaterialGenerator.generate|generate(){}[0]
+}
+
+abstract interface <#A: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.operations/AsyncSecretDerivation { // dev.whyoleg.cryptography.operations/AsyncSecretDerivation|null[0]
     abstract suspend fun deriveSecret(#A): kotlin/ByteArray // dev.whyoleg.cryptography.operations/AsyncSecretDerivation.deriveSecret|deriveSecret(1:0){}[0]
 }
 
-abstract interface <#A: dev.whyoleg.cryptography.materials.key/Key> dev.whyoleg.cryptography.operations/SecretDerivation { // dev.whyoleg.cryptography.operations/SecretDerivation|null[0]
+abstract interface <#A: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.operations/MaterialGenerator { // dev.whyoleg.cryptography.operations/MaterialGenerator|null[0]
+    abstract fun generate(): #A // dev.whyoleg.cryptography.operations/MaterialGenerator.generate|generate(){}[0]
+}
+
+abstract interface <#A: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.operations/SecretDerivation { // dev.whyoleg.cryptography.operations/SecretDerivation|null[0]
     abstract fun deriveSecret(#A): kotlin/ByteArray // dev.whyoleg.cryptography.operations/SecretDerivation.deriveSecret|deriveSecret(1:0){}[0]
 }
 
-abstract interface <#A: dev.whyoleg.cryptography.materials.key/KeyFormat, #B: dev.whyoleg.cryptography.materials.key/Key> dev.whyoleg.cryptography.materials.key/KeyDecoder { // dev.whyoleg.cryptography.materials.key/KeyDecoder|null[0]
-    abstract fun decodeFromBlocking(#A, kotlin/ByteArray): #B // dev.whyoleg.cryptography.materials.key/KeyDecoder.decodeFromBlocking|decodeFromBlocking(1:0;kotlin.ByteArray){}[0]
-    open suspend fun decodeFrom(#A, kotlin/ByteArray): #B // dev.whyoleg.cryptography.materials.key/KeyDecoder.decodeFrom|decodeFrom(1:0;kotlin.ByteArray){}[0]
+abstract interface <#A: dev.whyoleg.cryptography.materials/MaterialFormat, #B: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.operations/AsyncMaterialDecoder { // dev.whyoleg.cryptography.operations/AsyncMaterialDecoder|null[0]
+    abstract fun decodeFromBlocking(#A, kotlin/ByteArray): #B // dev.whyoleg.cryptography.operations/AsyncMaterialDecoder.decodeFromBlocking|decodeFromBlocking(1:0;kotlin.ByteArray){}[0]
+    abstract suspend fun decodeFrom(#A, kotlin/ByteArray): #B // dev.whyoleg.cryptography.operations/AsyncMaterialDecoder.decodeFrom|decodeFrom(1:0;kotlin.ByteArray){}[0]
 }
 
-abstract interface <#A: dev.whyoleg.cryptography.materials.key/KeyFormat> dev.whyoleg.cryptography.materials.key/EncodableKey : dev.whyoleg.cryptography.materials.key/Key { // dev.whyoleg.cryptography.materials.key/EncodableKey|null[0]
-    abstract fun encodeToBlocking(#A): kotlin/ByteArray // dev.whyoleg.cryptography.materials.key/EncodableKey.encodeToBlocking|encodeToBlocking(1:0){}[0]
+abstract interface <#A: dev.whyoleg.cryptography.materials/MaterialFormat, #B: dev.whyoleg.cryptography.materials/Material> dev.whyoleg.cryptography.operations/MaterialDecoder { // dev.whyoleg.cryptography.operations/MaterialDecoder|null[0]
+    abstract fun decodeFrom(#A, kotlin/ByteArray): #B // dev.whyoleg.cryptography.operations/MaterialDecoder.decodeFrom|decodeFrom(1:0;kotlin.ByteArray){}[0]
+}
+
+abstract interface <#A: dev.whyoleg.cryptography.materials/MaterialFormat> dev.whyoleg.cryptography.materials.key/EncodableKey : dev.whyoleg.cryptography.materials/Key { // dev.whyoleg.cryptography.materials.key/EncodableKey|null[0]
+    abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<#A> // dev.whyoleg.cryptography.materials.key/EncodableKey.asyncEncoder|asyncEncoder(){}[0]
+    abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<#A> // dev.whyoleg.cryptography.materials.key/EncodableKey.encoder|encoder(){}[0]
+    open fun encodeToBlocking(#A): kotlin/ByteArray // dev.whyoleg.cryptography.materials.key/EncodableKey.encodeToBlocking|encodeToBlocking(1:0){}[0]
     open suspend fun encodeTo(#A): kotlin/ByteArray // dev.whyoleg.cryptography.materials.key/EncodableKey.encodeTo|encodeTo(1:0){}[0]
+}
+
+abstract interface <#A: dev.whyoleg.cryptography.materials/MaterialFormat> dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder { // dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder|null[0]
+    abstract suspend fun encodeTo(#A): kotlin/ByteArray // dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder.encodeTo|encodeTo(1:0){}[0]
+}
+
+abstract interface <#A: dev.whyoleg.cryptography.materials/MaterialFormat> dev.whyoleg.cryptography.operations/MaterialSelfEncoder { // dev.whyoleg.cryptography.operations/MaterialSelfEncoder|null[0]
+    abstract fun encodeTo(#A): kotlin/ByteArray // dev.whyoleg.cryptography.operations/MaterialSelfEncoder.encodeTo|encodeTo(1:0){}[0]
 }
 
 abstract interface dev.whyoleg.cryptography.algorithms.asymmetric/ECDH : dev.whyoleg.cryptography.algorithms.asymmetric/EC<dev.whyoleg.cryptography.algorithms.asymmetric/ECDH.PublicKey, dev.whyoleg.cryptography.algorithms.asymmetric/ECDH.PrivateKey, dev.whyoleg.cryptography.algorithms.asymmetric/ECDH.KeyPair> { // dev.whyoleg.cryptography.algorithms.asymmetric/ECDH|null[0]
@@ -506,16 +552,20 @@ abstract interface dev.whyoleg.cryptography.algorithms.symmetric/HMAC : dev.whyo
     open val id // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.id|{}id[0]
         open fun <get-id>(): dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.symmetric/HMAC> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.id.<get-id>|<get-id>(){}[0]
 
-    abstract fun keyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.materials.key/KeyDecoder<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format, dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.keyDecoder|keyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
-    abstract fun keyGenerator(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.keyGenerator|keyGenerator(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    abstract fun asyncKeyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format, dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.asyncKeyDecoder|asyncKeyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    abstract fun asyncKeyGenerator(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.asyncKeyGenerator|asyncKeyGenerator(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    open fun keyDecoder(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest>): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format, dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.keyDecoder|keyDecoder(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
+    open fun keyGenerator(dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest/Digest> = ...): dev.whyoleg.cryptography.materials.key/KeyGenerator<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.keyGenerator|keyGenerator(dev.whyoleg.cryptography.CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.digest.Digest>){}[0]
 
-    abstract interface Key : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format> { // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key|null[0]
+    abstract interface Key : dev.whyoleg.cryptography.materials.key/EncodableKey<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format>, dev.whyoleg.cryptography.materials/SymmetricKey { // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key|null[0]
+        abstract fun asyncEncoder(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.asyncEncoder|asyncEncoder(){}[0]
         abstract fun asyncSignatureGenerator(): dev.whyoleg.cryptography.operations/AsyncSignatureGenerator // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.asyncSignatureGenerator|asyncSignatureGenerator(){}[0]
         abstract fun asyncSignatureVerifier(): dev.whyoleg.cryptography.operations/AsyncSignatureVerifier // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.asyncSignatureVerifier|asyncSignatureVerifier(){}[0]
+        abstract fun encoder(): dev.whyoleg.cryptography.operations/MaterialSelfEncoder<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.encoder|encoder(){}[0]
         open fun signatureGenerator(): dev.whyoleg.cryptography.operations/AsyncSignatureGenerator // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.signatureGenerator|signatureGenerator(){}[0]
         open fun signatureVerifier(): dev.whyoleg.cryptography.operations/AsyncSignatureVerifier // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.signatureVerifier|signatureVerifier(){}[0]
 
-        final enum class Format : dev.whyoleg.cryptography.materials.key/KeyFormat, kotlin/Enum<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format> { // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format|null[0]
+        final enum class Format : dev.whyoleg.cryptography.materials/MaterialFormat, kotlin/Enum<dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format> { // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format|null[0]
             enum entry JWK // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format.JWK|null[0]
             enum entry RAW // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Key.Format.RAW|null[0]
 
@@ -530,14 +580,31 @@ abstract interface dev.whyoleg.cryptography.algorithms.symmetric/HMAC : dev.whyo
     final object Companion : dev.whyoleg.cryptography/CryptographyAlgorithmId<dev.whyoleg.cryptography.algorithms.symmetric/HMAC> // dev.whyoleg.cryptography.algorithms.symmetric/HMAC.Companion|null[0]
 }
 
-abstract interface dev.whyoleg.cryptography.materials.key/Key // dev.whyoleg.cryptography.materials.key/Key|null[0]
+abstract interface dev.whyoleg.cryptography.materials/AsymmetricKey : dev.whyoleg.cryptography.materials/Key // dev.whyoleg.cryptography.materials/AsymmetricKey|null[0]
 
-abstract interface dev.whyoleg.cryptography.materials.key/KeyFormat { // dev.whyoleg.cryptography.materials.key/KeyFormat|null[0]
-    abstract val name // dev.whyoleg.cryptography.materials.key/KeyFormat.name|{}name[0]
-        abstract fun <get-name>(): kotlin/String // dev.whyoleg.cryptography.materials.key/KeyFormat.name.<get-name>|<get-name>(){}[0]
+abstract interface dev.whyoleg.cryptography.materials/Key : dev.whyoleg.cryptography.materials/Material // dev.whyoleg.cryptography.materials/Key|null[0]
 
-    abstract fun toString(): kotlin/String // dev.whyoleg.cryptography.materials.key/KeyFormat.toString|toString(){}[0]
+abstract interface dev.whyoleg.cryptography.materials/KeyPair : dev.whyoleg.cryptography.materials/Material { // dev.whyoleg.cryptography.materials/KeyPair|null[0]
+    abstract val privateKey // dev.whyoleg.cryptography.materials/KeyPair.privateKey|{}privateKey[0]
+        abstract fun <get-privateKey>(): dev.whyoleg.cryptography.materials/PrivateKey // dev.whyoleg.cryptography.materials/KeyPair.privateKey.<get-privateKey>|<get-privateKey>(){}[0]
+    abstract val publicKey // dev.whyoleg.cryptography.materials/KeyPair.publicKey|{}publicKey[0]
+        abstract fun <get-publicKey>(): dev.whyoleg.cryptography.materials/PublicKey // dev.whyoleg.cryptography.materials/KeyPair.publicKey.<get-publicKey>|<get-publicKey>(){}[0]
 }
+
+abstract interface dev.whyoleg.cryptography.materials/Material // dev.whyoleg.cryptography.materials/Material|null[0]
+
+abstract interface dev.whyoleg.cryptography.materials/MaterialFormat { // dev.whyoleg.cryptography.materials/MaterialFormat|null[0]
+    abstract val name // dev.whyoleg.cryptography.materials/MaterialFormat.name|{}name[0]
+        abstract fun <get-name>(): kotlin/String // dev.whyoleg.cryptography.materials/MaterialFormat.name.<get-name>|<get-name>(){}[0]
+
+    abstract fun toString(): kotlin/String // dev.whyoleg.cryptography.materials/MaterialFormat.toString|toString(){}[0]
+}
+
+abstract interface dev.whyoleg.cryptography.materials/PrivateKey : dev.whyoleg.cryptography.materials/AsymmetricKey // dev.whyoleg.cryptography.materials/PrivateKey|null[0]
+
+abstract interface dev.whyoleg.cryptography.materials/PublicKey : dev.whyoleg.cryptography.materials/AsymmetricKey // dev.whyoleg.cryptography.materials/PublicKey|null[0]
+
+abstract interface dev.whyoleg.cryptography.materials/SymmetricKey : dev.whyoleg.cryptography.materials/Key // dev.whyoleg.cryptography.materials/SymmetricKey|null[0]
 
 abstract interface dev.whyoleg.cryptography.operations/AsyncAuthenticatedCipher : dev.whyoleg.cryptography.operations/AsyncAuthenticatedDecryptor, dev.whyoleg.cryptography.operations/AsyncAuthenticatedEncryptor, dev.whyoleg.cryptography.operations/AsyncCipher // dev.whyoleg.cryptography.operations/AsyncAuthenticatedCipher|null[0]
 
@@ -737,4 +804,8 @@ final fun (dev.whyoleg.cryptography.operations/Encryptor).dev.whyoleg.cryptograp
 final fun (dev.whyoleg.cryptography.operations/Hasher).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncHasher // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.Hasher(){}[0]
 final fun (dev.whyoleg.cryptography.operations/SignatureGenerator).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncSignatureGenerator // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.SignatureGenerator(){}[0]
 final fun (dev.whyoleg.cryptography.operations/SignatureVerifier).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncSignatureVerifier // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.SignatureVerifier(){}[0]
-final fun <#A: dev.whyoleg.cryptography.materials.key/Key> (dev.whyoleg.cryptography.operations/SecretDerivation<#A>).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncSecretDerivation<#A> // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.SecretDerivation<0:0>(){0§<dev.whyoleg.cryptography.materials.key.Key>}[0]
+final fun <#A: dev.whyoleg.cryptography.materials/Material> (dev.whyoleg.cryptography.operations/MaterialGenerator<#A>).dev.whyoleg.cryptography.materials.key/asKeyGenerator(): dev.whyoleg.cryptography.materials.key/KeyGenerator<#A> // dev.whyoleg.cryptography.materials.key/asKeyGenerator|asKeyGenerator@dev.whyoleg.cryptography.operations.MaterialGenerator<0:0>(){0§<dev.whyoleg.cryptography.materials.Material>}[0]
+final fun <#A: dev.whyoleg.cryptography.materials/Material> (dev.whyoleg.cryptography.operations/MaterialGenerator<#A>).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncMaterialGenerator<#A> // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.MaterialGenerator<0:0>(){0§<dev.whyoleg.cryptography.materials.Material>}[0]
+final fun <#A: dev.whyoleg.cryptography.materials/Material> (dev.whyoleg.cryptography.operations/SecretDerivation<#A>).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncSecretDerivation<#A> // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.SecretDerivation<0:0>(){0§<dev.whyoleg.cryptography.materials.Material>}[0]
+final fun <#A: dev.whyoleg.cryptography.materials/MaterialFormat, #B: dev.whyoleg.cryptography.materials/Material> (dev.whyoleg.cryptography.operations/MaterialDecoder<#A, #B>).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncMaterialDecoder<#A, #B> // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.MaterialDecoder<0:0,0:1>(){0§<dev.whyoleg.cryptography.materials.MaterialFormat>;1§<dev.whyoleg.cryptography.materials.Material>}[0]
+final fun <#A: dev.whyoleg.cryptography.materials/MaterialFormat> (dev.whyoleg.cryptography.operations/MaterialSelfEncoder<#A>).dev.whyoleg.cryptography.operations/asAsync(): dev.whyoleg.cryptography.operations/AsyncMaterialSelfEncoder<#A> // dev.whyoleg.cryptography.operations/asAsync|asAsync@dev.whyoleg.cryptography.operations.MaterialSelfEncoder<0:0>(){0§<dev.whyoleg.cryptography.materials.MaterialFormat>}[0]

@@ -8,7 +8,8 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.BinarySize.Companion.bits
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
+import dev.whyoleg.cryptography.operations.*
 
 inline fun generateSymmetricKeySize(block: (keySize: SymmetricKeySize) -> Unit) {
     generate(block, SymmetricKeySize.B128, SymmetricKeySize.B192, SymmetricKeySize.B256)
@@ -43,8 +44,8 @@ inline fun generateDigestsForCompatibility(block: (digest: CryptographyAlgorithm
     ).forEach { block(it.first, it.second) }
 }
 
-suspend inline fun <K : Key> KeyGenerator<K>.generateKeys(count: Int, block: (key: K) -> Unit) {
-    repeat(count) { block(generateKey()) }
+suspend inline fun <M : Material> AsyncMaterialGenerator<M>.generateMaterials(count: Int, block: (key: M) -> Unit) {
+    repeat(count) { block(generate()) }
 }
 
 inline fun <T> generate(block: (value: T) -> Unit, vararg values: T) {

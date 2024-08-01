@@ -6,41 +6,42 @@ package dev.whyoleg.cryptography.providers.tests.api
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
+import dev.whyoleg.cryptography.materials.*
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import kotlin.test.*
 
-suspend fun <KF : KeyFormat> EncodableKey<KF>.encodeTo(
-    formats: Collection<KF>,
-    supports: (KF) -> Boolean,
+suspend fun <MF : MaterialFormat> AsyncMaterialSelfEncoder<MF>.encodeTo(
+    formats: Collection<MF>,
+    supports: (MF) -> Boolean,
 ): Map<String, ByteArray> = formats.filter(supports).associate {
     it.name to encodeTo(it)
 }.also {
     assertTrue(it.isNotEmpty(), "No supported formats")
 }
 
-suspend inline fun <KF : KeyFormat, K : EncodableKey<KF>> KeyDecoder<KF, K>.decodeFrom(
+suspend inline fun <MF : MaterialFormat, M : Material> AsyncMaterialDecoder<MF, M>.decodeFrom(
     formats: Map<String, ByteArray>,
-    formatOf: (String) -> KF,
-    supports: (KF) -> Boolean,
-    supportsDecoding: (KF, ByteArray) -> Boolean = { _, _ -> true },
-    validate: (key: K, format: KF, bytes: ByteArray) -> Unit,
-): List<K> {
+    formatOf: (String) -> MF,
+    supports: (MF) -> Boolean,
+    supportsDecoding: (MF, ByteArray) -> Boolean = { _, _ -> true },
+    validate: (material: M, format: MF, bytes: ByteArray) -> Unit,
+): List<M> {
     val supportedFormats = formats
         .mapKeys { (formatName, _) -> formatOf(formatName) }
         .filterKeys(supports)
 
-    val keys = supportedFormats.mapNotNull {
+    val materials = supportedFormats.mapNotNull {
         if (supportsDecoding(it.key, it.value)) decodeFrom(it.key, it.value) else null
     }
 
-    keys.forEach { key ->
+    materials.forEach { material ->
         supportedFormats.forEach { (format, bytes) ->
-            validate(key, format, bytes)
+            validate(material, format, bytes)
         }
     }
 
-    return keys
+    return materials
 }
 
 fun digest(name: String): CryptographyAlgorithmId<Digest> = when (name) {

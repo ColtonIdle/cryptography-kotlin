@@ -33,10 +33,10 @@ abstract class RsaOaepTest(provider: CryptographyProvider) : ProviderTest(provid
             generateDigests { digest, digestSize ->
                 if (!supportsDigest(digest)) return@generateDigests
 
-                val keyPair = algorithm.keyPairGenerator(keySize, digest).generateKey()
+                val keyPair = algorithm.asyncKeyPairGenerator(keySize, digest).generate()
 
                 if (supportsKeyFormat(RSA.PublicKey.Format.DER)) {
-                    assertEquals(keySize.inBytes + 38, keyPair.publicKey.encodeTo(RSA.PublicKey.Format.DER).size)
+                    assertEquals(keySize.inBytes + 38, keyPair.publicKey.asyncEncoder().encodeTo(RSA.PublicKey.Format.DER).size)
                 }
 
                 val maxSize = keySize.inBytes - 2 - 2 * digestSize

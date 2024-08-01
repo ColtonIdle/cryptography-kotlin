@@ -4,15 +4,16 @@
 
 package dev.whyoleg.cryptography.providers.jdk.materials
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import java.security.spec.*
 
-internal abstract class JdkPublicKeyDecoder<KF : KeyFormat, K : Key>(
+internal abstract class JdkPublicKeyDecoder<KF : MaterialFormat, K : PublicKey>(
     protected val state: JdkCryptographyState,
     algorithm: String,
     private val pemAlgorithm: String = algorithm,
-) : KeyDecoder<KF, K> {
+) : MaterialDecoder<KF, K> {
     protected val keyFactory = state.keyFactory(algorithm)
 
     protected fun decodeFromDer(input: ByteArray): K = keyFactory.use { it.generatePublic(X509EncodedKeySpec(input)) }.convert()

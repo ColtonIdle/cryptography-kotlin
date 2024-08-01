@@ -15,31 +15,32 @@ import dev.whyoleg.cryptography.random.*
 import kotlinx.cinterop.*
 
 internal object Openssl3Hmac : HMAC {
-    override fun keyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<HMAC.Key.Format, HMAC.Key> {
+    override fun asyncKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<HMAC.Key.Format, HMAC.Key> {
         val hashAlgorithm = hashAlgorithm(digest)
         val md = EVP_MD_fetch(null, hashAlgorithm, null)
         val keySizeBytes = EVP_MD_get_block_size(md)
         EVP_MD_free(md)
-        return HmacKeyDecoder(hashAlgorithm, keySizeBytes)
+        return HmacKeyDecoder(hashAlgorithm, keySizeBytes).asAsync()
     }
 
-    override fun keyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> {
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> {
         val hashAlgorithm = hashAlgorithm(digest)
         val md = EVP_MD_fetch(null, hashAlgorithm, null)
         val keySizeBytes = EVP_MD_get_block_size(md)
         EVP_MD_free(md)
-        return HmacKeyGenerator(hashAlgorithm, keySizeBytes)
+        return HmacKeyGenerator(hashAlgorithm, keySizeBytes).asKeyGenerator()
     }
 }
 
 private class HmacKeyDecoder(
     private val hashAlgorithm: String,
     private val keySizeBytes: Int,
-) : KeyDecoder<HMAC.Key.Format, HMAC.Key> {
-    override fun decodeFromBlocking(format: HMAC.Key.Format, input: ByteArray): HMAC.Key = when (format) {
+) : MaterialDecoder<HMAC.Key.Format, HMAC.Key> {
+    override fun decodeFrom(format: HMAC.Key.Format, data: ByteArray): HMAC.Key = when (format) {
         HMAC.Key.Format.RAW -> {
-            require(input.size == keySizeBytes) { "Invalid key size: ${input.size}, expected: $keySizeBytes" }
-            HmacKey(hashAlgorithm, input.copyOf())
+            require(data.size == keySizeBytes) { "Invalid key size: ${data.size}, expected: $keySizeBytes" }
+            HmacKey(hashAlgorithm, data.copyOf())
         }
         HMAC.Key.Format.JWK -> error("JWK is not supported")
     }
@@ -48,8 +49,8 @@ private class HmacKeyDecoder(
 private class HmacKeyGenerator(
     private val hashAlgorithm: String,
     private val keySizeBytes: Int,
-) : KeyGenerator<HMAC.Key> {
-    override fun generateKeyBlocking(): HMAC.Key {
+) : MaterialGenerator<HMAC.Key> {
+    override fun generate(): HMAC.Key {
         val key = CryptographyRandom.nextBytes(keySizeBytes)
         return HmacKey(hashAlgorithm, key)
     }
@@ -61,10 +62,13 @@ private class HmacKey(
 ) : HMAC.Key, SignatureGenerator, SignatureVerifier {
     override fun asyncSignatureGenerator(): AsyncSignatureGenerator = (this as SignatureGenerator).asAsync()
     override fun asyncSignatureVerifier(): AsyncSignatureVerifier = (this as SignatureVerifier).asAsync()
+    override fun asyncEncoder(): AsyncMaterialSelfEncoder<HMAC.Key.Format> = encoder().asAsync()
 
-    override fun encodeToBlocking(format: HMAC.Key.Format): ByteArray = when (format) {
-        HMAC.Key.Format.RAW -> key.copyOf()
-        HMAC.Key.Format.JWK -> error("JWK is not supported")
+    override fun encoder(): MaterialSelfEncoder<HMAC.Key.Format> = object : MaterialSelfEncoder<HMAC.Key.Format> {
+        override fun encodeTo(format: HMAC.Key.Format): ByteArray = when (format) {
+            HMAC.Key.Format.RAW -> key.copyOf()
+            HMAC.Key.Format.JWK -> error("JWK is not supported")
+        }
     }
 
     @OptIn(UnsafeNumber::class)

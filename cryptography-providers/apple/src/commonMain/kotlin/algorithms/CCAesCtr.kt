@@ -6,6 +6,7 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import dev.whyoleg.cryptography.random.*
 import kotlinx.cinterop.*
@@ -16,10 +17,8 @@ internal object CCAesCtr : CCAes<AES.CTR.Key>(), AES.CTR {
 
     private class AesCtrKey(private val key: ByteArray) : AES.CTR.Key {
         override fun asyncCipher(): AES.AsyncIvCipher = AesCtrCipher(key).asAsync()
-        override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
-            AES.Key.Format.RAW -> key.copyOf()
-            AES.Key.Format.JWK -> error("JWK is not supported")
-        }
+        override fun encoder(): MaterialSelfEncoder<AES.Key.Format> = AesKeySelfEncoder(key)
+        override fun asyncEncoder(): AsyncMaterialSelfEncoder<AES.Key.Format> = encoder().asAsync()
     }
 }
 

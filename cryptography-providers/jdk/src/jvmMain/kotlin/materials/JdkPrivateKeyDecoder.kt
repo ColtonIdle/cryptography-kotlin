@@ -4,14 +4,15 @@
 
 package dev.whyoleg.cryptography.providers.jdk.materials
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import java.security.spec.*
 
-internal abstract class JdkPrivateKeyDecoder<KF : KeyFormat, K : Key>(
+internal abstract class JdkPrivateKeyDecoder<KF : MaterialFormat, K : PrivateKey>(
     protected val state: JdkCryptographyState,
     algorithm: String,
-) : KeyDecoder<KF, K> {
+) : MaterialDecoder<KF, K> {
     private val keyFactory = state.keyFactory(algorithm)
 
     protected fun decodeFromDer(input: ByteArray): K = keyFactory.use { it.generatePrivate(PKCS8EncodedKeySpec(input)) }.convert()

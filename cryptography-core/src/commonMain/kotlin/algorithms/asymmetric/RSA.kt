@@ -8,29 +8,63 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.BinarySize.Companion.bits
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
 import dev.whyoleg.cryptography.operations.*
 
+@Suppress("DEPRECATION_ERROR")
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RSA.KeyPair<PublicK, PrivateK>> : CryptographyAlgorithm {
-    public fun publicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<PublicKey.Format, PublicK>
-    public fun privateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<PrivateKey.Format, PrivateK>
 
+    @Deprecated(
+        "Renamed to asyncPublicKeyDecoder",
+        ReplaceWith("asyncPublicKeyDecoder(digest)"),
+        DeprecationLevel.ERROR
+    )
+    public fun publicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<PublicKey.Format, PublicK> =
+        asyncPublicKeyDecoder(digest)
+
+    public fun asyncPublicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<PublicKey.Format, PublicK>
+
+    @Deprecated(
+        "Renamed to asyncPrivateKeyDecoder",
+        ReplaceWith("asyncPrivateKeyDecoder(digest)"),
+        DeprecationLevel.ERROR
+    )
+    public fun privateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<PrivateKey.Format, PrivateK> =
+        asyncPrivateKeyDecoder(digest)
+
+    public fun asyncPrivateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<PrivateKey.Format, PrivateK>
+
+    @Deprecated(
+        "Renamed to asyncKeyPairGenerator",
+        ReplaceWith("asyncKeyPairGenerator(keySize, digest, publicExponent)"),
+        DeprecationLevel.ERROR
+    )
     public fun keyPairGenerator(
+        keySize: BinarySize = 4096.bits,
+        digest: CryptographyAlgorithmId<Digest> = SHA512,
+        publicExponent: BigInt = 65537.toBigInt(),
+    ): KeyGenerator<KP> = asyncKeyPairGenerator(keySize, digest, publicExponent)
+
+    public fun asyncKeyPairGenerator(
         keySize: BinarySize = 4096.bits,
         digest: CryptographyAlgorithmId<Digest> = SHA512,
         publicExponent: BigInt = 65537.toBigInt(),
     ): KeyGenerator<KP>
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface KeyPair<PublicK : PublicKey, PrivateK : PrivateKey> : Key {
-        public val publicKey: PublicK
-        public val privateKey: PrivateK
+    public interface KeyPair<PublicK : PublicKey, PrivateK : PrivateKey> : dev.whyoleg.cryptography.materials.KeyPair {
+        public override val publicKey: PublicK
+        public override val privateKey: PrivateK
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface PublicKey : EncodableKey<PublicKey.Format> {
-        public sealed class Format : KeyFormat {
+    public interface PublicKey : EncodableKey<PublicKey.Format>, dev.whyoleg.cryptography.materials.PublicKey {
+        public override fun encoder(): MaterialSelfEncoder<Format>
+        public override fun asyncEncoder(): AsyncMaterialSelfEncoder<Format>
+
+        public sealed class Format : MaterialFormat {
             final override fun toString(): String = name
 
             public data object JWK : Format() {
@@ -62,8 +96,11 @@ public interface RSA<PublicK : RSA.PublicKey, PrivateK : RSA.PrivateKey, KP : RS
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface PrivateKey : EncodableKey<PrivateKey.Format> {
-        public sealed class Format : KeyFormat {
+    public interface PrivateKey : EncodableKey<PrivateKey.Format>, dev.whyoleg.cryptography.materials.PrivateKey {
+        public override fun encoder(): MaterialSelfEncoder<Format>
+        public override fun asyncEncoder(): AsyncMaterialSelfEncoder<Format>
+
+        public sealed class Format : MaterialFormat {
             final override fun toString(): String = name
 
             public data object JWK : Format() {

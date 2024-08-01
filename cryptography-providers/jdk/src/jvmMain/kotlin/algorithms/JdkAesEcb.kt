@@ -18,18 +18,22 @@ internal class JdkAesEcb(
     private val keyWrapper: (JSecretKey) -> AES.ECB.Key = { key ->
         object : AES.ECB.Key, JdkEncodableKey<AES.Key.Format>(key) {
             override fun asyncCipher(padding: Boolean): AsyncCipher = AesEcbCipher(state, key, padding).asAsync()
-            override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
-                AES.Key.Format.JWK -> error("$format is not supported")
-                AES.Key.Format.RAW -> encodeToRaw()
+            override fun encoder(): MaterialSelfEncoder<AES.Key.Format> = object : MaterialSelfEncoder<AES.Key.Format> {
+                override fun encodeTo(format: AES.Key.Format): ByteArray = when (format) {
+                    AES.Key.Format.JWK -> error("$format is not supported")
+                    AES.Key.Format.RAW -> encodeToRaw()
+                }
             }
         }
     }
-    private val keyDecoder = JdkSecretKeyDecoder<AES.Key.Format, _>("AES", keyWrapper)
+    private val keyDecoder = JdkSecretKeyDecoder<AES.Key.Format, _>("AES", keyWrapper).asAsync()
 
-    override fun keyDecoder(): KeyDecoder<AES.Key.Format, AES.ECB.Key> = keyDecoder
-    override fun keyGenerator(keySize: SymmetricKeySize): KeyGenerator<AES.ECB.Key> = JdkSecretKeyGenerator(state, "AES", keyWrapper) {
+    override fun asyncKeyDecoder(): AsyncMaterialDecoder<AES.Key.Format, AES.ECB.Key> = keyDecoder
+
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyGenerator(keySize: SymmetricKeySize): KeyGenerator<AES.ECB.Key> = JdkSecretKeyGenerator(state, "AES", keyWrapper) {
         init(keySize.value.inBits, state.secureRandom)
-    }
+    }.asKeyGenerator()
 }
 
 private class AesEcbCipher(

@@ -19,13 +19,14 @@ internal class JdkRsaOaep(
     private val state: JdkCryptographyState,
 ) : RSA.OAEP {
 
-    override fun publicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PublicKey.Format, RSA.OAEP.PublicKey> =
-        RsaOaepPublicKeyDecoder(state, digest.rsaHashAlgorithmName())
+    override fun asyncPublicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PublicKey.Format, RSA.OAEP.PublicKey> =
+        RsaOaepPublicKeyDecoder(state, digest.rsaHashAlgorithmName()).asAsync()
 
-    override fun privateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PrivateKey.Format, RSA.OAEP.PrivateKey> =
-        RsaOaepPrivateKeyDecoder(state, digest.rsaHashAlgorithmName())
+    override fun asyncPrivateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PrivateKey.Format, RSA.OAEP.PrivateKey> =
+        RsaOaepPrivateKeyDecoder(state, digest.rsaHashAlgorithmName()).asAsync()
 
-    override fun keyPairGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyPairGenerator(
         keySize: BinarySize,
         digest: CryptographyAlgorithmId<Digest>,
         publicExponent: BigInt,
@@ -34,7 +35,7 @@ internal class JdkRsaOaep(
             keySize.inBits,
             publicExponent.toJavaBigInteger(),
         )
-        return RsaOaepKeyPairGenerator(state, rsaParameters, digest.rsaHashAlgorithmName())
+        return RsaOaepKeyPairGenerator(state, rsaParameters, digest.rsaHashAlgorithmName()).asKeyGenerator()
     }
 }
 

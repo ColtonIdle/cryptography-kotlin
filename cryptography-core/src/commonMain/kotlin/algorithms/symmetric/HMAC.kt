@@ -6,20 +6,38 @@ package dev.whyoleg.cryptography.algorithms.symmetric
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.digest.*
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
 import dev.whyoleg.cryptography.operations.*
 
+@Suppress("DEPRECATION_ERROR")
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface HMAC : CryptographyAlgorithm {
     override val id: CryptographyAlgorithmId<HMAC> get() = Companion
 
     public companion object : CryptographyAlgorithmId<HMAC>("HMAC")
 
-    public fun keyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<Key.Format, Key>
-    public fun keyGenerator(digest: CryptographyAlgorithmId<Digest> = SHA512): KeyGenerator<Key>
+    @Deprecated(
+        "Renamed to asyncKeyDecoder",
+        ReplaceWith("asyncKeyDecoder(digest)"),
+        DeprecationLevel.ERROR
+    )
+    public fun keyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<Key.Format, Key> = asyncKeyDecoder(digest)
+    public fun asyncKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<Key.Format, Key>
+
+    @Deprecated(
+        "Renamed to asyncKeyGenerator",
+        ReplaceWith("asyncKeyGenerator(digest)"),
+        DeprecationLevel.ERROR
+    )
+    public fun keyGenerator(digest: CryptographyAlgorithmId<Digest> = SHA512): KeyGenerator<Key> = asyncKeyGenerator(digest)
+    public fun asyncKeyGenerator(digest: CryptographyAlgorithmId<Digest> = SHA512): KeyGenerator<Key>
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface Key : EncodableKey<Key.Format> {
+    public interface Key : EncodableKey<Key.Format>, SymmetricKey {
+        public override fun encoder(): MaterialSelfEncoder<Format>
+        public override fun asyncEncoder(): AsyncMaterialSelfEncoder<Format>
+
         @Deprecated(
             "Renamed to asyncSignatureGenerator",
             ReplaceWith("asyncSignatureGenerator()"),
@@ -37,6 +55,6 @@ public interface HMAC : CryptographyAlgorithm {
         public fun asyncSignatureGenerator(): AsyncSignatureGenerator
         public fun asyncSignatureVerifier(): AsyncSignatureVerifier
 
-        public enum class Format : KeyFormat { RAW, JWK }
+        public enum class Format : MaterialFormat { RAW, JWK }
     }
 }

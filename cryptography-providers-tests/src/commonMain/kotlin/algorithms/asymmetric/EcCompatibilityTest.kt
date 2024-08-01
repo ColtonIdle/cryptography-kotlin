@@ -54,12 +54,12 @@ abstract class EcCompatibilityTest<PublicK : EC.PublicKey, PrivateK : EC.Private
             else         -> 2
         }
 
-        algorithm.keyPairGenerator(curve).generateKeys(keyIterations) { keyPair ->
+        algorithm.asyncKeyPairGenerator(curve).generateMaterials(keyIterations) { keyPair ->
             val keyReference = api.keyPairs.saveData(
                 keyParametersId,
                 KeyPairData(
-                    public = KeyData(keyPair.publicKey.encodeTo(publicKeyFormats.values, ::supportsKeyFormat)),
-                    private = KeyData(keyPair.privateKey.encodeTo(privateKeyFormats.values, ::supportsKeyFormat))
+                    public = KeyData(keyPair.publicKey.asyncEncoder().encodeTo(publicKeyFormats.values, ::supportsKeyFormat)),
+                    private = KeyData(keyPair.privateKey.asyncEncoder().encodeTo(privateKeyFormats.values, ::supportsKeyFormat))
                 )
             )
 
@@ -71,8 +71,8 @@ abstract class EcCompatibilityTest<PublicK : EC.PublicKey, PrivateK : EC.Private
         api.keyPairs.getParameters<KeyParameters> { keyParameters, parametersId, _ ->
             if (!supportsCurve(keyParameters.curve)) return@getParameters
 
-            val privateKeyDecoder = algorithm.privateKeyDecoder(keyParameters.curve)
-            val publicKeyDecoder = algorithm.publicKeyDecoder(keyParameters.curve)
+            val privateKeyDecoder = algorithm.asyncPrivateKeyDecoder(keyParameters.curve)
+            val publicKeyDecoder = algorithm.asyncPublicKeyDecoder(keyParameters.curve)
 
             api.keyPairs.getData<KeyPairData>(parametersId) { (public, private), keyReference, otherContext ->
                 val publicKeys = publicKeyDecoder.decodeFrom(
@@ -86,7 +86,7 @@ abstract class EcCompatibilityTest<PublicK : EC.PublicKey, PrivateK : EC.Private
                         EC.PublicKey.Format.DER,
                         EC.PublicKey.Format.PEM,
                                                 -> {
-                            assertContentEquals(bytes, key.encodeTo(format), "Public Key $format encoding")
+                            assertContentEquals(bytes, key.asyncEncoder().encodeTo(format), "Public Key $format encoding")
                         }
                     }
                 }
@@ -99,22 +99,22 @@ abstract class EcCompatibilityTest<PublicK : EC.PublicKey, PrivateK : EC.Private
                     when (format) {
                         EC.PrivateKey.Format.JWK -> {}
                         EC.PrivateKey.Format.DER.SEC1 -> {
-                            assertEcPrivateKeyEquals(bytes, key.encodeTo(format))
+                            assertEcPrivateKeyEquals(bytes, key.asyncEncoder().encodeTo(format))
                         }
                         EC.PrivateKey.Format.PEM.SEC1 -> {
                             val expected = PEM.decode(bytes)
-                            val actual = PEM.decode(key.encodeTo(format))
+                            val actual = PEM.decode(key.asyncEncoder().encodeTo(format))
 
                             assertEquals(expected.label, actual.label)
 
                             assertEcPrivateKeyEquals(expected.bytes, actual.bytes)
                         }
                         EC.PrivateKey.Format.DER -> {
-                            assertPkcs8EcPrivateKeyEquals(bytes, key.encodeTo(format))
+                            assertPkcs8EcPrivateKeyEquals(bytes, key.asyncEncoder().encodeTo(format))
                         }
                         EC.PrivateKey.Format.PEM -> {
                             val expected = PEM.decode(bytes)
-                            val actual = PEM.decode(key.encodeTo(format))
+                            val actual = PEM.decode(key.asyncEncoder().encodeTo(format))
 
                             assertEquals(expected.label, actual.label)
 

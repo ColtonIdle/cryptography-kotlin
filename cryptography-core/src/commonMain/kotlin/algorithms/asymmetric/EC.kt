@@ -5,14 +5,38 @@
 package dev.whyoleg.cryptography.algorithms.asymmetric
 
 import dev.whyoleg.cryptography.*
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import kotlin.jvm.*
 
+@Suppress("DEPRECATION_ERROR")
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface EC<PublicK : EC.PublicKey, PrivateK : EC.PrivateKey, KP : EC.KeyPair<PublicK, PrivateK>> : CryptographyAlgorithm {
-    public fun publicKeyDecoder(curve: Curve): KeyDecoder<PublicKey.Format, PublicK>
-    public fun privateKeyDecoder(curve: Curve): KeyDecoder<PrivateKey.Format, PrivateK>
-    public fun keyPairGenerator(curve: Curve): KeyGenerator<KP>
+
+    @Deprecated(
+        "Renamed to asyncPublicKeyDecoder",
+        ReplaceWith("asyncPublicKeyDecoder(curve)"),
+        DeprecationLevel.ERROR
+    )
+    public fun publicKeyDecoder(curve: Curve): AsyncMaterialDecoder<PublicKey.Format, PublicK> = asyncPublicKeyDecoder(curve)
+    public fun asyncPublicKeyDecoder(curve: Curve): AsyncMaterialDecoder<PublicKey.Format, PublicK>
+
+    @Deprecated(
+        "Renamed to asyncPrivateKeyDecoder",
+        ReplaceWith("asyncPrivateKeyDecoder(curve)"),
+        DeprecationLevel.ERROR
+    )
+    public fun privateKeyDecoder(curve: Curve): AsyncMaterialDecoder<PrivateKey.Format, PrivateK> = asyncPrivateKeyDecoder(curve)
+    public fun asyncPrivateKeyDecoder(curve: Curve): AsyncMaterialDecoder<PrivateKey.Format, PrivateK>
+
+    @Deprecated(
+        "Renamed to asyncKeyPairGenerator",
+        ReplaceWith("asyncKeyPairGenerator(curve)"),
+        DeprecationLevel.ERROR
+    )
+    public fun keyPairGenerator(curve: Curve): KeyGenerator<KP> = asyncKeyPairGenerator(curve)
+    public fun asyncKeyPairGenerator(curve: Curve): KeyGenerator<KP>
 
     @JvmInline
     public value class Curve(public val name: String) {
@@ -24,14 +48,17 @@ public interface EC<PublicK : EC.PublicKey, PrivateK : EC.PrivateKey, KP : EC.Ke
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface KeyPair<PublicK : PublicKey, PrivateK : PrivateKey> : Key {
-        public val publicKey: PublicK
-        public val privateKey: PrivateK
+    public interface KeyPair<PublicK : PublicKey, PrivateK : PrivateKey> : dev.whyoleg.cryptography.materials.KeyPair {
+        public override val publicKey: PublicK
+        public override val privateKey: PrivateK
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface PublicKey : EncodableKey<PublicKey.Format> {
-        public sealed class Format : KeyFormat {
+    public interface PublicKey : EncodableKey<PublicKey.Format>, dev.whyoleg.cryptography.materials.PublicKey {
+        public override fun encoder(): MaterialSelfEncoder<Format>
+        public override fun asyncEncoder(): AsyncMaterialSelfEncoder<Format>
+
+        public sealed class Format : MaterialFormat {
             final override fun toString(): String = name
 
             public data object JWK : Format() {
@@ -57,8 +84,11 @@ public interface EC<PublicK : EC.PublicKey, PrivateK : EC.PrivateKey, KP : EC.Ke
     }
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface PrivateKey : EncodableKey<PrivateKey.Format> {
-        public sealed class Format : KeyFormat {
+    public interface PrivateKey : EncodableKey<PrivateKey.Format>, dev.whyoleg.cryptography.materials.PrivateKey {
+        public override fun encoder(): MaterialSelfEncoder<Format>
+        public override fun asyncEncoder(): AsyncMaterialSelfEncoder<Format>
+
+        public sealed class Format : MaterialFormat {
             final override fun toString(): String = name
 
             public data object JWK : Format() {

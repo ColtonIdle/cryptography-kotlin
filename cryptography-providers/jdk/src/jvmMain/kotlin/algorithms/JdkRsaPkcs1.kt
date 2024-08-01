@@ -19,13 +19,14 @@ internal class JdkRsaPkcs1(
     private val state: JdkCryptographyState,
 ) : RSA.PKCS1 {
 
-    override fun publicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PublicKey.Format, RSA.PKCS1.PublicKey> =
-        RsaPkcs1PublicKeyDecoder(state, digest.hashAlgorithmName())
+    override fun asyncPublicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PublicKey.Format, RSA.PKCS1.PublicKey> =
+        RsaPkcs1PublicKeyDecoder(state, digest.hashAlgorithmName()).asAsync()
 
-    override fun privateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PrivateKey.Format, RSA.PKCS1.PrivateKey> =
-        RsaPkcs1PrivateKeyDecoder(state, digest.hashAlgorithmName())
+    override fun asyncPrivateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PrivateKey.Format, RSA.PKCS1.PrivateKey> =
+        RsaPkcs1PrivateKeyDecoder(state, digest.hashAlgorithmName()).asAsync()
 
-    override fun keyPairGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyPairGenerator(
         keySize: BinarySize,
         digest: CryptographyAlgorithmId<Digest>,
         publicExponent: BigInt,
@@ -34,7 +35,7 @@ internal class JdkRsaPkcs1(
             keySize.inBits,
             publicExponent.toJavaBigInteger(),
         )
-        return RsaPkcs1KeyPairGenerator(state, rsaParameters, digest.hashAlgorithmName())
+        return RsaPkcs1KeyPairGenerator(state, rsaParameters, digest.hashAlgorithmName()).asKeyGenerator()
     }
 }
 

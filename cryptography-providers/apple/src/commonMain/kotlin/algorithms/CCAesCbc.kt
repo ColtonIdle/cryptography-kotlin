@@ -6,6 +6,7 @@ package dev.whyoleg.cryptography.providers.apple.algorithms
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.apple.internal.*
 import dev.whyoleg.cryptography.random.*
 import platform.CoreCrypto.*
@@ -15,10 +16,8 @@ internal object CCAesCbc : CCAes<AES.CBC.Key>(), AES.CBC {
 
     private class AesCbcKey(private val key: ByteArray) : AES.CBC.Key {
         override fun asyncCipher(padding: Boolean): AES.AsyncIvCipher = AesCbcCipher(key, padding).asAsync()
-        override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
-            AES.Key.Format.RAW -> key.copyOf()
-            AES.Key.Format.JWK -> error("JWK is not supported")
-        }
+        override fun encoder(): MaterialSelfEncoder<AES.Key.Format> = AesKeySelfEncoder(key)
+        override fun asyncEncoder(): AsyncMaterialSelfEncoder<AES.Key.Format> = encoder().asAsync()
     }
 }
 

@@ -21,23 +21,25 @@ internal class JdkHmac(
             private val signature = JdkMacSignature(state, key, key.algorithm)
             override fun asyncSignatureGenerator(): AsyncSignatureGenerator = (signature as SignatureGenerator).asAsync()
             override fun asyncSignatureVerifier(): AsyncSignatureVerifier = (signature as SignatureVerifier).asAsync()
-
-            override fun encodeToBlocking(format: HMAC.Key.Format): ByteArray = when (format) {
-                HMAC.Key.Format.JWK -> error("$format is not supported")
-                HMAC.Key.Format.RAW -> encodeToRaw()
+            override fun encoder(): MaterialSelfEncoder<HMAC.Key.Format> = object : MaterialSelfEncoder<HMAC.Key.Format> {
+                override fun encodeTo(format: HMAC.Key.Format): ByteArray = when (format) {
+                    HMAC.Key.Format.JWK -> error("$format is not supported")
+                    HMAC.Key.Format.RAW -> encodeToRaw()
+                }
             }
         }
     }
 
-    override fun keyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<HMAC.Key.Format, HMAC.Key> {
-        return JdkSecretKeyDecoder("Hmac${digest.hashAlgorithmName()}", keyWrapper)
+    override fun asyncKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<HMAC.Key.Format, HMAC.Key> {
+        return JdkSecretKeyDecoder<HMAC.Key.Format, _>("Hmac${digest.hashAlgorithmName()}", keyWrapper).asAsync()
     }
 
-    override fun keyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> {
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> {
         val blockSize = digest.blockSize()
         return JdkSecretKeyGenerator(state, "Hmac${digest.hashAlgorithmName()}", keyWrapper) {
             init(blockSize, state.secureRandom)
-        }
+        }.asKeyGenerator()
     }
 }
 

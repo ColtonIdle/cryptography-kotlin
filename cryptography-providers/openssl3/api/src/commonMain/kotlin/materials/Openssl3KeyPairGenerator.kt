@@ -1,21 +1,22 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.materials
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import kotlinx.cinterop.*
 
-internal abstract class Openssl3KeyPairGenerator<K : Key>(
+internal abstract class Openssl3KeyPairGenerator<K : KeyPair>(
     private val algorithm: String,
-) : KeyGenerator<K> {
+) : MaterialGenerator<K> {
     protected abstract fun MemScope.createParams(): CValuesRef<OSSL_PARAM>?
     protected abstract fun wrapKeyPair(keyPair: CPointer<EVP_PKEY>): K
 
-    final override fun generateKeyBlocking(): K = memScoped {
+    final override fun generate(): K = memScoped {
         val context = checkError(EVP_PKEY_CTX_new_from_name(null, algorithm, null))
         try {
             checkError(EVP_PKEY_keygen_init(context))

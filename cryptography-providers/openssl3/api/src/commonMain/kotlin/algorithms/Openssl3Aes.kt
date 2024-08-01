@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright (c) 2023-2024 Oleg Yukhnevich. Use of this source code is governed by the Apache 2.0 license.
  */
 
 package dev.whyoleg.cryptography.providers.openssl3.algorithms
@@ -7,15 +7,18 @@ package dev.whyoleg.cryptography.providers.openssl3.algorithms
 import dev.whyoleg.cryptography.BinarySize.Companion.bytes
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.random.*
 
 internal abstract class Openssl3Aes<K : AES.Key> : AES<K> {
 
     protected abstract fun wrapKey(keySize: SymmetricKeySize, key: ByteArray): K
 
-    private val keyDecoder = AesKeyDecoder()
-    final override fun keyDecoder(): KeyDecoder<AES.Key.Format, K> = keyDecoder
-    final override fun keyGenerator(keySize: SymmetricKeySize): KeyGenerator<K> = AesKeyGenerator(keySize)
+    private val keyDecoder = AesKeyDecoder().asAsync()
+    final override fun asyncKeyDecoder(): AsyncMaterialDecoder<AES.Key.Format, K> = keyDecoder
+
+    @Suppress("DEPRECATION_ERROR")
+    final override fun asyncKeyGenerator(keySize: SymmetricKeySize): KeyGenerator<K> = AesKeyGenerator(keySize).asKeyGenerator()
 
     private fun requireAesKeySize(keySize: SymmetricKeySize) {
         require(keySize == SymmetricKeySize.B128 || keySize == SymmetricKeySize.B192 || keySize == SymmetricKeySize.B256) {
@@ -23,12 +26,12 @@ internal abstract class Openssl3Aes<K : AES.Key> : AES<K> {
         }
     }
 
-    private inner class AesKeyDecoder : KeyDecoder<AES.Key.Format, K> {
-        override fun decodeFromBlocking(format: AES.Key.Format, input: ByteArray): K = when (format) {
+    private inner class AesKeyDecoder : MaterialDecoder<AES.Key.Format, K> {
+        override fun decodeFrom(format: AES.Key.Format, data: ByteArray): K = when (format) {
             AES.Key.Format.RAW -> {
-                val keySize = SymmetricKeySize(input.size.bytes)
+                val keySize = SymmetricKeySize(data.size.bytes)
                 requireAesKeySize(keySize)
-                wrapKey(keySize, input.copyOf())
+                wrapKey(keySize, data.copyOf())
             }
             AES.Key.Format.JWK -> error("JWK is not supported")
         }
@@ -36,13 +39,13 @@ internal abstract class Openssl3Aes<K : AES.Key> : AES<K> {
 
     private inner class AesKeyGenerator(
         private val keySize: SymmetricKeySize,
-    ) : KeyGenerator<K> {
+    ) : MaterialGenerator<K> {
 
         init {
             requireAesKeySize(keySize)
         }
 
-        override fun generateKeyBlocking(): K {
+        override fun generate(): K {
             val key = CryptographyRandom.nextBytes(keySize.value.inBytes)
             return wrapKey(keySize, key)
         }
@@ -51,9 +54,12 @@ internal abstract class Openssl3Aes<K : AES.Key> : AES<K> {
     protected abstract class AesKey(
         protected val key: ByteArray,
     ) : AES.Key {
-        final override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
-            AES.Key.Format.RAW -> key.copyOf()
-            AES.Key.Format.JWK -> error("JWK is not supported")
+        override fun asyncEncoder(): AsyncMaterialSelfEncoder<AES.Key.Format> = encoder().asAsync()
+        override fun encoder(): MaterialSelfEncoder<AES.Key.Format> = object : MaterialSelfEncoder<AES.Key.Format> {
+            override fun encodeTo(format: AES.Key.Format): ByteArray = when (format) {
+                AES.Key.Format.RAW -> key.copyOf()
+                AES.Key.Format.JWK -> error("JWK is not supported")
+            }
         }
     }
 }

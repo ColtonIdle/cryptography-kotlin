@@ -4,17 +4,22 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.materials
 
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
-internal abstract class WebCryptoEncodableKey<KF : KeyFormat>(
+@Suppress("DEPRECATION_ERROR")
+internal abstract class WebCryptoEncodableKey<KF : MaterialFormat>(
     private val key: CryptoKey,
     private val keyProcessor: WebCryptoKeyProcessor<KF>,
 ) : EncodableKey<KF> {
-    override suspend fun encodeTo(format: KF): ByteArray = keyProcessor.afterEncoding(
-        format = format,
-        key = WebCrypto.exportKey(keyProcessor.stringFormat(format), key)
-    )
+    override fun encoder(): MaterialSelfEncoder<KF> = nonBlocking()
 
-    override fun encodeToBlocking(format: KF): ByteArray = nonBlocking()
+    override fun asyncEncoder(): AsyncMaterialSelfEncoder<KF> = object : AsyncMaterialSelfEncoder<KF> {
+        override suspend fun encodeTo(format: KF): ByteArray = keyProcessor.afterEncoding(
+            format = format,
+            key = WebCrypto.exportKey(keyProcessor.stringFormat(format), key)
+        )
+    }
 }

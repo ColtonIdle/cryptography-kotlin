@@ -4,9 +4,9 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.materials
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
 
-internal abstract class WebCryptoKeyProcessor<KF : KeyFormat> {
+internal abstract class WebCryptoKeyProcessor<KF : MaterialFormat> {
     abstract fun stringFormat(format: KF): String
     abstract fun beforeDecoding(format: KF, key: ByteArray): ByteArray
     abstract fun afterEncoding(format: KF, key: ByteArray): ByteArray

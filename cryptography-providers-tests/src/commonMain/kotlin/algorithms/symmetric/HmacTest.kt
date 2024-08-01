@@ -45,8 +45,8 @@ abstract class HmacTest(provider: CryptographyProvider) : ProviderTest(provider)
 
     @Test
     fun testSizes() = runTestForEachDigest {
-        val key = algorithm.keyGenerator(digest).generateKey()
-        assertEquals(digestBlockSize, key.encodeTo(HMAC.Key.Format.RAW).size)
+        val key = algorithm.asyncKeyGenerator(digest).generate()
+        assertEquals(digestBlockSize, key.asyncEncoder().encodeTo(HMAC.Key.Format.RAW).size)
         val signatureGenerator = key.asyncSignatureGenerator()
 
         assertEquals(digestSize, signatureGenerator.generateSignature(ByteArray(0)).size)
@@ -59,7 +59,7 @@ abstract class HmacTest(provider: CryptographyProvider) : ProviderTest(provider)
 
     @Test
     fun verifyNoFail() = runTestForEachDigest {
-        val key = algorithm.keyGenerator(digest).generateKey()
+        val key = algorithm.asyncKeyGenerator(digest).generate()
         assertFalse(key.asyncSignatureVerifier().verifySignature(ByteArray(0), ByteArray(0)))
         assertFalse(key.asyncSignatureVerifier().verifySignature(ByteArray(10), ByteArray(0)))
         assertFalse(key.asyncSignatureVerifier().verifySignature(ByteArray(10), ByteArray(10)))
@@ -67,7 +67,7 @@ abstract class HmacTest(provider: CryptographyProvider) : ProviderTest(provider)
 
     @Test
     fun verifyResult() = runTestForEachDigest {
-        val key = algorithm.keyGenerator(digest).generateKey()
+        val key = algorithm.asyncKeyGenerator(digest).generate()
         val data = CryptographyRandom.nextBytes(100)
         val signature = key.asyncSignatureGenerator().generateSignature(data)
         assertTrue(key.asyncSignatureVerifier().verifySignature(data, signature))
@@ -75,9 +75,9 @@ abstract class HmacTest(provider: CryptographyProvider) : ProviderTest(provider)
 
     @Test
     fun verifyResultWrongKey() = runTestForEachDigest {
-        val keyGenerator = algorithm.keyGenerator(digest)
-        val key = keyGenerator.generateKey()
-        val wrongKey = keyGenerator.generateKey()
+        val keyGenerator = algorithm.asyncKeyGenerator(digest)
+        val key = keyGenerator.generate()
+        val wrongKey = keyGenerator.generate()
         val data = CryptographyRandom.nextBytes(100)
         val signature = key.asyncSignatureGenerator().generateSignature(data)
         assertFalse(wrongKey.asyncSignatureVerifier().verifySignature(data, signature))

@@ -4,17 +4,19 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.materials
 
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
-internal class WebCryptoAsymmetricKeyGenerator<K : Key>(
+@Suppress("DEPRECATION_ERROR")
+internal class WebCryptoAsymmetricKeyGenerator<K : KeyPair>(
     private val algorithm: Algorithm,
     private val keyUsages: Array<String>,
     private val keyPairWrapper: (CryptoKeyPair) -> K,
 ) : KeyGenerator<K> {
-    override suspend fun generateKey(): K {
+    override suspend fun generate(): K {
         return keyPairWrapper(WebCrypto.generateKeyPair(algorithm, true, keyUsages))
     }
 
-    override fun generateKeyBlocking(): K = nonBlocking()
+    override fun generateBlocking(): K = nonBlocking()
 }

@@ -4,7 +4,7 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.materials
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
 internal class WebCryptoKeyWrapper<K : Key>(

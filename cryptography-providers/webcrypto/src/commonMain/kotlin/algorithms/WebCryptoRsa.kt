@@ -9,6 +9,7 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 import dev.whyoleg.cryptography.serialization.asn1.*
@@ -26,23 +27,24 @@ internal abstract class WebCryptoRsa<PublicK : RSA.PublicKey, PrivateK : RSA.Pri
         keyPairWrapper(publicKeyWrapper.wrap(it.publicKey), privateKeyWrapper.wrap(it.privateKey))
     }
 
-    final override fun publicKeyDecoder(
+    final override fun asyncPublicKeyDecoder(
         digest: CryptographyAlgorithmId<Digest>,
-    ): KeyDecoder<RSA.PublicKey.Format, PublicK> = WebCryptoKeyDecoder(
+    ): AsyncMaterialDecoder<RSA.PublicKey.Format, PublicK> = WebCryptoKeyDecoder(
         algorithm = RsaKeyImportAlgorithm(algorithmName, digest.hashAlgorithmName()),
         keyProcessor = RsaPublicKeyProcessor,
         keyWrapper = publicKeyWrapper
     )
 
-    final override fun privateKeyDecoder(
+    final override fun asyncPrivateKeyDecoder(
         digest: CryptographyAlgorithmId<Digest>,
-    ): KeyDecoder<RSA.PrivateKey.Format, PrivateK> = WebCryptoKeyDecoder(
+    ): AsyncMaterialDecoder<RSA.PrivateKey.Format, PrivateK> = WebCryptoKeyDecoder(
         algorithm = RsaKeyImportAlgorithm(algorithmName, digest.hashAlgorithmName()),
         keyProcessor = RsaPrivateKeyProcessor,
         keyWrapper = privateKeyWrapper,
     )
 
-    final override fun keyPairGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    final override fun asyncKeyPairGenerator(
         keySize: BinarySize,
         digest: CryptographyAlgorithmId<Digest>,
         publicExponent: BigInt,

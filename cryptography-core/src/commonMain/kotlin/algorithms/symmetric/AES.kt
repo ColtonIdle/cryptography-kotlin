@@ -6,17 +6,35 @@ package dev.whyoleg.cryptography.algorithms.symmetric
 
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.BinarySize.Companion.bits
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
 import dev.whyoleg.cryptography.operations.*
 
+@Suppress("DEPRECATION_ERROR")
 @SubclassOptInRequired(CryptographyProviderApi::class)
 public interface AES<K : AES.Key> : CryptographyAlgorithm {
-    public fun keyDecoder(): KeyDecoder<Key.Format, K>
-    public fun keyGenerator(keySize: SymmetricKeySize = SymmetricKeySize.B256): KeyGenerator<K>
+    @Deprecated(
+        "Renamed to asyncKeyDecoder",
+        ReplaceWith("asyncKeyDecoder()"),
+        DeprecationLevel.ERROR
+    )
+    public fun keyDecoder(): AsyncMaterialDecoder<Key.Format, K> = asyncKeyDecoder()
+    public fun asyncKeyDecoder(): AsyncMaterialDecoder<Key.Format, K>
+
+    @Deprecated(
+        "Renamed to asyncKeyGenerator",
+        ReplaceWith("asyncKeyGenerator(keySize)"),
+        DeprecationLevel.ERROR
+    )
+    public fun keyGenerator(keySize: SymmetricKeySize = SymmetricKeySize.B256): KeyGenerator<K> = asyncKeyGenerator(keySize)
+    public fun asyncKeyGenerator(keySize: SymmetricKeySize = SymmetricKeySize.B256): KeyGenerator<K>
 
     @SubclassOptInRequired(CryptographyProviderApi::class)
-    public interface Key : EncodableKey<Key.Format> {
-        public enum class Format : KeyFormat { RAW, JWK }
+    public interface Key : EncodableKey<Key.Format>, SymmetricKey {
+        public override fun encoder(): MaterialSelfEncoder<Format>
+        public override fun asyncEncoder(): AsyncMaterialSelfEncoder<Format>
+
+        public enum class Format : MaterialFormat { RAW, JWK }
     }
 
     @DelicateCryptographyApi

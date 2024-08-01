@@ -14,11 +14,14 @@ import kotlinx.cinterop.*
 import platform.posix.*
 
 internal object Openssl3Ecdh : ECDH {
-    override fun publicKeyDecoder(curve: EC.Curve): KeyDecoder<EC.PublicKey.Format, ECDH.PublicKey> = EcPublicKeyDecoder(curve)
+    override fun asyncPublicKeyDecoder(curve: EC.Curve): AsyncMaterialDecoder<EC.PublicKey.Format, ECDH.PublicKey> =
+        EcPublicKeyDecoder(curve).asAsync()
 
-    override fun privateKeyDecoder(curve: EC.Curve): KeyDecoder<EC.PrivateKey.Format, ECDH.PrivateKey> = EcPrivateKeyDecoder(curve)
+    override fun asyncPrivateKeyDecoder(curve: EC.Curve): AsyncMaterialDecoder<EC.PrivateKey.Format, ECDH.PrivateKey> =
+        EcPrivateKeyDecoder(curve).asAsync()
 
-    override fun keyPairGenerator(curve: EC.Curve): KeyGenerator<ECDH.KeyPair> = EcKeyGenerator(curve)
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyPairGenerator(curve: EC.Curve): KeyGenerator<ECDH.KeyPair> = EcKeyGenerator(curve).asKeyGenerator()
 
     private class EcPrivateKeyDecoder(
         private val curve: EC.Curve,
@@ -50,9 +53,9 @@ internal object Openssl3Ecdh : ECDH {
             EC.PublicKey.Format.JWK -> error("JWK format is not supported")
         }
 
-        override fun decodeFromBlocking(format: EC.PublicKey.Format, input: ByteArray): ECDH.PublicKey = when (format) {
-            EC.PublicKey.Format.RAW -> wrapKey(decodePublicRawKey(curve, input))
-            else                    -> super.decodeFromBlocking(format, input)
+        override fun decodeFrom(format: EC.PublicKey.Format, data: ByteArray): ECDH.PublicKey = when (format) {
+            EC.PublicKey.Format.RAW -> wrapKey(decodePublicRawKey(curve, data))
+            else                    -> super.decodeFrom(format, data)
         }
 
         override fun wrapKey(key: CPointer<EVP_PKEY>): ECDH.PublicKey {
@@ -116,9 +119,14 @@ internal object Openssl3Ecdh : ECDH {
             EC.PublicKey.Format.JWK -> error("JWK format is not supported")
         }
 
-        override fun encodeToBlocking(format: EC.PublicKey.Format): ByteArray = when (format) {
-            EC.PublicKey.Format.RAW -> encodePublicRawKey(key)
-            else                    -> super.encodeToBlocking(format)
+        override fun encoder(): MaterialSelfEncoder<EC.PublicKey.Format> {
+            val encoder = super.encoder()
+            return object : MaterialSelfEncoder<EC.PublicKey.Format> {
+                override fun encodeTo(format: EC.PublicKey.Format): ByteArray = when (format) {
+                    EC.PublicKey.Format.RAW -> encodePublicRawKey(key)
+                    else                    -> encoder.encodeTo(format)
+                }
+            }
         }
 
         override fun deriveSecret(other: ECDH.PrivateKey): ByteArray {

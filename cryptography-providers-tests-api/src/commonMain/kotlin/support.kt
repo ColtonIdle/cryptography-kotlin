@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.serialization.asn1.*
 import dev.whyoleg.cryptography.serialization.asn1.modules.*
 import dev.whyoleg.cryptography.serialization.pem.*
@@ -27,7 +27,7 @@ fun AlgorithmTestScope<*>.supportsDigest(digest: CryptographyAlgorithmId<Digest>
     }
 }
 
-fun AlgorithmTestScope<*>.supportsKeyFormat(format: KeyFormat): Boolean = supports {
+fun AlgorithmTestScope<*>.supportsKeyFormat(format: MaterialFormat): Boolean = supports {
     when {
         // only WebCrypto supports JWK for now
         format.name == "JWK" &&

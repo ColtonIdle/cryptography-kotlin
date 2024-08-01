@@ -4,10 +4,13 @@
 
 package dev.whyoleg.cryptography.providers.jdk.materials
 
+import dev.whyoleg.cryptography.materials.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 
-internal abstract class JdkEncodableKey<KF : KeyFormat>(
+@Suppress("DEPRECATION_ERROR")
+internal abstract class JdkEncodableKey<KF : MaterialFormat>(
     private val key: JKey,
 ) : EncodableKey<KF> {
 
@@ -20,4 +23,6 @@ internal abstract class JdkEncodableKey<KF : KeyFormat>(
         check(key.format == "PKCS#8" || key.format == "X.509") { "Wrong JDK Key format, expected `PKCS#8` or `X.509 got `${key.format}`" }
         return key.encoded
     }
+
+    final override fun asyncEncoder(): AsyncMaterialSelfEncoder<KF> = encoder().asAsync()
 }

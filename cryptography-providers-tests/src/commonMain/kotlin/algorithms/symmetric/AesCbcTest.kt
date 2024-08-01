@@ -16,8 +16,8 @@ private const val ivSize = 16
 abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC>(AES.CBC, provider) {
     @Test
     fun testSizes() = runTestForEachKeySize {
-        val key = algorithm.keyGenerator(keySize).generateKey()
-        assertEquals(keySize.value.inBytes, key.encodeTo(AES.Key.Format.RAW).size)
+        val key = algorithm.asyncKeyGenerator(keySize).generate()
+        assertEquals(keySize.value.inBytes, key.asyncEncoder().encodeTo(AES.Key.Format.RAW).size)
 
         key.asyncCipher(padding = true).run {
             assertEquals(ivSize + blockSize * 1, encrypt(ByteArray(0)).size)
@@ -61,7 +61,7 @@ abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC
     fun decryption() = runTestForEachKeySize {
         val data = CryptographyRandom.nextBytes(100)
 
-        val key = algorithm.keyGenerator(keySize).generateKey()
+        val key = algorithm.asyncKeyGenerator(keySize).generate()
 
         val ciphertext = key.asyncCipher(padding = true).encrypt(data)
         val plaintext = key.asyncCipher(padding = true).decrypt(ciphertext)
@@ -73,8 +73,8 @@ abstract class AesCbcTest(provider: CryptographyProvider) : AesBasedTest<AES.CBC
     fun decryptionWrongKey() = runTestForEachKeySize {
         val data = CryptographyRandom.nextBytes(100)
 
-        val key = algorithm.keyGenerator(keySize).generateKey()
-        val wrongKey = algorithm.keyGenerator(keySize).generateKey()
+        val key = algorithm.asyncKeyGenerator(keySize).generate()
+        val wrongKey = algorithm.asyncKeyGenerator(keySize).generate()
 
         val ciphertext = key.asyncCipher(padding = true).encrypt(data)
 

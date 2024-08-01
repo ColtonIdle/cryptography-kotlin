@@ -4,10 +4,9 @@
 
 package dev.whyoleg.cryptography.materials.key
 
-import dev.whyoleg.cryptography.*
-
-@SubclassOptInRequired(CryptographyProviderApi::class)
-public interface KeyFormat {
-    public val name: String
-    override fun toString(): String
-}
+@Deprecated(
+    "Replaced by MaterialFormat",
+    ReplaceWith("MaterialFormat", "dev.whyoleg.cryptography.materials.MaterialFormat"),
+    DeprecationLevel.ERROR
+)
+public typealias KeyFormat = dev.whyoleg.cryptography.materials.MaterialFormat

@@ -4,23 +4,24 @@
 
 package dev.whyoleg.cryptography.providers.webcrypto.materials
 
-import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.materials.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 
-internal class WebCryptoKeyDecoder<KF : KeyFormat, K : Key>(
+internal class WebCryptoKeyDecoder<KF : MaterialFormat, K : dev.whyoleg.cryptography.materials.Key>(
     private val algorithm: Algorithm,
     private val keyProcessor: WebCryptoKeyProcessor<KF>,
     private val keyWrapper: WebCryptoKeyWrapper<K>,
-) : KeyDecoder<KF, K> {
-    override suspend fun decodeFrom(format: KF, input: ByteArray): K = keyWrapper.wrap(
+) : AsyncMaterialDecoder<KF, K> {
+    override suspend fun decodeFrom(format: KF, data: ByteArray): K = keyWrapper.wrap(
         WebCrypto.importKey(
             format = keyProcessor.stringFormat(format),
-            keyData = keyProcessor.beforeDecoding(format, input),
+            keyData = keyProcessor.beforeDecoding(format, data),
             algorithm = algorithm,
             extractable = true,
             keyUsages = keyWrapper.usages
         )
     )
 
-    override fun decodeFromBlocking(format: KF, input: ByteArray): K = nonBlocking()
+    override fun decodeFromBlocking(format: KF, data: ByteArray): K = nonBlocking()
 }

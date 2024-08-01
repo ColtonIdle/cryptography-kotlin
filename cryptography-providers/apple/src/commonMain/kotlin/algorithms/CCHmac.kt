@@ -14,8 +14,9 @@ import dev.whyoleg.cryptography.random.*
 import kotlinx.cinterop.*
 import platform.CoreCrypto.*
 
+@Suppress("DEPRECATION_ERROR")
 internal object CCHmac : HMAC {
-    override fun keyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<HMAC.Key.Format, HMAC.Key> {
+    override fun asyncKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<HMAC.Key.Format, HMAC.Key> {
         return when (digest) {
             SHA1   -> HmacKeyDecoder(kCCHmacAlgSHA1, CC_SHA1_BLOCK_BYTES, CC_SHA1_DIGEST_LENGTH)
             SHA224 -> HmacKeyDecoder(kCCHmacAlgSHA224, CC_SHA224_BLOCK_BYTES, CC_SHA224_DIGEST_LENGTH)
@@ -23,10 +24,10 @@ internal object CCHmac : HMAC {
             SHA384 -> HmacKeyDecoder(kCCHmacAlgSHA384, CC_SHA384_BLOCK_BYTES, CC_SHA384_DIGEST_LENGTH)
             SHA512 -> HmacKeyDecoder(kCCHmacAlgSHA512, CC_SHA512_BLOCK_BYTES, CC_SHA512_DIGEST_LENGTH)
             else   -> throw CryptographyException("Unsupported hash algorithm: $digest")
-        }
+        }.asAsync()
     }
 
-    override fun keyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> {
+    override fun asyncKeyGenerator(digest: CryptographyAlgorithmId<Digest>): KeyGenerator<HMAC.Key> {
         return when (digest) {
             SHA1   -> HmacKeyGenerator(kCCHmacAlgSHA1, CC_SHA1_BLOCK_BYTES, CC_SHA1_DIGEST_LENGTH)
             SHA224 -> HmacKeyGenerator(kCCHmacAlgSHA224, CC_SHA224_BLOCK_BYTES, CC_SHA224_DIGEST_LENGTH)
@@ -34,7 +35,7 @@ internal object CCHmac : HMAC {
             SHA384 -> HmacKeyGenerator(kCCHmacAlgSHA384, CC_SHA384_BLOCK_BYTES, CC_SHA384_DIGEST_LENGTH)
             SHA512 -> HmacKeyGenerator(kCCHmacAlgSHA512, CC_SHA512_BLOCK_BYTES, CC_SHA512_DIGEST_LENGTH)
             else   -> throw CryptographyException("Unsupported hash algorithm: $digest")
-        }
+        }.asKeyGenerator()
     }
 }
 
@@ -42,11 +43,11 @@ private class HmacKeyDecoder(
     private val hmacAlgorithm: CCHmacAlgorithm,
     private val keySizeBytes: Int,
     private val digestSize: Int,
-) : KeyDecoder<HMAC.Key.Format, HMAC.Key> {
-    override fun decodeFromBlocking(format: HMAC.Key.Format, input: ByteArray): HMAC.Key = when (format) {
+) : MaterialDecoder<HMAC.Key.Format, HMAC.Key> {
+    override fun decodeFrom(format: HMAC.Key.Format, data: ByteArray): HMAC.Key = when (format) {
         HMAC.Key.Format.RAW -> {
-            require(input.size == keySizeBytes) { "Invalid key size: ${input.size}, expected: $keySizeBytes" }
-            HmacKey(hmacAlgorithm, input.copyOf(), digestSize)
+            require(data.size == keySizeBytes) { "Invalid key size: ${data.size}, expected: $keySizeBytes" }
+            HmacKey(hmacAlgorithm, data.copyOf(), digestSize)
         }
         HMAC.Key.Format.JWK -> error("JWK is not supported")
     }
@@ -56,8 +57,8 @@ private class HmacKeyGenerator(
     private val hmacAlgorithm: CCHmacAlgorithm,
     private val keySizeBytes: Int,
     private val digestSize: Int,
-) : KeyGenerator<HMAC.Key> {
-    override fun generateKeyBlocking(): HMAC.Key {
+) : MaterialGenerator<HMAC.Key> {
+    override fun generate(): HMAC.Key {
         val key = CryptographyRandom.nextBytes(keySizeBytes)
         return HmacKey(hmacAlgorithm, key, digestSize)
     }
@@ -70,11 +71,14 @@ private class HmacKey(
 ) : HMAC.Key, SignatureGenerator, SignatureVerifier {
     override fun asyncSignatureGenerator(): AsyncSignatureGenerator = (this as SignatureGenerator).asAsync()
     override fun asyncSignatureVerifier(): AsyncSignatureVerifier = (this as SignatureVerifier).asAsync()
-
-    override fun encodeToBlocking(format: HMAC.Key.Format): ByteArray = when (format) {
-        HMAC.Key.Format.RAW -> key.copyOf()
-        HMAC.Key.Format.JWK -> error("JWK is not supported")
+    override fun encoder(): MaterialSelfEncoder<HMAC.Key.Format> = object : MaterialSelfEncoder<HMAC.Key.Format> {
+        override fun encodeTo(format: HMAC.Key.Format): ByteArray = when (format) {
+            HMAC.Key.Format.RAW -> key.copyOf()
+            HMAC.Key.Format.JWK -> error("JWK is not supported")
+        }
     }
+
+    override fun asyncEncoder(): AsyncMaterialSelfEncoder<HMAC.Key.Format> = encoder().asAsync()
 
     override fun generateSignature(data: ByteArray): ByteArray {
         val macOutput = ByteArray(digestSize)

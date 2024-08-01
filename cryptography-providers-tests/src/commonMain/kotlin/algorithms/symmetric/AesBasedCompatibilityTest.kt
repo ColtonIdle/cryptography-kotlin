@@ -33,17 +33,17 @@ abstract class AesBasedCompatibilityTest<K : AES.Key, A : AES<K>>(
 
             val keyParameters = KeyParameters(keySize.value.inBits)
             val keyParametersId = api.keys.saveParameters(keyParameters)
-            algorithm.keyGenerator(keySize).generateKeys(keyIterations) { key ->
+            algorithm.asyncKeyGenerator(keySize).generateMaterials(keyIterations) { key ->
                 val keyReference = api.keys.saveData(
                     keyParametersId,
-                    KeyData(key.encodeTo(AES.Key.Format.entries, ::supportsKeyFormat))
+                    KeyData(key.asyncEncoder().encodeTo(AES.Key.Format.entries, ::supportsKeyFormat))
                 )
                 block(key, keyReference, keyParameters)
             }
         }
     }
 
-    protected suspend fun CompatibilityTestScope<A>.validateKeys() = algorithm.keyDecoder().let { keyDecoder ->
+    protected suspend fun CompatibilityTestScope<A>.validateKeys() = algorithm.asyncKeyDecoder().let { keyDecoder ->
         buildMap {
             api.keys.getParameters<KeyParameters> { (keySize), parametersId, _ ->
                 if (!supportsKeySize(keySize)) return@getParameters
@@ -55,7 +55,7 @@ abstract class AesBasedCompatibilityTest<K : AES.Key, A : AES<K>>(
                         supports = ::supportsKeyFormat
                     ) { key, format, bytes ->
                         when (format) {
-                            AES.Key.Format.RAW -> assertContentEquals(bytes, key.encodeTo(format), "Key $format encoding")
+                            AES.Key.Format.RAW -> assertContentEquals(bytes, key.asyncEncoder().encodeTo(format), "Key $format encoding")
                             AES.Key.Format.JWK -> {} //no check for JWK yet
                         }
                     }

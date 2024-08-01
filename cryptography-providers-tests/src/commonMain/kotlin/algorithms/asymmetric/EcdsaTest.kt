@@ -38,10 +38,10 @@ abstract class EcdsaTest(provider: CryptographyProvider) : ProviderTest(provider
         ).forEach { (curve, rawSignatureSize, derSignatureSizes, publicKeySize, privateKeySizes) ->
             if (!supportsCurve(curve)) return@forEach
 
-            val keyPair = algorithm.keyPairGenerator(curve).generateKey()
+            val keyPair = algorithm.asyncKeyPairGenerator(curve).generate()
 
-            assertEquals(publicKeySize, keyPair.publicKey.encodeTo(EC.PublicKey.Format.DER).size)
-            assertContains(privateKeySizes, keyPair.privateKey.encodeTo(EC.PrivateKey.Format.DER).size)
+            assertEquals(publicKeySize, keyPair.publicKey.asyncEncoder().encodeTo(EC.PublicKey.Format.DER).size)
+            assertContains(privateKeySizes, keyPair.privateKey.asyncEncoder().encodeTo(EC.PrivateKey.Format.DER).size)
 
             generateDigests { digest, _ ->
                 if (!supportsDigest(digest)) return@generateDigests

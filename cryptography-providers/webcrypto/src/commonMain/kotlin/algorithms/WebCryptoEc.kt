@@ -6,6 +6,7 @@ package dev.whyoleg.cryptography.providers.webcrypto.algorithms
 
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.webcrypto.internal.*
 import dev.whyoleg.cryptography.providers.webcrypto.materials.*
 import dev.whyoleg.cryptography.serialization.asn1.*
@@ -23,19 +24,20 @@ internal sealed class WebCryptoEc<PublicK : EC.PublicKey, PrivateK : EC.PrivateK
         keyPairWrapper(publicKeyWrapper.wrap(it.publicKey), privateKeyWrapper.wrap(it.privateKey))
     }
 
-    final override fun publicKeyDecoder(curve: EC.Curve): KeyDecoder<EC.PublicKey.Format, PublicK> = WebCryptoKeyDecoder(
+    final override fun asyncPublicKeyDecoder(curve: EC.Curve): AsyncMaterialDecoder<EC.PublicKey.Format, PublicK> = WebCryptoKeyDecoder(
         algorithm = EcKeyAlgorithm(algorithmName, curve.name),
         keyProcessor = EcPublicKeyProcessor,
         keyWrapper = publicKeyWrapper,
     )
 
-    final override fun privateKeyDecoder(curve: EC.Curve): KeyDecoder<EC.PrivateKey.Format, PrivateK> = WebCryptoKeyDecoder(
+    final override fun asyncPrivateKeyDecoder(curve: EC.Curve): AsyncMaterialDecoder<EC.PrivateKey.Format, PrivateK> = WebCryptoKeyDecoder(
         algorithm = EcKeyAlgorithm(algorithmName, curve.name),
         keyProcessor = EcPrivateKeyProcessor,
         keyWrapper = privateKeyWrapper,
     )
 
-    final override fun keyPairGenerator(curve: EC.Curve): KeyGenerator<KP> = WebCryptoAsymmetricKeyGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    final override fun asyncKeyPairGenerator(curve: EC.Curve): KeyGenerator<KP> = WebCryptoAsymmetricKeyGenerator(
         algorithm = EcKeyAlgorithm(algorithmName, curve.name),
         keyUsages = keyPairUsages,
         keyPairWrapper = keyPairWrapper

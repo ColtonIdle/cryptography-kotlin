@@ -7,6 +7,7 @@ package dev.whyoleg.cryptography.providers.jdk.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.asymmetric.*
 import dev.whyoleg.cryptography.algorithms.digest.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.jdk.*
 import dev.whyoleg.cryptography.providers.jdk.materials.*
 import dev.whyoleg.cryptography.serialization.asn1.*
@@ -30,13 +31,13 @@ internal fun CryptographyAlgorithmId<Digest>.rsaHashAlgorithmName(): String = wh
 internal abstract class RsaPublicKeyDecoder<K : RSA.PublicKey>(
     state: JdkCryptographyState,
 ) : JdkPublicKeyDecoder<RSA.PublicKey.Format, K>(state, "RSA") {
-    override fun decodeFromBlocking(format: RSA.PublicKey.Format, input: ByteArray): K = decodeFromDer(
+    override fun decodeFrom(format: RSA.PublicKey.Format, data: ByteArray): K = decodeFromDer(
         when (format) {
             RSA.PublicKey.Format.JWK       -> error("$format is not supported")
-            RSA.PublicKey.Format.DER       -> input
-            RSA.PublicKey.Format.PEM       -> unwrapPem(PemLabel.PublicKey, input)
-            RSA.PublicKey.Format.DER.PKCS1 -> wrapPublicKey(RsaKeyAlgorithmIdentifier, input)
-            RSA.PublicKey.Format.PEM.PKCS1 -> wrapPublicKey(RsaKeyAlgorithmIdentifier, unwrapPem(PemLabel.RsaPublicKey, input))
+            RSA.PublicKey.Format.DER       -> data
+            RSA.PublicKey.Format.PEM       -> unwrapPem(PemLabel.PublicKey, data)
+            RSA.PublicKey.Format.DER.PKCS1 -> wrapPublicKey(RsaKeyAlgorithmIdentifier, data)
+            RSA.PublicKey.Format.PEM.PKCS1 -> wrapPublicKey(RsaKeyAlgorithmIdentifier, unwrapPem(PemLabel.RsaPublicKey, data))
         }
     )
 }
@@ -44,13 +45,13 @@ internal abstract class RsaPublicKeyDecoder<K : RSA.PublicKey>(
 internal abstract class RsaPrivateKeyDecoder<K : RSA.PrivateKey>(
     state: JdkCryptographyState,
 ) : JdkPrivateKeyDecoder<RSA.PrivateKey.Format, K>(state, "RSA") {
-    override fun decodeFromBlocking(format: RSA.PrivateKey.Format, input: ByteArray): K = decodeFromDer(
+    override fun decodeFrom(format: RSA.PrivateKey.Format, data: ByteArray): K = decodeFromDer(
         when (format) {
             RSA.PrivateKey.Format.JWK       -> error("$format is not supported")
-            RSA.PrivateKey.Format.DER       -> input
-            RSA.PrivateKey.Format.PEM       -> unwrapPem(PemLabel.PrivateKey, input)
-            RSA.PrivateKey.Format.DER.PKCS1 -> wrapPrivateKey(0, RsaKeyAlgorithmIdentifier, input)
-            RSA.PrivateKey.Format.PEM.PKCS1 -> wrapPrivateKey(0, RsaKeyAlgorithmIdentifier, unwrapPem(PemLabel.RsaPrivateKey, input))
+            RSA.PrivateKey.Format.DER       -> data
+            RSA.PrivateKey.Format.PEM       -> unwrapPem(PemLabel.PrivateKey, data)
+            RSA.PrivateKey.Format.DER.PKCS1 -> wrapPrivateKey(0, RsaKeyAlgorithmIdentifier, data)
+            RSA.PrivateKey.Format.PEM.PKCS1 -> wrapPrivateKey(0, RsaKeyAlgorithmIdentifier, unwrapPem(PemLabel.RsaPrivateKey, data))
         }
     )
 }
@@ -58,29 +59,33 @@ internal abstract class RsaPrivateKeyDecoder<K : RSA.PrivateKey>(
 internal abstract class RsaPublicEncodableKey(
     key: JPublicKey,
 ) : JdkEncodableKey<RSA.PublicKey.Format>(key) {
-    override fun encodeToBlocking(format: RSA.PublicKey.Format): ByteArray = when (format) {
-        RSA.PublicKey.Format.JWK       -> error("$format is not supported")
-        RSA.PublicKey.Format.DER       -> encodeToDer()
-        RSA.PublicKey.Format.PEM       -> wrapPem(PemLabel.PublicKey, encodeToDer())
-        RSA.PublicKey.Format.DER.PKCS1 -> unwrapPublicKey(ObjectIdentifier.RSA, encodeToDer())
-        RSA.PublicKey.Format.PEM.PKCS1 -> wrapPem(
-            PemLabel.RsaPublicKey,
-            unwrapPublicKey(ObjectIdentifier.RSA, encodeToDer())
-        )
+    final override fun encoder(): MaterialSelfEncoder<RSA.PublicKey.Format> = object : MaterialSelfEncoder<RSA.PublicKey.Format> {
+        override fun encodeTo(format: RSA.PublicKey.Format): ByteArray = when (format) {
+            RSA.PublicKey.Format.JWK       -> error("$format is not supported")
+            RSA.PublicKey.Format.DER       -> encodeToDer()
+            RSA.PublicKey.Format.PEM       -> wrapPem(PemLabel.PublicKey, encodeToDer())
+            RSA.PublicKey.Format.DER.PKCS1 -> unwrapPublicKey(ObjectIdentifier.RSA, encodeToDer())
+            RSA.PublicKey.Format.PEM.PKCS1 -> wrapPem(
+                PemLabel.RsaPublicKey,
+                unwrapPublicKey(ObjectIdentifier.RSA, encodeToDer())
+            )
+        }
     }
 }
 
 internal abstract class RsaPrivateEncodableKey(
     key: JPrivateKey,
 ) : JdkEncodableKey<RSA.PrivateKey.Format>(key) {
-    override fun encodeToBlocking(format: RSA.PrivateKey.Format): ByteArray = when (format) {
-        RSA.PrivateKey.Format.JWK       -> error("$format is not supported")
-        RSA.PrivateKey.Format.DER       -> encodeToDer()
-        RSA.PrivateKey.Format.PEM       -> wrapPem(PemLabel.PrivateKey, encodeToDer())
-        RSA.PrivateKey.Format.DER.PKCS1 -> unwrapPrivateKey(ObjectIdentifier.RSA, encodeToDer())
-        RSA.PrivateKey.Format.PEM.PKCS1 -> wrapPem(
-            PemLabel.RsaPrivateKey,
-            unwrapPrivateKey(ObjectIdentifier.RSA, encodeToDer())
-        )
+    final override fun encoder(): MaterialSelfEncoder<RSA.PrivateKey.Format> = object : MaterialSelfEncoder<RSA.PrivateKey.Format> {
+        override fun encodeTo(format: RSA.PrivateKey.Format): ByteArray = when (format) {
+            RSA.PrivateKey.Format.JWK       -> error("$format is not supported")
+            RSA.PrivateKey.Format.DER       -> encodeToDer()
+            RSA.PrivateKey.Format.PEM       -> wrapPem(PemLabel.PrivateKey, encodeToDer())
+            RSA.PrivateKey.Format.DER.PKCS1 -> unwrapPrivateKey(ObjectIdentifier.RSA, encodeToDer())
+            RSA.PrivateKey.Format.PEM.PKCS1 -> wrapPem(
+                PemLabel.RsaPrivateKey,
+                unwrapPrivateKey(ObjectIdentifier.RSA, encodeToDer())
+            )
+        }
     }
 }

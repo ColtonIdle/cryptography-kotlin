@@ -7,6 +7,7 @@ package dev.whyoleg.cryptography.providers.jdk.algorithms
 import dev.whyoleg.cryptography.*
 import dev.whyoleg.cryptography.algorithms.symmetric.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.operations.cipher.*
 import dev.whyoleg.cryptography.operations.signature.*
 import dev.whyoleg.cryptography.providers.jdk.*
@@ -20,18 +21,22 @@ internal class JdkAesCbc(
     private val keyWrapper: (JSecretKey) -> AES.CBC.Key = { key ->
         object : AES.CBC.Key, JdkEncodableKey<AES.Key.Format>(key) {
             override fun asyncCipher(padding: Boolean): AES.AsyncIvCipher = AesCbcCipher(state, key, padding).asAsync()
-            override fun encodeToBlocking(format: AES.Key.Format): ByteArray = when (format) {
-                AES.Key.Format.JWK -> error("$format is not supported")
-                AES.Key.Format.RAW -> encodeToRaw()
+            override fun encoder(): MaterialSelfEncoder<AES.Key.Format> = object : MaterialSelfEncoder<AES.Key.Format> {
+                override fun encodeTo(format: AES.Key.Format): ByteArray = when (format) {
+                    AES.Key.Format.JWK -> error("$format is not supported")
+                    AES.Key.Format.RAW -> encodeToRaw()
+                }
             }
         }
     }
-    private val keyDecoder = JdkSecretKeyDecoder<AES.Key.Format, _>("AES", keyWrapper)
+    private val keyDecoder = JdkSecretKeyDecoder<AES.Key.Format, _>("AES", keyWrapper).asAsync()
 
-    override fun keyDecoder(): KeyDecoder<AES.Key.Format, AES.CBC.Key> = keyDecoder
-    override fun keyGenerator(keySize: SymmetricKeySize): KeyGenerator<AES.CBC.Key> = JdkSecretKeyGenerator(state, "AES", keyWrapper) {
+    override fun asyncKeyDecoder(): AsyncMaterialDecoder<AES.Key.Format, AES.CBC.Key> = keyDecoder
+
+    @Suppress("DEPRECATION_ERROR")
+    override fun asyncKeyGenerator(keySize: SymmetricKeySize): KeyGenerator<AES.CBC.Key> = JdkSecretKeyGenerator(state, "AES", keyWrapper) {
         init(keySize.value.inBits, state.secureRandom)
-    }
+    }.asKeyGenerator()
 }
 
 private const val ivSizeBytes = 16 //bytes for CBC

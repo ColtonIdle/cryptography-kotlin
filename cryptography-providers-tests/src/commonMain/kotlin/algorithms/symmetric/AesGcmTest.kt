@@ -15,8 +15,8 @@ private const val ivSize = 12
 abstract class AesGcmTest(provider: CryptographyProvider) : AesBasedTest<AES.GCM>(AES.GCM, provider) {
     @Test
     fun testSizes() = runTestForEachKeySize {
-        val key = algorithm.keyGenerator(keySize).generateKey()
-        assertEquals(keySize.value.inBytes, key.encodeTo(AES.Key.Format.RAW).size)
+        val key = algorithm.asyncKeyGenerator(keySize).generate()
+        assertEquals(keySize.value.inBytes, key.asyncEncoder().encodeTo(AES.Key.Format.RAW).size)
 
         listOf(96, 104, 112, 120, 128).forEach { tagSizeBits ->
             val tagSize = tagSizeBits.bits.inBytes
@@ -32,7 +32,7 @@ abstract class AesGcmTest(provider: CryptographyProvider) : AesBasedTest<AES.GCM
     fun decryption() = runTestForEachKeySize {
         val data = CryptographyRandom.nextBytes(100)
 
-        val key = algorithm.keyGenerator(keySize).generateKey()
+        val key = algorithm.asyncKeyGenerator(keySize).generate()
 
         val ciphertext = key.asyncCipher().encrypt(data)
         val plaintext = key.asyncCipher().decrypt(ciphertext)
@@ -44,8 +44,8 @@ abstract class AesGcmTest(provider: CryptographyProvider) : AesBasedTest<AES.GCM
     fun decryptionWrongKey() = runTestForEachKeySize {
         val data = CryptographyRandom.nextBytes(100)
 
-        val key = algorithm.keyGenerator(keySize).generateKey()
-        val wrongKey = algorithm.keyGenerator(keySize).generateKey()
+        val key = algorithm.asyncKeyGenerator(keySize).generate()
+        val wrongKey = algorithm.asyncKeyGenerator(keySize).generate()
 
         val ciphertext = key.asyncCipher().encrypt(data)
 

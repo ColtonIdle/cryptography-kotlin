@@ -64,11 +64,11 @@ abstract class RsaBasedCompatibilityTest<PublicK : RSA.PublicKey, PrivateK : RSA
 
                 val keyParameters = KeyParameters(keySize.inBits, digest.name, digestSize)
                 val keyParametersId = api.keyPairs.saveParameters(keyParameters)
-                algorithm.keyPairGenerator(keySize, digest).generateKeys(keyIterations) { keyPair ->
+                algorithm.asyncKeyPairGenerator(keySize, digest).generateMaterials(keyIterations) { keyPair ->
                     val keyReference = api.keyPairs.saveData(
                         keyParametersId, KeyPairData(
-                            public = KeyData(keyPair.publicKey.encodeTo(publicKeyFormats.values, ::supportsKeyFormat)),
-                            private = KeyData(keyPair.privateKey.encodeTo(privateKeyFormats.values, ::supportsKeyFormat))
+                            public = KeyData(keyPair.publicKey.asyncEncoder().encodeTo(publicKeyFormats.values, ::supportsKeyFormat)),
+                            private = KeyData(keyPair.privateKey.asyncEncoder().encodeTo(privateKeyFormats.values, ::supportsKeyFormat))
                         )
                     )
                     block(keyPair, keyReference, keyParameters)
@@ -81,8 +81,8 @@ abstract class RsaBasedCompatibilityTest<PublicK : RSA.PublicKey, PrivateK : RSA
         api.keyPairs.getParameters<KeyParameters> { parameters, parametersId, _ ->
             if (!supportsDigest(parameters.digest)) return@getParameters
 
-            val privateKeyDecoder = algorithm.privateKeyDecoder(parameters.digest)
-            val publicKeyDecoder = algorithm.publicKeyDecoder(parameters.digest)
+            val privateKeyDecoder = algorithm.asyncPrivateKeyDecoder(parameters.digest)
+            val publicKeyDecoder = algorithm.asyncPublicKeyDecoder(parameters.digest)
 
             api.keyPairs.getData<KeyPairData>(parametersId) { (public, private), keyReference, _ ->
                 val publicKeys = publicKeyDecoder.decodeFrom(
@@ -96,7 +96,7 @@ abstract class RsaBasedCompatibilityTest<PublicK : RSA.PublicKey, PrivateK : RSA
                         RSA.PublicKey.Format.DER.PKCS1,
                         RSA.PublicKey.Format.PEM.PKCS1,
                                                  ->
-                            assertContentEquals(bytes, key.encodeTo(format), "Public Key $format encoding")
+                            assertContentEquals(bytes, key.asyncEncoder().encodeTo(format), "Public Key $format encoding")
                         RSA.PublicKey.Format.JWK -> {}
 
                     }
@@ -112,7 +112,7 @@ abstract class RsaBasedCompatibilityTest<PublicK : RSA.PublicKey, PrivateK : RSA
                         RSA.PrivateKey.Format.DER.PKCS1,
                         RSA.PrivateKey.Format.PEM.PKCS1,
                                                   ->
-                            assertContentEquals(bytes, key.encodeTo(format), "Private Key $format encoding")
+                            assertContentEquals(bytes, key.asyncEncoder().encodeTo(format), "Private Key $format encoding")
                         RSA.PrivateKey.Format.JWK -> {}
                     }
                 }

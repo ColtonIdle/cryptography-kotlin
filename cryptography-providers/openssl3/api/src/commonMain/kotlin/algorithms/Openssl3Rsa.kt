@@ -9,6 +9,7 @@ import dev.whyoleg.cryptography.algorithms.asymmetric.RSA
 import dev.whyoleg.cryptography.algorithms.digest.*
 import dev.whyoleg.cryptography.bigint.*
 import dev.whyoleg.cryptography.materials.key.*
+import dev.whyoleg.cryptography.operations.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.*
 import dev.whyoleg.cryptography.providers.openssl3.internal.cinterop.*
 import dev.whyoleg.cryptography.providers.openssl3.materials.*
@@ -21,8 +22,8 @@ internal abstract class Openssl3Rsa<PublicK : RSA.PublicKey, PrivateK : RSA.Priv
     protected abstract fun wrapPublicKey(hashAlgorithm: String, publicKey: CPointer<EVP_PKEY>): PublicK
     protected abstract fun wrapPrivateKey(hashAlgorithm: String, privateKey: CPointer<EVP_PKEY>): PrivateK
 
-    final override fun publicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PublicKey.Format, PublicK> =
-        RsaPublicKeyDecoder(hashAlgorithm(digest))
+    final override fun asyncPublicKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PublicKey.Format, PublicK> =
+        RsaPublicKeyDecoder(hashAlgorithm(digest)).asAsync()
 
     private inner class RsaPublicKeyDecoder(
         private val hashAlgorithm: String,
@@ -30,19 +31,19 @@ internal abstract class Openssl3Rsa<PublicK : RSA.PublicKey, PrivateK : RSA.Priv
         override fun inputType(format: RSA.PublicKey.Format): String = when (format) {
             RSA.PublicKey.Format.DER, RSA.PublicKey.Format.DER.PKCS1 -> "DER"
             RSA.PublicKey.Format.PEM, RSA.PublicKey.Format.PEM.PKCS1 -> "PEM"
-            RSA.PublicKey.Format.JWK                               -> error("JWK format is not supported")
+            RSA.PublicKey.Format.JWK -> error("JWK format is not supported")
         }
 
         override fun inputStruct(format: RSA.PublicKey.Format): String = when (format) {
             RSA.PublicKey.Format.DER.PKCS1, RSA.PublicKey.Format.PEM.PKCS1 -> "pkcs1"
-            else                                                       -> super.inputStruct(format)
+            else -> super.inputStruct(format)
         }
 
         override fun wrapKey(key: CPointer<EVP_PKEY>): PublicK = wrapPublicKey(hashAlgorithm, key)
     }
 
-    final override fun privateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): KeyDecoder<RSA.PrivateKey.Format, PrivateK> =
-        RsaPrivateKeyDecoder(hashAlgorithm(digest))
+    final override fun asyncPrivateKeyDecoder(digest: CryptographyAlgorithmId<Digest>): AsyncMaterialDecoder<RSA.PrivateKey.Format, PrivateK> =
+        RsaPrivateKeyDecoder(hashAlgorithm(digest)).asAsync()
 
     private inner class RsaPrivateKeyDecoder(
         private val hashAlgorithm: String,
@@ -50,18 +51,19 @@ internal abstract class Openssl3Rsa<PublicK : RSA.PublicKey, PrivateK : RSA.Priv
         override fun inputType(format: RSA.PrivateKey.Format): String = when (format) {
             RSA.PrivateKey.Format.DER, RSA.PrivateKey.Format.DER.PKCS1 -> "DER"
             RSA.PrivateKey.Format.PEM, RSA.PrivateKey.Format.PEM.PKCS1 -> "PEM"
-            RSA.PrivateKey.Format.JWK                                -> error("JWK format is not supported")
+            RSA.PrivateKey.Format.JWK -> error("JWK format is not supported")
         }
 
         override fun inputStruct(format: RSA.PrivateKey.Format): String = when (format) {
             RSA.PrivateKey.Format.DER.PKCS1, RSA.PrivateKey.Format.PEM.PKCS1 -> "pkcs1"
-            else                                                         -> super.inputStruct(format)
+            else -> super.inputStruct(format)
         }
 
         override fun wrapKey(key: CPointer<EVP_PKEY>): PrivateK = wrapPrivateKey(hashAlgorithm, key)
     }
 
-    final override fun keyPairGenerator(
+    @Suppress("DEPRECATION_ERROR")
+    final override fun asyncKeyPairGenerator(
         keySize: BinarySize,
         digest: CryptographyAlgorithmId<Digest>,
         publicExponent: BigInt,
@@ -69,7 +71,7 @@ internal abstract class Openssl3Rsa<PublicK : RSA.PublicKey, PrivateK : RSA.Priv
         keySizeBits = keySize.inBits.toUInt(),
         hashAlgorithm = hashAlgorithm(digest),
         publicExponent = publicExponent.toUInt(),
-    )
+    ).asKeyGenerator()
 
     private inner class RsaKeyGenerator(
         private val keySizeBits: UInt,
@@ -90,12 +92,12 @@ internal abstract class Openssl3Rsa<PublicK : RSA.PublicKey, PrivateK : RSA.Priv
         override fun outputType(format: RSA.PublicKey.Format): String = when (format) {
             RSA.PublicKey.Format.DER, RSA.PublicKey.Format.DER.PKCS1 -> "DER"
             RSA.PublicKey.Format.PEM, RSA.PublicKey.Format.PEM.PKCS1 -> "PEM"
-            RSA.PublicKey.Format.JWK                               -> error("JWK format is not supported")
+            RSA.PublicKey.Format.JWK -> error("JWK format is not supported")
         }
 
         override fun outputStruct(format: RSA.PublicKey.Format): String = when (format) {
             RSA.PublicKey.Format.DER.PKCS1, RSA.PublicKey.Format.PEM.PKCS1 -> "pkcs1"
-            else                                                       -> super.outputStruct(format)
+            else -> super.outputStruct(format)
         }
     }
 
@@ -105,12 +107,12 @@ internal abstract class Openssl3Rsa<PublicK : RSA.PublicKey, PrivateK : RSA.Priv
         override fun outputType(format: RSA.PrivateKey.Format): String = when (format) {
             RSA.PrivateKey.Format.DER, RSA.PrivateKey.Format.DER.PKCS1 -> "DER"
             RSA.PrivateKey.Format.PEM, RSA.PrivateKey.Format.PEM.PKCS1 -> "PEM"
-            RSA.PrivateKey.Format.JWK                                -> error("JWK format is not supported")
+            RSA.PrivateKey.Format.JWK -> error("JWK format is not supported")
         }
 
         override fun outputStruct(format: RSA.PrivateKey.Format): String = when (format) {
             RSA.PrivateKey.Format.DER.PKCS1, RSA.PrivateKey.Format.PEM.PKCS1 -> "pkcs1"
-            else                                                         -> super.outputStruct(format)
+            else -> super.outputStruct(format)
         }
     }
 }
